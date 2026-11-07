@@ -4,14 +4,20 @@
     tools/po_fill.py i18n/es/LC_MESSAGES/mog-ui.po traducciones.json
 
 Solo toca entradas sin traducir; nunca sobrescribe una traducción existente.
+Entiende textos partidos en varias líneas.
 """
 import json
-import re
 import sys
 
 
-def unquote(s: str) -> str:
-    return json.loads(s)
+def read_string(lines: list[str], i: int, keyword: str) -> tuple[str, int]:
+    """Lee `keyword "..."` y sus líneas de continuación. Devuelve (texto, siguiente índice)."""
+    parts = [json.loads(lines[i][len(keyword) + 1:])]
+    i += 1
+    while i < len(lines) and lines[i].startswith('"'):
+        parts.append(json.loads(lines[i]))
+        i += 1
+    return "".join(parts), i
 
 
 def main(po_path: str, map_path: str) -> None:
@@ -20,22 +26,26 @@ def main(po_path: str, map_path: str) -> None:
     with open(po_path, encoding="utf-8") as f:
         lines = f.read().split("\n")
 
+    out: list[str] = []
     filled = 0
-    out = []
     i = 0
     while i < len(lines):
-        line = lines[i]
-        m = re.match(r'^msgid (".*")$', line)
-        if m and i + 1 < len(lines) and lines[i + 1] == 'msgstr ""':
-            source = unquote(m.group(1))
-            next_is_continuation = i + 2 < len(lines) and lines[i + 2].startswith('"')
-            if source and source in mapping and not next_is_continuation:
-                out.append(line)
-                out.append("msgstr " + json.dumps(mapping[source], ensure_ascii=False))
-                filled += 1
-                i += 2
-                continue
-        out.append(line)
+        if lines[i].startswith("msgid "):
+            start = i
+            source, i = read_string(lines, i, "msgid")
+            if i < len(lines) and lines[i].startswith("msgstr "):
+                msgstr_start = i
+                target, i = read_string(lines, i, "msgstr")
+                out.extend(lines[start:msgstr_start])
+                if source and not target and source in mapping:
+                    out.append("msgstr " + json.dumps(mapping[source], ensure_ascii=False))
+                    filled += 1
+                else:
+                    out.extend(lines[msgstr_start:i])
+            else:
+                out.extend(lines[start:i])
+            continue
+        out.append(lines[i])
         i += 1
 
     with open(po_path, "w", encoding="utf-8") as f:
