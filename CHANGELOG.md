@@ -12,3 +12,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Motor de rangos: XP por sesión, niveles, rangos de operador y clase de fuerza por ejercicio.
 - Calculadora de IMC.
 - Traducciones incrustadas (español e inglés) con selector en la barra superior.
+- Interfaz tipo HUD: pestañas de módulos arriba (se cambian con Q y E), insignia de rango al centro, misión del día, escuadra y estado.
+- Logotipo animado "MOG / EM ALL" con el apóstrofo como corte diagonal, en la pantalla de carga y la barra superior.
+- Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
+- Reloj con fecha en la barra superior e ícono de ventana.

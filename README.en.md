@@ -4,7 +4,7 @@
 
 A desktop app to log and track your tasks, schedule, finances, workouts and routines, with an animated red terminal interface and a boot screen. It is written entirely in Rust, using [Slint](https://slint.dev) for the UI.
 
-> Status: early development (`0.1.0-dev`). Right now there is the visual base, the rank engine and a BMI calculator. The other modules are added in phases.
+> Status: early development (`0.1.0-dev`). Right now there is the HUD-style interface with a command line, the rank engine and a BMI calculator. The other modules are added in phases.
 
 ## What it will do
 
