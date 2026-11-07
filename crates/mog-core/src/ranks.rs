@@ -1,0 +1,301 @@
+//! Sistema de rangos. El diseño completo está en `docs/RANKS.md`.
+//!
+//! Hay dos ejes separados:
+//! - **Nivel y rango de operador**: se gana con XP por entrenar con constancia.
+//!   Mide esfuerzo, así que es justo comparar a dos amigos con cuerpos distintos.
+//! - **Clase de fuerza**: una letra por ejercicio (E a S) según la fuerza
+//!   relativa al peso corporal.
+
+/// Sesiones más cortas que esto no dan XP.
+pub const MIN_SESSION_MINUTES: u32 = 10;
+/// Minutos que cuentan para XP en una sesión.
+pub const MAX_COUNTED_MINUTES: u32 = 60;
+/// Récords personales que dan bonus en una sola sesión.
+pub const MAX_PR_BONUSES: u32 = 3;
+/// Sesiones por día que dan XP (se toman las de mayor XP).
+pub const MAX_SESSIONS_PER_DAY: usize = 2;
+/// Semanas seguidas cumpliendo la meta que suman bonus.
+pub const MAX_STREAK_WEEKS: u32 = 5;
+pub const MAX_LEVEL: u32 = 100;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SessionSummary {
+    pub duration_min: u32,
+    pub personal_records: u32,
+}
+
+/// XP de una sesión. `streak_weeks` son las semanas consecutivas en que el
+/// usuario cumplió su meta semanal (no días seguidos: descansar no se castiga).
+pub fn session_xp(session: SessionSummary, streak_weeks: u32) -> u32 {
+    if session.duration_min < MIN_SESSION_MINUTES {
+        return 0;
+    }
+    let base = 50 + session.duration_min.min(MAX_COUNTED_MINUTES);
+    let prs = 25 * session.personal_records.min(MAX_PR_BONUSES);
+    let bonus_pct = 100 + 10 * streak_weeks.min(MAX_STREAK_WEEKS);
+    (base + prs) * bonus_pct / 100
+}
+
+/// XP de un día completo, aplicando el tope de sesiones diarias.
+pub fn day_xp(sessions: &[SessionSummary], streak_weeks: u32) -> u32 {
+    let mut xp: Vec<u32> = sessions
+        .iter()
+        .map(|s| session_xp(*s, streak_weeks))
+        .collect();
+    xp.sort_unstable_by(|a, b| b.cmp(a));
+    xp.iter().take(MAX_SESSIONS_PER_DAY).sum()
+}
+
+/// XP total necesaria para llegar a `level` (el nivel 1 empieza en 0).
+pub fn xp_to_reach(level: u32) -> u64 {
+    let n = level.clamp(1, MAX_LEVEL) as f64 - 1.0;
+    (100.0 * n.powf(1.5)).round() as u64
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LevelProgress {
+    pub level: u32,
+    /// XP acumulada dentro del nivel actual.
+    pub xp_in_level: u64,
+    /// XP que pide el nivel actual para subir (0 en el nivel máximo).
+    pub xp_for_next: u64,
+}
+
+pub fn level_from_xp(total_xp: u64) -> LevelProgress {
+    let mut level = 1;
+    while level < MAX_LEVEL && xp_to_reach(level + 1) <= total_xp {
+        level += 1;
+    }
+    let start = xp_to_reach(level);
+    let xp_for_next = if level == MAX_LEVEL {
+        0
+    } else {
+        xp_to_reach(level + 1) - start
+    };
+    LevelProgress {
+        level,
+        xp_in_level: total_xp - start,
+        xp_for_next,
+    }
+}
+
+/// Rango de operador, agrupa tramos de niveles.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Tier {
+    Scrap,
+    Recruit,
+    Operator,
+    Mercenary,
+    Veteran,
+    Elite,
+    Legend,
+}
+
+pub fn tier_for_level(level: u32) -> Tier {
+    match level {
+        0..=9 => Tier::Scrap,
+        10..=19 => Tier::Recruit,
+        20..=34 => Tier::Operator,
+        35..=49 => Tier::Mercenary,
+        50..=69 => Tier::Veteran,
+        70..=89 => Tier::Elite,
+        _ => Tier::Legend,
+    }
+}
+
+/// Ejercicios con tabla de clase de fuerza.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Lift {
+    Squat,
+    BenchPress,
+    Deadlift,
+    OverheadPress,
+    BarbellRow,
+    /// Dominadas: la carga es peso corporal + lastre.
+    PullUp,
+}
+
+impl Lift {
+    fn is_lower_body(self) -> bool {
+        matches!(self, Lift::Squat | Lift::Deadlift)
+    }
+
+    /// Ratios (1RM / peso corporal) para llegar a D, C, B, A y S.
+    fn thresholds(self) -> [f64; 5] {
+        match self {
+            Lift::Squat => [0.75, 1.25, 1.5, 2.0, 2.5],
+            Lift::BenchPress => [0.5, 0.75, 1.0, 1.5, 2.0],
+            Lift::Deadlift => [1.0, 1.5, 2.0, 2.5, 3.0],
+            Lift::OverheadPress => [0.35, 0.55, 0.75, 1.0, 1.25],
+            Lift::BarbellRow => [0.5, 0.75, 1.0, 1.25, 1.5],
+            Lift::PullUp => [1.0, 1.15, 1.3, 1.5, 1.75],
+        }
+    }
+}
+
+/// Perfil usado solo para escalar las tablas de fuerza.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BodyProfile {
+    Male,
+    Female,
+    Unspecified,
+}
+
+impl BodyProfile {
+    fn scale(self, lower_body: bool) -> f64 {
+        match (self, lower_body) {
+            (BodyProfile::Male, _) => 1.0,
+            (BodyProfile::Female, false) => 0.6,
+            (BodyProfile::Female, true) => 0.7,
+            (BodyProfile::Unspecified, false) => 0.8,
+            (BodyProfile::Unspecified, true) => 0.85,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum StrengthClass {
+    E,
+    D,
+    C,
+    B,
+    A,
+    S,
+}
+
+/// 1RM estimado con la fórmula de Epley. Solo es fiable hasta 12 repeticiones.
+pub fn estimated_one_rep_max(load_kg: f64, reps: u32) -> Option<f64> {
+    match reps {
+        0 => None,
+        1 => Some(load_kg),
+        2..=12 => Some(load_kg * (1.0 + reps as f64 / 30.0)),
+        _ => None,
+    }
+}
+
+/// Clase de fuerza para una serie. Para dominadas, `load_kg` es solo el lastre.
+pub fn strength_class(
+    lift: Lift,
+    load_kg: f64,
+    reps: u32,
+    bodyweight_kg: f64,
+    profile: BodyProfile,
+) -> Option<StrengthClass> {
+    if bodyweight_kg <= 0.0 || load_kg < 0.0 {
+        return None;
+    }
+    let load = if lift == Lift::PullUp {
+        bodyweight_kg + load_kg
+    } else {
+        load_kg
+    };
+    let ratio = estimated_one_rep_max(load, reps)? / bodyweight_kg;
+    let scale = profile.scale(lift.is_lower_body());
+    let classes = [
+        StrengthClass::D,
+        StrengthClass::C,
+        StrengthClass::B,
+        StrengthClass::A,
+        StrengthClass::S,
+    ];
+    let mut class = StrengthClass::E;
+    for (threshold, c) in lift.thresholds().iter().zip(classes) {
+        if ratio >= threshold * scale {
+            class = c;
+        }
+    }
+    Some(class)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn s(duration_min: u32, personal_records: u32) -> SessionSummary {
+        SessionSummary {
+            duration_min,
+            personal_records,
+        }
+    }
+
+    #[test]
+    fn short_sessions_give_nothing() {
+        assert_eq!(session_xp(s(9, 3), 5), 0);
+    }
+
+    #[test]
+    fn session_xp_caps() {
+        assert_eq!(session_xp(s(45, 0), 0), 95);
+        assert_eq!(session_xp(s(200, 0), 0), 110);
+        assert_eq!(session_xp(s(60, 10), 0), 110 + 75);
+        assert_eq!(session_xp(s(60, 0), 50), 165);
+    }
+
+    #[test]
+    fn day_takes_best_two() {
+        let day = [s(20, 0), s(60, 1), s(30, 0)];
+        assert_eq!(day_xp(&day, 0), 135 + 80);
+    }
+
+    #[test]
+    fn level_curve() {
+        assert_eq!(level_from_xp(0).level, 1);
+        assert_eq!(level_from_xp(99).level, 1);
+        assert_eq!(level_from_xp(100).level, 2);
+        assert_eq!(level_from_xp(xp_to_reach(10)).level, 10);
+        let max = level_from_xp(u64::MAX / 2);
+        assert_eq!((max.level, max.xp_for_next), (MAX_LEVEL, 0));
+    }
+
+    #[test]
+    fn level_progress_is_consistent() {
+        let p = level_from_xp(xp_to_reach(7) + 40);
+        assert_eq!(p.level, 7);
+        assert_eq!(p.xp_in_level, 40);
+        assert_eq!(p.xp_for_next, xp_to_reach(8) - xp_to_reach(7));
+    }
+
+    #[test]
+    fn tiers() {
+        assert_eq!(tier_for_level(1), Tier::Scrap);
+        assert_eq!(tier_for_level(10), Tier::Recruit);
+        assert_eq!(tier_for_level(49), Tier::Mercenary);
+        assert_eq!(tier_for_level(100), Tier::Legend);
+    }
+
+    #[test]
+    fn epley() {
+        assert_eq!(estimated_one_rep_max(100.0, 1), Some(100.0));
+        assert!((estimated_one_rep_max(100.0, 5).unwrap() - 116.67).abs() < 0.01);
+        assert_eq!(estimated_one_rep_max(100.0, 0), None);
+        assert_eq!(estimated_one_rep_max(100.0, 20), None);
+    }
+
+    #[test]
+    fn strength_classes() {
+        use BodyProfile::*;
+        assert_eq!(
+            strength_class(Lift::BenchPress, 30.0, 1, 80.0, Male),
+            Some(StrengthClass::E)
+        );
+        assert_eq!(
+            strength_class(Lift::BenchPress, 80.0, 1, 80.0, Male),
+            Some(StrengthClass::B)
+        );
+        assert_eq!(
+            strength_class(Lift::Deadlift, 240.0, 1, 80.0, Male),
+            Some(StrengthClass::S)
+        );
+        // La misma marca pesa más en un perfil femenino.
+        assert_eq!(
+            strength_class(Lift::BenchPress, 48.0, 1, 60.0, Female),
+            Some(StrengthClass::B)
+        );
+        // Una dominada sin lastre ya es D.
+        assert_eq!(
+            strength_class(Lift::PullUp, 0.0, 1, 80.0, Male),
+            Some(StrengthClass::D)
+        );
+        assert_eq!(strength_class(Lift::Squat, 100.0, 1, 0.0, Male), None);
+    }
+}
