@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+members = ["crates/mog-core", "crates/mog-ui", "crates/mog-app"]
+
+[workspace.package]
+version = "0.1.0-dev"
+edition = "2024"
+license-file = "LICENSE.md"
+authors = ["OrionTheProgrammer"]
+repository = "https://github.com/OrionTheProgrammer/mog-em-all"
+
+[workspace.dependencies]
+mog-core = { path = "crates/mog-core" }
+mog-ui = { path = "crates/mog-ui" }
+slint = "1.18"
+slint-build = "1.18"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

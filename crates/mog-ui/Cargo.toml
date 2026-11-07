@@ -1,0 +1,13 @@
+[package]
+name = "mog-ui"
+description = "Capa visual de mog 'em all: tema, componentes y pantallas en Slint."
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+
+[dependencies]
+slint.workspace = true
+
+[build-dependencies]
+slint-build.workspace = true

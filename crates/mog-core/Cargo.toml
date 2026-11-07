@@ -1,0 +1,9 @@
+[package]
+name = "mog-core"
+description = "Motor de lógica de mog 'em all: dominio, cálculos y reglas. Sin dependencias de interfaz."
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+
+[dependencies]

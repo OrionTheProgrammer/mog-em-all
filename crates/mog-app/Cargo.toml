@@ -1,0 +1,16 @@
+[package]
+name = "mog-app"
+description = "Ejecutable de mog 'em all: conecta el motor de lógica con la interfaz."
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "mog-em-all"
+path = "src/main.rs"
+
+[dependencies]
+mog-core.workspace = true
+mog-ui.workspace = true
+slint.workspace = true
