@@ -1,0 +1,101 @@
+import { Theme } from "../theme/theme.slint";
+
+// Tecla mostrada como pista (Q, E, /).
+export component KeyHint inherits Rectangle {
+    in property <string> key;
+    min-width: label.preferred-width + 12px;
+    height: 22px;
+    border-width: 1px;
+    border-color: Theme.red-dim;
+
+    label := Text {
+        text: root.key;
+        color: Theme.text-dim;
+        font-family: Theme.font-mono;
+        font-size: Theme.size-xs;
+    }
+}
+
+// Pestaña de módulo con subrayado que crece desde el centro.
+export component Tab {
+    in property <string> text;
+    in property <bool> active;
+    callback clicked;
+
+    min-width: label.preferred-width + 4px;
+    min-height: 44px;
+
+    label := Text {
+        text: root.text;
+        color: root.active ? Theme.red : (touch.has-hover ? Theme.red-glow : Theme.text-dim);
+        animate color { duration: Theme.fast; }
+        font-family: Theme.font-display;
+        font-weight: 700;
+        font-size: Theme.size-md;
+        letter-spacing: 3px;
+    }
+
+    Rectangle {
+        y: root.height - 3px;
+        height: 3px;
+        width: root.active ? root.width : 0px;
+        x: (root.width - self.width) / 2;
+        background: Theme.red;
+        animate width, x { duration: Theme.normal; easing: ease-out; }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+// Etiqueta de sección en mayúsculas espaciadas.
+export component SectionLabel inherits Text {
+    color: Theme.text-dim;
+    font-family: Theme.font-mono;
+    font-size: Theme.size-xs;
+    letter-spacing: 4px;
+}
+
+// Esquinas cian que encuadran un área.
+export component Brackets {
+    in property <length> arm: 28px;
+    in property <length> inset: 0px;
+
+    for corner[i] in 4: Rectangle {
+        property <bool> left: i == 0 || i == 2;
+        property <bool> top: i < 2;
+        x: self.left ? root.inset : root.width - root.inset - root.arm;
+        y: self.top ? 0px : root.height - root.arm;
+        width: root.arm;
+        height: root.arm;
+
+        Rectangle { x: 0; y: parent.top ? 0 : parent.height - 2px; width: parent.width; height: 2px; background: Theme.cyan; }
+        Rectangle { x: parent.left ? 0 : parent.width - 2px; y: 0; width: 2px; height: parent.height; background: Theme.cyan; }
+    }
+}
+
+// Fila etiqueta / valor.
+export component StatRow {
+    in property <string> label;
+    in property <string> value;
+    in property <color> value-color: Theme.red-glow;
+
+    HorizontalLayout {
+        spacing: Theme.gap-md;
+        Text {
+            text: root.label;
+            color: Theme.text;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-sm;
+            horizontal-stretch: 1;
+        }
+        Text {
+            text: root.value;
+            color: root.value-color;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-sm;
+        }
+    }
+}

@@ -27,6 +27,8 @@ for dir in "$root"/i18n/*/; do
         msginit --no-translator --locale="$lang" --input="$pot" --output-file="$po" >/dev/null 2>&1
     else
         msgmerge --quiet --update --backup=none --no-fuzzy-matching "$po" "$pot"
+        # Quita textos que ya no existen en la interfaz.
+        msgattrib --no-obsolete --output-file="$po" "$po"
     fi
     if [[ "$lang" == "$source_lang" ]]; then
         # El idioma fuente se traduce a sí mismo.

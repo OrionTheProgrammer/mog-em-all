@@ -1,36 +1,58 @@
 import { Theme } from "../theme/theme.slint";
-import { Panel } from "../components/panel.slint";
+import { Labels } from "../theme/labels.slint";
 import { GlitchText, Cursor } from "../components/effects.slint";
+import { Brackets } from "../components/hud.slint";
 
-// Pantalla para módulos que aún no existen.
+// Pestaña de un módulo que todavía no existe.
 export component Placeholder {
-    in property <string> module-name;
+    in property <int> module;
 
     property <float> shown: 0;
     opacity: root.shown;
     animate opacity { duration: Theme.normal; }
     init => { root.shown = 1; }
 
-    VerticalLayout {
-        padding: Theme.gap-lg;
-        alignment: start;
-        Panel {
-            GlitchText {
-                text: root.module-name;
-                font-size: Theme.size-xl;
+    Rectangle {
+        width: 640px;
+        height: 260px;
+
+        Brackets {
+            width: 100%;
+            height: 100%;
+        }
+
+        VerticalLayout {
+            alignment: center;
+            spacing: Theme.gap-md;
+
+            HorizontalLayout {
+                alignment: center;
+                GlitchText {
+                    text: Labels.module(root.module);
+                    font-size: 64px;
+                    letter-spacing: 6px;
+                }
             }
             HorizontalLayout {
+                alignment: center;
                 spacing: Theme.gap-sm;
-                alignment: start;
                 Text {
                     text: @tr("MODULE UNDER CONSTRUCTION");
                     color: Theme.amber;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-sm;
-                    letter-spacing: 3px;
+                    letter-spacing: 4px;
                     vertical-alignment: center;
                 }
                 Cursor { }
+            }
+            Text {
+                text: @tr("Planned for phase {}", Labels.module-phase(root.module));
+                horizontal-alignment: center;
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+                letter-spacing: 2px;
             }
         }
     }

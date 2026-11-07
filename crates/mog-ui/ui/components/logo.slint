@@ -1,0 +1,137 @@
+import { Theme } from "../theme/theme.slint";
+
+// Logotipo "MOG / EM ALL": el apóstrofo de "mog 'em" es un corte diagonal.
+// La animación de entrada corre cuando `active` pasa a true.
+export component Logo {
+    in property <length> font-size: 40px;
+    in property <bool> active: true;
+    in property <bool> show-all: true;
+
+    // 0 → 1 recorre toda la animación; cada etapa toma un tramo.
+    property <float> phase: root.active ? 1 : 0;
+    animate phase { duration: 1100ms; easing: linear; }
+
+    pure function stage(start: float, span: float) -> float {
+        Math.max(0, Math.min(1, (root.phase - start) / span))
+    }
+    pure function smooth(x: float) -> float {
+        1 - (1 - x) * (1 - x)
+    }
+
+    property <float> slash-in: root.smooth(root.stage(0, 0.28));
+    property <float> flash: 1 - root.stage(0.28, 0.22);
+    property <float> halves: root.smooth(root.stage(0.28, 0.4));
+    property <float> shaking: root.stage(0.28, 0.12);
+    property <length> shake: root.shaking > 0 && root.shaking < 1 ? (root.shaking < 0.5 ? 3px : -3px) : 0px;
+    property <float> typed: Math.floor(root.stage(0.7, 0.3) * 3) / 3;
+
+    property <length> gap: root.font-size * 0.05;
+    property <length> slash-w: root.font-size * 0.34;
+    property <length> cap-top: root.font-size * 0.3;
+    property <length> cap-h: root.font-size * 0.66;
+    property <length> travel: root.font-size * 0.38;
+    property <length> em-x: mog.preferred-width + root.gap * 2 + root.slash-w;
+    property <length> all-size: Math.max(10px, root.font-size * 0.2);
+
+    preferred-width: root.em-x + em.preferred-width;
+    preferred-height: root.show-all ? root.font-size * 1.1 + root.all-size * 1.4 : root.font-size * 1.15;
+    min-width: self.preferred-width;
+    min-height: self.preferred-height;
+    horizontal-stretch: 0;
+    vertical-stretch: 0;
+
+    mog := Text {
+        x: (1 - root.halves) * root.travel + root.shake;
+        y: root.shake;
+        text: "MOG";
+        color: Theme.red;
+        opacity: root.halves;
+        font-family: Theme.font-display;
+        font-weight: 700;
+        font-size: root.font-size;
+        letter-spacing: root.font-size * 0.04;
+    }
+
+    Path {
+        x: mog.preferred-width + root.gap + (1 - root.slash-in) * root.slash-w + root.shake;
+        y: root.cap-top - (1 - root.slash-in) * root.font-size * 1.6 - root.shake;
+        width: root.slash-w;
+        height: root.cap-h;
+        viewbox-width: 34;
+        viewbox-height: 100;
+        commands: "M 20 0 L 34 0 L 14 100 L 0 100 Z";
+        fill: Theme.cyan;
+        opacity: root.slash-in > 0 ? 1 : 0;
+    }
+
+    // Destello blanco al caer el corte
+    Path {
+        x: mog.preferred-width + root.gap + root.shake;
+        y: root.cap-top - root.shake;
+        width: root.slash-w;
+        height: root.cap-h;
+        viewbox-width: 34;
+        viewbox-height: 100;
+        commands: "M 20 0 L 34 0 L 14 100 L 0 100 Z";
+        fill: white;
+        opacity: root.slash-in >= 1 ? root.flash * 0.9 : 0;
+    }
+
+    em := Text {
+        x: root.em-x - (1 - root.halves) * root.travel - root.shake;
+        y: -root.shake;
+        text: "EM";
+        color: Theme.red;
+        opacity: root.halves;
+        font-family: Theme.font-display;
+        font-weight: 700;
+        font-size: root.font-size;
+        letter-spacing: root.font-size * 0.04;
+    }
+
+    if root.show-all: Rectangle {
+        x: root.em-x + root.font-size * 0.04;
+        y: root.font-size * 1.08;
+        width: all.preferred-width * root.typed;
+        height: all.preferred-height;
+        clip: true;
+
+        all := Text {
+            x: 0;
+            y: 0;
+            width: self.preferred-width;
+            text: "ALL";
+            color: Theme.cyan;
+            font-family: Theme.font-mono;
+            font-size: root.all-size;
+            letter-spacing: root.all-size * 0.7;
+        }
+    }
+}
+
+// Galones de rango: tres franjas que se encienden según el avance dentro del rango.
+export component Insignia {
+    in property <int> lit: 1;
+    in property <length> size: 160px;
+
+    property <float> t: animation-tick() / 1ms;
+    property <float> pulse: 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(root.t * 0.15deg));
+
+    width: root.size;
+    height: root.size;
+
+    for stripe[i] in [
+        "M16 106 L38 80 L60 102 L82 80 L104 106 L104 120 L82 94 L60 116 L38 94 L16 120 Z",
+        "M16 72 L38 46 L60 68 L82 46 L104 72 L104 86 L82 60 L60 82 L38 60 L16 86 Z",
+        "M16 38 L38 12 L60 34 L82 12 L104 38 L104 52 L82 26 L60 48 L38 26 L16 52 Z",
+    ]: Path {
+        width: root.size;
+        height: root.size;
+        viewbox-width: 120;
+        viewbox-height: 124;
+        commands: stripe;
+        fill: i < root.lit ? Theme.red : Theme.red-faint;
+        opacity: i == root.lit ? root.pulse : 1;
+        animate fill { duration: Theme.slow; }
+    }
+}

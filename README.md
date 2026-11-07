@@ -4,7 +4,7 @@
 
 Aplicación de escritorio para anotar y seguir tus tareas, horarios, finanzas, ejercicio y rutinas, con una interfaz de terminal roja, animada y con pantalla de carga. Está escrita entera en Rust, con [Slint](https://slint.dev) para la interfaz.
 
-> Estado: en desarrollo temprano (`0.1.0-dev`). Hoy existe la base visual, el motor de rangos y la calculadora de IMC. El resto de los módulos se va sumando por fases.
+> Estado: en desarrollo temprano (`0.1.0-dev`). Hoy existen la interfaz tipo HUD con línea de comandos, el motor de rangos y la calculadora de IMC. El resto de los módulos se va sumando por fases.
 
 ## Qué hará
 

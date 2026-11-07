@@ -14,3 +14,4 @@ path = "src/main.rs"
 mog-core.workspace = true
 mog-ui.workspace = true
 slint.workspace = true
+chrono.workspace = true
