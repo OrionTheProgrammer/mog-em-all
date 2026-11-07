@@ -1,6 +1,6 @@
 # Arquitectura
 
-Cada responsabilidad tiene un único lugar. Si dudas dónde va algo, la regla es: si calcula o decide, va en `mog-core`; si se ve, va en `mog-ui`; si los conecta, va en `mog-app`.
+Cada responsabilidad vive en un solo lugar. Si algo calcula o decide, va en `mog-core`. Si se ve, va en `mog-ui`. Si conecta las dos cosas, va en `mog-app`.
 
 ```
 ┌──────────────┐   datos y enums    ┌──────────────┐
@@ -16,7 +16,7 @@ Cada responsabilidad tiene un único lugar. Si dudas dónde va algo, la regla es
 
 ## mog-core
 
-Rust puro, sin dependencias de interfaz. Devuelve números, structs y enums; nunca textos para mostrar, porque el idioma lo decide la interfaz. Todo lo que tenga reglas lleva tests aquí.
+Rust puro, sin dependencias de interfaz. Devuelve números, structs y enums, y deja los textos a la interfaz porque ahí se decide el idioma. Todo lo que tenga reglas lleva tests en este crate.
 
 - `health`: IMC.
 - `ranks`: XP, niveles, rangos y clases de fuerza.
@@ -46,4 +46,4 @@ Se agregará un crate `mog-storage` con SQLite (`rusqlite`) y migraciones versio
 
 ## Social (fase posterior)
 
-Un servidor separado (`mog-server`, axum + PostgreSQL) para cuentas, amigos y rutinas compartidas. La app seguirá funcionando sin conexión; la sincronización será opcional.
+Un servidor separado (`mog-server`, axum + PostgreSQL) para cuentas, amigos y rutinas compartidas. La app va a seguir funcionando sin conexión y la sincronización será opcional.

@@ -41,9 +41,9 @@ tools/i18n.sh --check
 
 - La lógica va en `mog-core` y no depende de Slint.
 - Todo lo que se ve va en `mog-ui`. Colores, fuentes y tiempos salen de `ui/theme/theme.slint`.
-- `mog-app` solo conecta: no calcula ni dibuja.
+- `mog-app` conecta las dos partes y no tiene lógica ni dibujo propios.
 - Todo texto visible se escribe en inglés dentro de `@tr("...")` y se traduce con `tools/i18n.sh`.
 
 ## Licencia de las contribuciones
 
-El proyecto usa la licencia PolyForm Noncommercial 1.0.0 y el autor se reserva el derecho de distribuirlo comercialmente. Para aceptar contribuciones externas se pedirá firmar un acuerdo de licencia de contribución (CLA) que lo permita. Hasta que ese acuerdo exista, no se aceptan PRs de terceros.
+El proyecto usa la licencia PolyForm Noncommercial 1.0.0 y el autor se reserva el derecho de distribuirlo comercialmente. Para aceptar contribuciones externas se pedirá firmar un acuerdo de licencia de contribución (CLA) que lo permita. Mientras ese acuerdo no exista, no se aceptan PRs de terceros. Los issues con errores o ideas sí son bienvenidos.

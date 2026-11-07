@@ -341,7 +341,7 @@ msgstr ""
 
 #: crates/mog-ui/ui/theme/labels.slint:67
 msgctxt "Labels"
-msgid "Out of range: weight 20–400 kg, height 100–250 cm."
+msgid "Out of range: weight must be 20 to 400 kg and height 100 to 250 cm."
 msgstr ""
 
 #: crates/mog-ui/ui/theme/labels.slint:68
