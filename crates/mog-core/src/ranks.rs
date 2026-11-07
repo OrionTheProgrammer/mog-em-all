@@ -103,6 +103,30 @@ pub fn tier_for_level(level: u32) -> Tier {
     }
 }
 
+/// Primer nivel de cada rango, en el orden de `Tier`.
+const TIER_STARTS: [u32; 7] = [1, 10, 20, 35, 50, 70, 90];
+
+/// Nivel en el que empieza el siguiente rango, o `None` si ya es Leyenda.
+pub fn next_tier_level(level: u32) -> Option<u32> {
+    TIER_STARTS.iter().copied().find(|&start| start > level)
+}
+
+/// Avance dentro del rango actual, de 0 a 1 (Leyenda en el nivel máximo da 1).
+pub fn tier_progress(level: u32) -> f64 {
+    let level = level.clamp(1, MAX_LEVEL);
+    let start = TIER_STARTS
+        .iter()
+        .copied()
+        .rev()
+        .find(|&s| s <= level)
+        .unwrap_or(1);
+    let end = next_tier_level(level).unwrap_or(MAX_LEVEL);
+    if end == start {
+        return 1.0;
+    }
+    (level - start) as f64 / (end - start) as f64
+}
+
 /// Ejercicios con tabla de clase de fuerza.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Lift {
@@ -261,6 +285,21 @@ mod tests {
         assert_eq!(tier_for_level(10), Tier::Recruit);
         assert_eq!(tier_for_level(49), Tier::Mercenary);
         assert_eq!(tier_for_level(100), Tier::Legend);
+    }
+
+    #[test]
+    fn tier_steps() {
+        assert_eq!(next_tier_level(1), Some(10));
+        assert_eq!(next_tier_level(23), Some(35));
+        assert_eq!(next_tier_level(95), None);
+        assert_eq!(tier_progress(1), 0.0);
+        assert_eq!(tier_progress(20), 0.0);
+        assert!((tier_progress(30) - 10.0 / 15.0).abs() < 1e-9);
+        assert_eq!(tier_progress(MAX_LEVEL), 1.0);
+        for level in 1..=MAX_LEVEL {
+            let p = tier_progress(level);
+            assert!((0.0..=1.0).contains(&p), "nivel {level}: {p}");
+        }
     }
 
     #[test]

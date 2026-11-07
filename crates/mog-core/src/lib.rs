@@ -4,5 +4,6 @@
 //! de la interfaz: devuelve datos y enums, nunca textos para mostrar. La capa
 //! visual (`mog-ui`) es la que decide cómo se presenta cada valor y en qué idioma.
 
+pub mod command;
 pub mod health;
 pub mod ranks;
