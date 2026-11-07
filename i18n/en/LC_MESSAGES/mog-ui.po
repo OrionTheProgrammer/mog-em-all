@@ -1,0 +1,197 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mog-em-all VERSION\n"
+"PO-Revision-Date: 2026-11-07 02:57+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/mog-ui/ui/screens/boot.slint:13
+msgctxt "BootScreen"
+msgid "Initializing logic engine"
+msgstr "Initializing logic engine"
+
+#: crates/mog-ui/ui/screens/boot.slint:14
+msgctxt "BootScreen"
+msgid "Mounting local database"
+msgstr "Mounting local database"
+
+#: crates/mog-ui/ui/screens/boot.slint:15
+msgctxt "BootScreen"
+msgid "Loading language pack"
+msgstr "Loading language pack"
+
+#: crates/mog-ui/ui/screens/boot.slint:16
+msgctxt "BootScreen"
+msgid "Calibrating rank tables"
+msgstr "Calibrating rank tables"
+
+#: crates/mog-ui/ui/screens/boot.slint:17
+msgctxt "BootScreen"
+msgid "Restoring operator profile"
+msgstr "Restoring operator profile"
+
+#: crates/mog-ui/ui/screens/boot.slint:18
+msgctxt "BootScreen"
+msgid "Starting interface"
+msgstr "Starting interface"
+
+#: crates/mog-ui/ui/screens/boot.slint:39
+msgctxt "BootScreen"
+msgid "PERSONAL TRACKING SYSTEM"
+msgstr "PERSONAL TRACKING SYSTEM"
+
+#: crates/mog-ui/ui/screens/boot.slint:95
+msgctxt "BootScreen"
+msgid "Click to skip"
+msgstr "Click to skip"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:11
+msgctxt "OperatorCard"
+msgid "OPERATOR"
+msgstr "OPERATOR"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:19
+msgctxt "OperatorCard"
+msgid "LEVEL"
+msgstr "LEVEL"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:47
+msgctxt "OperatorCard"
+msgid "{} / {} XP to next level"
+msgstr "{} / {} XP to next level"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:48
+msgctxt "OperatorCard"
+msgid "Maximum level"
+msgstr "Maximum level"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:60
+msgctxt "BmiCard"
+msgid "BODY MASS INDEX"
+msgstr "BODY MASS INDEX"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:69
+msgctxt "BmiCard"
+msgid "WEIGHT"
+msgstr "WEIGHT"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:74
+msgctxt "BmiCard"
+msgid "HEIGHT"
+msgstr "HEIGHT"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:90
+msgctxt "BmiCard"
+msgid "Enter weight and height"
+msgstr "Enter weight and height"
+
+#: crates/mog-ui/ui/screens/dashboard.slint:101
+msgctxt "BmiCard"
+msgid "Reference only: BMI does not tell muscle from fat."
+msgstr "Reference only: BMI does not tell muscle from fat."
+
+#: crates/mog-ui/ui/screens/placeholder.slint:26
+msgctxt "Placeholder"
+msgid "MODULE UNDER CONSTRUCTION"
+msgstr "MODULE UNDER CONSTRUCTION"
+
+#: crates/mog-ui/ui/screens/shell.slint:18
+msgctxt "Shell"
+msgid "DASHBOARD"
+msgstr "DASHBOARD"
+
+#: crates/mog-ui/ui/screens/shell.slint:19
+msgctxt "Shell"
+msgid "WORKOUTS"
+msgstr "WORKOUTS"
+
+#: crates/mog-ui/ui/screens/shell.slint:20
+msgctxt "Shell"
+msgid "ROUTINES"
+msgstr "ROUTINES"
+
+#: crates/mog-ui/ui/screens/shell.slint:21
+msgctxt "Shell"
+msgid "TASKS"
+msgstr "TASKS"
+
+#: crates/mog-ui/ui/screens/shell.slint:22
+msgctxt "Shell"
+msgid "SCHEDULE"
+msgstr "SCHEDULE"
+
+#: crates/mog-ui/ui/screens/shell.slint:23
+msgctxt "Shell"
+msgid "FINANCES"
+msgstr "FINANCES"
+
+#: crates/mog-ui/ui/screens/shell.slint:24
+msgctxt "Shell"
+msgid "SETTINGS"
+msgstr "SETTINGS"
+
+#: crates/mog-ui/ui/screens/shell.slint:129
+msgctxt "Shell"
+msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
+msgstr "LOCAL MODE · DATA STORED ON THIS DEVICE"
+
+#: crates/mog-ui/ui/theme/labels.slint:6
+msgctxt "Labels"
+msgid "Scrap"
+msgstr "Scrap"
+
+#: crates/mog-ui/ui/theme/labels.slint:7
+msgctxt "Labels"
+msgid "Recruit"
+msgstr "Recruit"
+
+#: crates/mog-ui/ui/theme/labels.slint:8
+msgctxt "Labels"
+msgid "Operator"
+msgstr "Operator"
+
+#: crates/mog-ui/ui/theme/labels.slint:9
+msgctxt "Labels"
+msgid "Mercenary"
+msgstr "Mercenary"
+
+#: crates/mog-ui/ui/theme/labels.slint:10
+msgctxt "Labels"
+msgid "Veteran"
+msgstr "Veteran"
+
+#: crates/mog-ui/ui/theme/labels.slint:11
+msgctxt "Labels"
+msgid "Elite"
+msgstr "Elite"
+
+#: crates/mog-ui/ui/theme/labels.slint:12
+msgctxt "Labels"
+msgid "Legend"
+msgstr "Legend"
+
+#: crates/mog-ui/ui/theme/labels.slint:16
+msgctxt "Labels"
+msgid "Underweight"
+msgstr "Underweight"
+
+#: crates/mog-ui/ui/theme/labels.slint:17
+msgctxt "Labels"
+msgid "Normal"
+msgstr "Normal"
+
+#: crates/mog-ui/ui/theme/labels.slint:18
+msgctxt "Labels"
+msgid "Overweight"
+msgstr "Overweight"
+
+#: crates/mog-ui/ui/theme/labels.slint:19
+msgctxt "Labels"
+msgid "Obese"
+msgstr "Obese"
