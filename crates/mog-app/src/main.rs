@@ -1,5 +1,5 @@
 //! Punto de entrada: conecta el motor de lógica (`mog-core`) con la interfaz (`mog-ui`).
-//! Aquí no hay reglas de negocio ni dibujo, solo el cableado entre ambos.
+//! No contiene reglas de negocio ni dibujo.
 
 mod boot;
 mod clock;

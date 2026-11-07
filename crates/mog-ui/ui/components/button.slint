@@ -13,7 +13,7 @@ export component TermButton inherits Rectangle {
     border-color: root.active || touch.has-hover ? Theme.red : Theme.red-dim;
     animate background, border-color { duration: Theme.fast; }
 
-    // Barra lateral que marca la opción activa
+    // Franja cian a la izquierda del botón activo
     Rectangle {
         x: 0;
         width: root.active ? 4px : 0px;

@@ -1,11 +1,11 @@
 # Sistema de rangos
 
-Hay dos ejes separados, porque miden cosas distintas:
+El sistema mide dos cosas por separado:
 
-1. **Nivel y rango de operador**: cuánto y con qué constancia entrenas. Mide esfuerzo, así que dos amigos con cuerpos muy distintos pueden competir de igual a igual.
-2. **Clase de fuerza**: una letra por ejercicio (E, D, C, B, A, S) según cuánto levantas en relación con tu peso corporal.
+1. Nivel y rango de operador: cuánto y con qué constancia entrenas. Como mide esfuerzo, dos amigos con cuerpos muy distintos pueden competir en igualdad.
+2. Clase de fuerza: una letra por ejercicio (E, D, C, B, A, S) según cuánto levantas en relación con tu peso corporal.
 
-La implementación está en `crates/mog-core/src/ranks.rs`. Los números de este documento son la calibración inicial y se ajustarán con uso real.
+La implementación está en `crates/mog-core/src/ranks.rs`. Los números de este documento son una primera calibración y se van a ajustar con el uso.
 
 ## XP por sesión
 
@@ -14,9 +14,9 @@ xp = (50 + min(minutos, 60) + 25 × min(récords, 3)) × (1 + 0,1 × min(semanas
 ```
 
 - Una sesión de menos de 10 minutos no da XP.
-- Pasar de 60 minutos no da más XP. La idea es premiar volver, no entrenar hasta romperse.
+- Pasar de 60 minutos no da más XP. Una sesión de tres horas vale lo mismo que una de una hora, así que conviene volver al día siguiente.
 - Cada récord personal suma 25 XP, con un máximo de 3 por sesión.
-- La racha se cuenta en **semanas** que cumplieron tu meta semanal (por ejemplo, 3 sesiones), no en días seguidos. Descansar no rompe la racha. Cada semana suma un 10 %, hasta un 50 %.
+- La racha se cuenta en semanas que cumplieron tu meta semanal (por ejemplo, 3 sesiones), no en días seguidos. Descansar no rompe la racha. Cada semana suma un 10 %, hasta un 50 %.
 - Solo cuentan las 2 mejores sesiones de cada día.
 
 Ejemplo: 45 minutos, un récord y 2 semanas de racha: `(50 + 45 + 25) × 1,2 = 144 XP`.

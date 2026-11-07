@@ -344,8 +344,10 @@ msgstr "Uso: idioma es o idioma en"
 
 #: crates/mog-ui/ui/theme/labels.slint:67
 msgctxt "Labels"
-msgid "Out of range: weight 20–400 kg, height 100–250 cm."
-msgstr "Fuera de rango: peso entre 20 y 400 kg, altura entre 100 y 250 cm."
+msgid "Out of range: weight must be 20 to 400 kg and height 100 to 250 cm."
+msgstr ""
+"Fuera de rango: el peso debe estar entre 20 y 400 kg y la altura entre 100 y "
+"250 cm."
 
 #: crates/mog-ui/ui/theme/labels.slint:68
 msgctxt "Labels"
