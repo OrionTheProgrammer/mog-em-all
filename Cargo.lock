@@ -2641,6 +2641,7 @@ dependencies = [
 name = "mog-app"
 version = "0.1.0-dev"
 dependencies = [
+ "chrono",
  "mog-core",
  "mog-ui",
  "slint",
