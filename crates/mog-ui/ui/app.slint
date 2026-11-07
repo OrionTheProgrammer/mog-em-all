@@ -1,17 +1,18 @@
 import { Theme } from "theme/theme.slint";
-import { BmiResult, OperatorInfo } from "types.slint";
+import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback } from "types.slint";
 import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
-import { Shell } from "screens/shell.slint";
+import { Hud } from "screens/hud.slint";
 
-export { BmiResult, OperatorInfo }
+export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback }
 
 export component AppWindow inherits Window {
     title: "mog 'em all";
-    preferred-width: 1280px;
-    preferred-height: 800px;
-    min-width: 960px;
-    min-height: 640px;
+    icon: @image-url("assets/icon.png");
+    preferred-width: 1440px;
+    preferred-height: 900px;
+    min-width: 1100px;
+    min-height: 700px;
     background: Theme.bg;
     default-font-family: Theme.font-display;
 
@@ -19,20 +20,33 @@ export component AppWindow inherits Window {
     in property <float> boot-progress;
     in property <bool> booted;
     in property <OperatorInfo> operator;
+    in property <WeekStats> week;
+    in property <Clock> clock;
+    in property <CommandFeedback> feedback;
     in property <string> language;
+    in-out property <BmiResult> bmi;
+    in-out property <int> current-module: 0;
     callback compute-bmi(string, string) -> BmiResult;
     callback select-language(string);
+    callback run-command(string);
     callback skip-boot();
 
-    Shell {
+    hud := Hud {
         y: root.booted ? 0px : 24px;
         opacity: root.booted ? 1 : 0;
         animate y, opacity { duration: Theme.slow; delay: 150ms; easing: ease-out; }
+        active: root.booted;
         version: root.version;
         language: root.language;
         operator: root.operator;
+        week: root.week;
+        clock: root.clock;
+        feedback: root.feedback;
+        bmi <=> root.bmi;
+        current <=> root.current-module;
         compute-bmi(w, h) => { return root.compute-bmi(w, h); }
         select-language(lang) => { root.select-language(lang); }
+        run-command(text) => { root.run-command(text); }
     }
 
     BootScreen {
@@ -44,4 +58,11 @@ export component AppWindow inherits Window {
     }
 
     Scanlines { }
+
+    // Cuando termina la carga, el HUD recibe el foco del teclado.
+    changed booted => {
+        if (root.booted) {
+            hud.take-focus();
+        }
+    }
 }

@@ -14,4 +14,30 @@ export struct OperatorInfo {
     xp-in-level: int,
     xp-for-next: int,
     total-xp: int,
+    // avance dentro del rango, 0 a 1
+    tier-progress: float,
+    // nivel donde empieza el siguiente rango; 0 si ya es el último
+    next-tier-level: int,
+}
+
+export struct WeekStats {
+    sessions: int,
+    streak-weeks: int,
+}
+
+export struct Clock {
+    hour: int,
+    minute: int,
+    // 0 lunes ... 6 domingo
+    weekday: int,
+    day: int,
+    month: int,
+}
+
+// Resultado de un comando. `kind` decide qué mensaje se muestra (ver Labels.feedback).
+export struct CommandFeedback {
+    kind: int,
+    module: int,
+    value: float,
+    category: int,
 }

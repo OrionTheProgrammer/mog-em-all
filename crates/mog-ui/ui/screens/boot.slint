@@ -1,5 +1,6 @@
 import { Theme } from "../theme/theme.slint";
-import { GlitchText, Cursor } from "../components/effects.slint";
+import { Cursor } from "../components/effects.slint";
+import { Logo } from "../components/logo.slint";
 import { SegmentBar } from "../components/progress.slint";
 
 // Pantalla de carga. `progress` (0 a 1) lo maneja mog-app según el trabajo real de arranque.
@@ -8,6 +9,9 @@ export component BootScreen inherits Rectangle {
     callback skip();
 
     background: Theme.bg;
+
+    property <bool> shown: false;
+    init => { root.shown = true; }
 
     property <[string]> steps: [
         @tr("Initializing logic engine"),
@@ -29,11 +33,10 @@ export component BootScreen inherits Rectangle {
         spacing: Theme.gap-lg;
 
         VerticalLayout {
-            spacing: 0px;
-            GlitchText {
-                text: "MOG 'EM ALL";
-                font-size: 84px;
-                letter-spacing: 6px;
+            spacing: Theme.gap-md;
+            Logo {
+                font-size: 110px;
+                active: root.shown;
             }
             Text {
                 text: @tr("PERSONAL TRACKING SYSTEM");

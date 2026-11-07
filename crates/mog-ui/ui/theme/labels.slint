@@ -1,6 +1,8 @@
 // Textos que dependen de valores del motor de lógica (enums -> texto traducido).
 // El motor nunca devuelve textos; aquí se decide qué se muestra.
 
+import { CommandFeedback, Clock } from "../types.slint";
+
 export global Labels {
     public pure function tier(t: int) -> string {
         t == 0 ? @tr("Scrap") :
@@ -17,5 +19,53 @@ export global Labels {
         c == 1 ? @tr("Normal") :
         c == 2 ? @tr("Overweight") :
         @tr("Obese")
+    }
+
+    // Mismo orden que command::Module en mog-core.
+    public pure function module(m: int) -> string {
+        m == 0 ? @tr("DASHBOARD") :
+        m == 1 ? @tr("WORKOUTS") :
+        m == 2 ? @tr("ROUTINES") :
+        m == 3 ? @tr("TASKS") :
+        m == 4 ? @tr("SCHEDULE") :
+        m == 5 ? @tr("FINANCES") :
+        @tr("SETTINGS")
+    }
+
+    // Fase del plan en la que llega cada módulo.
+    public pure function module-phase(m: int) -> int {
+        m == 3 || m == 4 ? 2 : m == 5 ? 3 : 1
+    }
+
+    public pure function weekday(d: int) -> string {
+        d == 0 ? @tr("MON") :
+        d == 1 ? @tr("TUE") :
+        d == 2 ? @tr("WED") :
+        d == 3 ? @tr("THU") :
+        d == 4 ? @tr("FRI") :
+        d == 5 ? @tr("SAT") :
+        @tr("SUN")
+    }
+
+    public pure function pad(n: int) -> string {
+        n < 10 ? "0" + n : "" + n
+    }
+
+    public pure function clock(c: Clock) -> string {
+        Labels.weekday(c.weekday) + " " + Labels.pad(c.day) + "/" + Labels.pad(c.month) + " · " + Labels.pad(c.hour) + ":" + Labels.pad(c.minute)
+    }
+
+    public pure function feedback(f: CommandFeedback) -> string {
+        f.kind == 1 ? @tr("Opened {}", Labels.module(f.module)) :
+        f.kind == 2 ? @tr("BMI {}: {}", Math.round(f.value * 10) / 10, Labels.bmi-category(f.category)) :
+        f.kind == 3 ? @tr("Language changed") :
+        f.kind == 4 ? @tr("Commands: go <module> · bmi <kg> <cm> · lang es|en · help") :
+        f.kind == 5 ? @tr("Unknown command. Type help to see the list.") :
+        f.kind == 6 ? @tr("Usage: go <module>, for example: go routines") :
+        f.kind == 7 ? @tr("Usage: bmi <weight kg> <height cm>, for example: bmi 78,5 176") :
+        f.kind == 8 ? @tr("Usage: lang es or lang en") :
+        f.kind == 9 ? @tr("Out of range: weight 20–400 kg, height 100–250 cm.") :
+        f.kind == 10 ? @tr("That language is not available yet.") :
+        ""
     }
 }
