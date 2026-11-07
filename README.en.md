@@ -1,60 +1,131 @@
-# mog 'em all
+<div align="center">
 
-**English** · [Español](README.md)
+<img src="docs/assets/banner.png" alt="mog 'em all" width="720">
 
-A desktop app to log and track your tasks, schedule, finances, workouts and routines, with an animated red terminal interface and a boot screen. It is written entirely in Rust, using [Slint](https://slint.dev) for the UI.
+<p>Tasks, schedule, finances and training in one desktop app with a terminal-style interface.<br>Written in Rust with Slint. Your data stays on your machine.</p>
 
-> Status: early development (`0.1.0-dev`). Right now there is the HUD-style interface with a command line, the rank engine and a BMI calculator. The other modules are added in phases.
+<p>
+<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-PolyForm_NC_1.0-ff2a3d?style=flat-square" alt="PolyForm Noncommercial 1.0 license"></a>
+<img src="https://img.shields.io/badge/Rust-2024-ff2a3d?style=flat-square&logo=rust&logoColor=white" alt="Rust 2024">
+<img src="https://img.shields.io/badge/Slint-1.18-2ef2ff?style=flat-square" alt="Slint 1.18">
+<img src="https://img.shields.io/badge/status-0.1.0--dev-ffb02e?style=flat-square" alt="Version 0.1.0-dev">
+<img src="https://img.shields.io/badge/platform-Linux_·_Windows-7a1420?style=flat-square" alt="Linux and Windows">
+</p>
 
-## What it will do
+<p>
+<a href="#install">Install</a> ·
+<a href="#usage">Usage</a> ·
+<a href="#roadmap">Roadmap</a> ·
+<a href="docs/RANKS.md">Ranks</a> ·
+<a href="README.md">Español</a>
+</p>
 
-- **Workouts**: log each session with exercises, type, weight, sets, reps and duration.
-- **Routines**: build routines, share them with friends and compare how you both progress.
-- **Ranks**: you level up by training consistently, and each lift has a strength class from E to S. Details in [docs/RANKS.md](docs/RANKS.md).
-- **BMI**: weight-for-height calculation, as a reference value.
-- **Tasks and schedule**: to-do list and weekly calendar.
-- **Finances**: income, expenses and categories.
+<img src="docs/assets/demo-en.gif" alt="Boot screen, BMI from the command line and switching tabs" width="860">
 
-Data is stored on your device. The social part (friends and shared routines) comes in a later phase and will be optional.
+</div>
 
-## Platforms
+## What it is
 
-Desktop first (Linux and Windows; macOS once it can be tested). Android comes later.
+mog 'em all puts in one place what you would normally track in four different apps: to-dos, schedule, spending and training. The training side gets the most attention. Every session earns XP, you level up by staying consistent, and each lift gets a strength class from E to S based on your bodyweight. Later on you will be able to share routines with friends and compare how you both progress.
 
-## Building
+You can drive it with the keyboard or the mouse. There is a command line at the bottom of the screen for quick actions (`bmi 78.5 176`, `go routines`), and Q and E move between tabs.
 
-You need stable Rust (1.85 or newer).
+> [!NOTE]
+> This is early development. The interface, the rank system and BMI work; workouts, routines, tasks, schedule and finances arrive in phases. See the [roadmap](#roadmap).
+
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/boot-en.png" alt="Boot screen"></td>
+<td width="50%"><img src="docs/assets/hud-bmi-en.png" alt="Main dashboard with BMI filled in"></td>
+</tr>
+<tr>
+<td align="center">Boot screen</td>
+<td align="center">Dashboard</td>
+</tr>
+</table>
+
+## Install
+
+There are no releases yet, so for now you build it from source. You need stable Rust 1.85 or newer.
 
 ```sh
-cargo run -p mog-app
+git clone https://github.com/OrionTheProgrammer/mog-em-all.git
+cd mog-em-all
+cargo run --release -p mog-app
 ```
 
-On Linux you also need the fontconfig and xkbcommon development libraries (on Debian/Ubuntu: `libfontconfig1-dev libxkbcommon-dev`).
+On Linux you also need the fontconfig and xkbcommon development libraries:
 
-To try another language: `LANG=es_CL.UTF-8 cargo run -p mog-app`, or use the ES/EN switch in the top bar.
+| Distribution | Command |
+|---|---|
+| Debian, Ubuntu | `sudo apt install libfontconfig1-dev libxkbcommon-dev` |
+| Fedora | `sudo dnf install fontconfig-devel libxkbcommon-devel` |
+| Arch, CachyOS | `sudo pacman -S fontconfig libxkbcommon` |
 
-## Layout
+The language follows your system. To force one: `LANG=es_CL.UTF-8 cargo run -p mog-app`, or use the ES/EN switch in the top bar.
+
+## Usage
+
+### Keyboard
+
+| Key | Action |
+|---|---|
+| <kbd>Q</kbd> / <kbd>E</kbd> | Previous / next tab |
+| <kbd>/</kbd> | Jump to the command line |
+| <kbd>Enter</kbd> | Run the command |
+| <kbd>Esc</kbd> | Leave the command line |
+
+### Commands
+
+Commands work in English or Spanish. Case and accents don't matter.
+
+| Command | What it does |
+|---|---|
+| `go <module>` or just `<module>` | Opens a module: `go routines`, `finances` |
+| `bmi <weight kg> <height cm>` | Calculates BMI and shows it on the dashboard: `bmi 78.5 176` |
+| `lang es` / `lang en` | Switches the interface language |
+| `help` | Lists the commands |
+
+### Ranks
+
+There are two separate measures. Your level goes up with XP from training regularly; since it measures effort, you can compete with friends even if your bodies are very different. Strength class is per lift and depends on how much you lift relative to your bodyweight. Levels are grouped into seven ranks, from Scrap to Legend. Formulas and tables are in [docs/RANKS.md](docs/RANKS.md) (in Spanish).
+
+## Roadmap
+
+- [x] Phase 0 · Project base: HUD interface, boot screen, animated logo, ranks, BMI, command line, Spanish and English.
+- [ ] Phase 1 · Local database (SQLite), workout logging, routines and settings.
+- [ ] Phase 2 · Tasks and weekly schedule.
+- [ ] Phase 3 · Finances: income, expenses, categories and budget.
+- [ ] Phase 4 · Share routines without a server, through a file or a QR code.
+- [ ] Phase 5 · Accounts, friends and compared progress, with optional sync.
+- [ ] Android, after the first desktop release.
+
+## How it's built
+
+The code is split into three crates, and each responsibility lives in one place:
 
 ```
 crates/
-  mog-core/   logic engine: domain, calculations and rules. No UI.
-  mog-ui/     everything visual: theme, components and screens in Slint.
-  mog-app/    the executable: wires the engine to the UI.
-i18n/         translations (.po), embedded in the binary.
-tools/        maintenance scripts.
-docs/         design and decisions.
+  mog-core/   rules and calculations: ranks, BMI, command parser. No UI dependency.
+  mog-ui/     everything you see, in Slint: theme, components and screens.
+  mog-app/    the executable: wires the other two together.
+i18n/         translations (.po), embedded in the binary at build time.
+tools/        scripts for translations and for recording the demo.
+docs/         design notes and decisions (in Spanish).
 ```
 
-More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Translations are explained in [docs/I18N.md](docs/I18N.md).
+Colors, fonts and animation timings are defined once in `crates/mog-ui/ui/theme/theme.slint`. UI text is written in English inside `@tr()`, and `tools/i18n.sh` keeps the translations in sync. More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/I18N.md](docs/I18N.md).
 
 ## Contributing
 
-Branching, versioning and commit format are described in [CONTRIBUTING.md](CONTRIBUTING.md).
+Branches follow gitflow, versions follow semantic versioning and commits follow Conventional Commits. The details are in [CONTRIBUTING.md](CONTRIBUTING.md). External pull requests can't be accepted until a contributor license agreement (CLA) is in place. Bug reports and ideas in issues are welcome.
 
 ## License
 
-The code is public but not free for commercial use. It is released under the [PolyForm Noncommercial 1.0.0](LICENSE.md): you can read, modify and use it for personal, study or non-profit purposes, but you cannot sell it or use it in a commercial product or service. That makes it source-available, not open source in the OSI sense.
+The code is released under the [PolyForm Noncommercial 1.0.0](LICENSE.md). You can read it, change it and use it for personal, study or non-profit purposes. You can't sell it or use it in a commercial product or service. That makes it source-available rather than open source under the OSI definition. The author keeps the right to distribute it commercially and to accept donations.
 
-The author keeps all rights to distribute the program commercially and to accept donations.
+## Credits
 
-The UI uses Slint under its [Royalty-Free License 2.0](https://slint.dev/terms-and-conditions). The Rajdhani and Share Tech Mono fonts are distributed under the SIL Open Font License (see `crates/mog-ui/ui/fonts/`).
+- [Slint](https://slint.dev), used under its Royalty-Free License 2.0.
+- [Rajdhani](https://fonts.google.com/specimen/Rajdhani) by Indian Type Foundry and [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono) by Carrois Type Design, both under the SIL Open Font License; the license texts are in `crates/mog-ui/ui/fonts/`.
+- [chrono](https://crates.io/crates/chrono) for date and time.
