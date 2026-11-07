@@ -1,0 +1,37 @@
+import { Theme } from "../theme/theme.slint";
+import { Panel } from "../components/panel.slint";
+import { GlitchText, Cursor } from "../components/effects.slint";
+
+// Pantalla para módulos que aún no existen.
+export component Placeholder {
+    in property <string> module-name;
+
+    property <float> shown: 0;
+    opacity: root.shown;
+    animate opacity { duration: Theme.normal; }
+    init => { root.shown = 1; }
+
+    VerticalLayout {
+        padding: Theme.gap-lg;
+        alignment: start;
+        Panel {
+            GlitchText {
+                text: root.module-name;
+                font-size: Theme.size-xl;
+            }
+            HorizontalLayout {
+                spacing: Theme.gap-sm;
+                alignment: start;
+                Text {
+                    text: @tr("MODULE UNDER CONSTRUCTION");
+                    color: Theme.amber;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-sm;
+                    letter-spacing: 3px;
+                    vertical-alignment: center;
+                }
+                Cursor { }
+            }
+        }
+    }
+}

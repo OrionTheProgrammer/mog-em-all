@@ -1,0 +1,19 @@
+import { Theme } from "../theme/theme.slint";
+
+// Barra segmentada. `value` va de 0 a 1.
+export component SegmentBar {
+    in property <float> value;
+    in property <int> segments: 32;
+    in property <color> color: Theme.red;
+
+    min-height: 12px;
+    property <length> seg-width: (root.width - (root.segments - 1) * 2px) / root.segments;
+
+    for i in root.segments: Rectangle {
+        x: i * (root.seg-width + 2px);
+        width: root.seg-width;
+        height: root.height;
+        background: (i + 1) / root.segments <= root.value + 0.0001 ? root.color : Theme.red-faint;
+        animate background { duration: Theme.fast; }
+    }
+}

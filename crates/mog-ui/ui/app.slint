@@ -1,0 +1,47 @@
+import { Theme } from "theme/theme.slint";
+import { BmiResult, OperatorInfo } from "types.slint";
+import { Scanlines } from "components/effects.slint";
+import { BootScreen } from "screens/boot.slint";
+import { Shell } from "screens/shell.slint";
+
+export { BmiResult, OperatorInfo }
+
+export component AppWindow inherits Window {
+    title: "mog 'em all";
+    preferred-width: 1280px;
+    preferred-height: 800px;
+    min-width: 960px;
+    min-height: 640px;
+    background: Theme.bg;
+    default-font-family: Theme.font-display;
+
+    in property <string> version;
+    in property <float> boot-progress;
+    in property <bool> booted;
+    in property <OperatorInfo> operator;
+    in property <string> language;
+    callback compute-bmi(string, string) -> BmiResult;
+    callback select-language(string);
+    callback skip-boot();
+
+    Shell {
+        y: root.booted ? 0px : 24px;
+        opacity: root.booted ? 1 : 0;
+        animate y, opacity { duration: Theme.slow; delay: 150ms; easing: ease-out; }
+        version: root.version;
+        language: root.language;
+        operator: root.operator;
+        compute-bmi(w, h) => { return root.compute-bmi(w, h); }
+        select-language(lang) => { root.select-language(lang); }
+    }
+
+    BootScreen {
+        progress: root.boot-progress;
+        opacity: root.booted ? 0 : 1;
+        visible: self.opacity > 0.01;
+        animate opacity { duration: Theme.normal; }
+        skip => { root.skip-boot(); }
+    }
+
+    Scanlines { }
+}

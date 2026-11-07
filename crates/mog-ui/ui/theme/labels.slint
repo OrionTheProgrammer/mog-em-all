@@ -1,0 +1,21 @@
+// Textos que dependen de valores del motor de lógica (enums -> texto traducido).
+// El motor nunca devuelve textos; aquí se decide qué se muestra.
+
+export global Labels {
+    public pure function tier(t: int) -> string {
+        t == 0 ? @tr("Scrap") :
+        t == 1 ? @tr("Recruit") :
+        t == 2 ? @tr("Operator") :
+        t == 3 ? @tr("Mercenary") :
+        t == 4 ? @tr("Veteran") :
+        t == 5 ? @tr("Elite") :
+        @tr("Legend")
+    }
+
+    public pure function bmi-category(c: int) -> string {
+        c == 0 ? @tr("Underweight") :
+        c == 1 ? @tr("Normal") :
+        c == 2 ? @tr("Overweight") :
+        @tr("Obese")
+    }
+}

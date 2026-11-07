@@ -1,0 +1,42 @@
+// Fuente única de verdad para colores, tipografías, tamaños y tiempos.
+// Ningún otro archivo debe escribir colores o duraciones a mano.
+
+import "../fonts/Rajdhani-Medium.ttf";
+import "../fonts/Rajdhani-Bold.ttf";
+import "../fonts/ShareTechMono-Regular.ttf";
+
+export global Theme {
+    // Colores
+    out property <color> bg: #070102;
+    out property <color> panel: #12040699;
+    out property <color> input-bg: #1a0508;
+    out property <color> red: #ff2a3d;
+    out property <color> red-glow: #ff6470;
+    out property <color> red-dim: #7a1420;
+    out property <color> red-faint: #ff2a3d1f;
+    out property <color> text: #ff8c92;
+    out property <color> text-dim: #a4454d;
+    out property <color> cyan: #2ef2ff;
+    out property <color> amber: #ffb02e;
+    out property <color> scanline: #00000059;
+
+    // Tipografía
+    out property <string> font-display: "Rajdhani";
+    out property <string> font-mono: "Share Tech Mono";
+    out property <length> size-xs: 12px;
+    out property <length> size-sm: 14px;
+    out property <length> size-md: 17px;
+    out property <length> size-lg: 24px;
+    out property <length> size-xl: 40px;
+
+    // Espaciado
+    out property <length> gap-sm: 6px;
+    out property <length> gap-md: 12px;
+    out property <length> gap-lg: 24px;
+    out property <length> corner-cut: 14px;
+
+    // Tiempos
+    out property <duration> fast: 120ms;
+    out property <duration> normal: 260ms;
+    out property <duration> slow: 600ms;
+}

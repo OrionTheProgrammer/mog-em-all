@@ -1,0 +1,54 @@
+import { Theme } from "../theme/theme.slint";
+
+export component TermInput {
+    in property <string> label;
+    in property <string> suffix;
+    in property <InputType> input-type: InputType.text;
+    in-out property <string> text <=> input.text;
+    callback edited();
+
+    VerticalLayout {
+        spacing: Theme.gap-sm;
+
+        Text {
+            text: root.label;
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+            letter-spacing: 2px;
+        }
+
+        Rectangle {
+            height: 38px;
+            background: Theme.input-bg;
+            border-width: 1px;
+            border-color: input.has-focus ? Theme.red : Theme.red-dim;
+            animate border-color { duration: Theme.fast; }
+
+            HorizontalLayout {
+                padding-left: 10px;
+                padding-right: 10px;
+                spacing: Theme.gap-sm;
+
+                input := TextInput {
+                    horizontal-stretch: 1;
+                    vertical-alignment: center;
+                    color: Theme.red-glow;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-md;
+                    selection-background-color: Theme.red-dim;
+                    input-type: root.input-type;
+                    edited => { root.edited(); }
+                }
+
+                if root.suffix != "": Text {
+                    text: root.suffix;
+                    vertical-alignment: center;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-sm;
+                }
+            }
+        }
+    }
+}

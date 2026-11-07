@@ -1,0 +1,17 @@
+// Estructuras que intercambian la interfaz y el motor de lógica.
+
+export struct BmiResult {
+    valid: bool,
+    value: float,
+    // 0 bajo peso, 1 normal, 2 sobrepeso, 3 obesidad
+    category: int,
+}
+
+export struct OperatorInfo {
+    level: int,
+    // índice de ranks::Tier
+    tier: int,
+    xp-in-level: int,
+    xp-for-next: int,
+    total-xp: int,
+}

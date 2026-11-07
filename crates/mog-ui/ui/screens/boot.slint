@@ -1,0 +1,105 @@
+import { Theme } from "../theme/theme.slint";
+import { GlitchText, Cursor } from "../components/effects.slint";
+import { SegmentBar } from "../components/progress.slint";
+
+// Pantalla de carga. `progress` (0 a 1) lo maneja mog-app según el trabajo real de arranque.
+export component BootScreen inherits Rectangle {
+    in property <float> progress;
+    callback skip();
+
+    background: Theme.bg;
+
+    property <[string]> steps: [
+        @tr("Initializing logic engine"),
+        @tr("Mounting local database"),
+        @tr("Loading language pack"),
+        @tr("Calibrating rank tables"),
+        @tr("Restoring operator profile"),
+        @tr("Starting interface"),
+    ];
+
+    TouchArea {
+        clicked => { root.skip(); }
+    }
+
+    VerticalLayout {
+        alignment: center;
+        padding-left: 96px;
+        padding-right: 96px;
+        spacing: Theme.gap-lg;
+
+        VerticalLayout {
+            spacing: 0px;
+            GlitchText {
+                text: "MOG 'EM ALL";
+                font-size: 84px;
+                letter-spacing: 6px;
+            }
+            Text {
+                text: @tr("PERSONAL TRACKING SYSTEM");
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+                letter-spacing: 6px;
+            }
+        }
+
+        VerticalLayout {
+            spacing: 4px;
+            for step[i] in root.steps: HorizontalLayout {
+                property <bool> started: root.progress * root.steps.length > i;
+                property <bool> done: root.progress * root.steps.length >= i + 1;
+                opacity: self.started ? 1 : 0;
+                animate opacity { duration: Theme.fast; }
+                spacing: Theme.gap-md;
+
+                Text {
+                    text: "> " + step;
+                    color: Theme.text;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-sm;
+                }
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: done ? "[ OK ]" : "[ .. ]";
+                    color: done ? Theme.cyan : Theme.red-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-sm;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.gap-md;
+            SegmentBar {
+                value: root.progress;
+                segments: 48;
+                height: 14px;
+            }
+            Text {
+                min-width: 52px;
+                text: Math.round(root.progress * 100) + "%";
+                horizontal-alignment: right;
+                color: Theme.red;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            alignment: start;
+            Text {
+                text: @tr("Click to skip");
+                vertical-alignment: center;
+                color: Theme.red-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+                letter-spacing: 2px;
+            }
+            Cursor { }
+        }
+    }
+}

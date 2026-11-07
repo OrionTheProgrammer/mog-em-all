@@ -1,0 +1,68 @@
+import { Theme } from "../theme/theme.slint";
+
+// Líneas de barrido tipo monitor y una banda de luz que baja lentamente.
+// No tiene TouchArea, así que no bloquea clics.
+export component Scanlines {
+    property <float> t: animation-tick() / 1ms;
+
+    for i in Math.ceil(root.height / 3px): Rectangle {
+        y: i * 3px;
+        height: 1px;
+        background: Theme.scanline;
+    }
+
+    Rectangle {
+        height: 140px;
+        y: Math.mod(root.t, 7000) / 7000 * (root.height + 140px) - 140px;
+        background: @linear-gradient(180deg, transparent 0%, #ff2a3d0f 50%, transparent 100%);
+    }
+}
+
+// Texto con fallas de señal ocasionales (desfase rojo/cian).
+export component GlitchText {
+    in property <string> text;
+    in property <length> font-size: Theme.size-xl;
+    in property <color> color: Theme.red;
+    in property <length> letter-spacing: 2px;
+
+    property <float> t: animation-tick() / 1ms;
+    property <bool> glitching: Math.mod(root.t, 3700) < 110 || Math.mod(root.t, 8900) > 8820;
+    property <length> jitter: root.glitching ? (Math.mod(root.t, 50) < 25 ? 3px : -3px) : 0px;
+
+    horizontal-stretch: 0;
+    preferred-width: main.preferred-width;
+    preferred-height: main.preferred-height;
+    min-width: main.min-width;
+
+    Text {
+        x: root.jitter + 2px;
+        y: 0;
+        text: root.text;
+        color: Theme.cyan;
+        opacity: root.glitching ? 0.75 : 0;
+        font-family: Theme.font-display;
+        font-size: root.font-size;
+        font-weight: 700;
+        letter-spacing: root.letter-spacing;
+    }
+
+    main := Text {
+        x: -root.jitter;
+        y: 0;
+        text: root.text;
+        color: root.color;
+        font-family: Theme.font-display;
+        font-size: root.font-size;
+        font-weight: 700;
+        letter-spacing: root.letter-spacing;
+    }
+}
+
+// Cursor de bloque que parpadea.
+export component Cursor inherits Rectangle {
+    property <float> t: animation-tick() / 1ms;
+    width: 10px;
+    height: 18px;
+    background: Theme.red;
+    opacity: Math.mod(root.t, 1000) < 500 ? 1 : 0;
+}

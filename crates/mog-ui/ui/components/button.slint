@@ -1,0 +1,43 @@
+import { Theme } from "../theme/theme.slint";
+
+export component TermButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> active: false;
+    in property <bool> compact: false;
+    callback clicked;
+
+    min-height: root.compact ? 28px : 38px;
+    min-width: label.preferred-width + 28px;
+    background: root.active ? Theme.red : (touch.has-hover ? Theme.red-faint : transparent);
+    border-width: 1px;
+    border-color: root.active || touch.has-hover ? Theme.red : Theme.red-dim;
+    animate background, border-color { duration: Theme.fast; }
+
+    // Barra lateral que marca la opción activa
+    Rectangle {
+        x: 0;
+        width: root.active ? 4px : 0px;
+        background: Theme.cyan;
+        animate width { duration: Theme.normal; easing: ease-out; }
+    }
+
+    HorizontalLayout {
+        padding-left: root.compact ? 10px : 16px;
+        padding-right: root.compact ? 10px : 16px;
+        label := Text {
+            text: root.text;
+            vertical-alignment: center;
+            horizontal-alignment: root.compact ? center : left;
+            color: root.active ? Theme.bg : (touch.has-hover ? Theme.red-glow : Theme.text);
+            font-family: Theme.font-display;
+            font-size: root.compact ? Theme.size-sm : Theme.size-md;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
