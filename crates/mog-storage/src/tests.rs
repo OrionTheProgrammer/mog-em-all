@@ -200,7 +200,7 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
 
 /// Migración de prueba que va después de la última real.
 const NEXT: migrations::Migration = migrations::Migration {
-    version: 4,
+    version: 5,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
@@ -626,4 +626,83 @@ fn sql_work_set_filter_matches_set_types() {
         .map(|t| t.index())
         .collect();
     assert_eq!(not_work, vec![1, 5]);
+}
+
+// Horario
+
+fn event(title: &str, start: Minute, end: Minute, recurrence: Recurrence) -> Event {
+    Event {
+        id: 0,
+        title: title.into(),
+        kind: EventKind::Class,
+        start_min: start,
+        end_min: end,
+        recurrence,
+        reminder_min: Some(10),
+    }
+}
+
+#[test]
+fn weekly_and_one_off_events_round_trip() {
+    let mut store = store_with_profile();
+    let class = store
+        .save_event(
+            &event("Cloud", 510, 600, Recurrence::Weekly(vec![0, 2])),
+            MONDAY,
+        )
+        .unwrap();
+    let exam = store
+        .save_event(&event("Prueba", 900, 990, Recurrence::Once(20_770)), MONDAY)
+        .unwrap();
+    let events = store.events().unwrap();
+    assert_eq!(events.len(), 2);
+    let cloud = events.iter().find(|e| e.id == class).unwrap();
+    assert_eq!(cloud.recurrence, Recurrence::Weekly(vec![0, 2]));
+    assert_eq!(cloud.reminder_min, Some(10));
+    assert_eq!(
+        events.iter().find(|e| e.id == exam).unwrap().recurrence,
+        Recurrence::Once(20_770)
+    );
+
+    // Editar: pasa de semanal a una vez y cambia de hora.
+    let edited = Event {
+        id: class,
+        start_min: 540,
+        recurrence: Recurrence::Once(20_766),
+        ..cloud.clone()
+    };
+    assert_eq!(store.save_event(&edited, MONDAY).unwrap(), class);
+    let cloud = store
+        .events()
+        .unwrap()
+        .into_iter()
+        .find(|e| e.id == class)
+        .unwrap();
+    assert_eq!(
+        (cloud.start_min, cloud.recurrence),
+        (540, Recurrence::Once(20_766))
+    );
+
+    store.delete_event(exam).unwrap();
+    assert_eq!(store.events().unwrap().len(), 1);
+}
+
+#[test]
+fn events_must_end_after_they_start() {
+    let mut store = store_with_profile();
+    assert!(
+        store
+            .save_event(&event("Mal", 600, 600, Recurrence::Weekly(vec![1])), MONDAY)
+            .is_err()
+    );
+}
+
+#[test]
+fn routines_can_have_a_time() {
+    let store = store_with_profile();
+    let legs = store.create_routine("Pierna", MONDAY).unwrap();
+    assert_eq!(store.routine(legs).unwrap().unwrap().start_min, None);
+    store.set_routine_time(legs, Some(19 * 60), 75).unwrap();
+    let r = store.routine(legs).unwrap().unwrap();
+    assert_eq!((r.start_min, r.duration_min), (Some(1140), 75));
 }
