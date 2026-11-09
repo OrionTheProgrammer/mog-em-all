@@ -1,0 +1,486 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme } from "../theme/theme.slint";
+import { Labels } from "../theme/labels.slint";
+import { FinanceState, CategoryRow, EntryRow, FixedRow } from "../state/finance.slint";
+import { TermButton } from "../components/button.slint";
+import { TermInput } from "../components/input.slint";
+import { SectionLabel } from "../components/hud.slint";
+
+component Tile inherits Rectangle {
+    in property <string> label;
+    in property <string> value;
+    in property <string> detail;
+    in property <color> tint: Theme.red-glow;
+    horizontal-stretch: 1;
+    background: Theme.panel;
+    min-height: 82px;
+
+    Rectangle { y: 0; height: 3px; background: root.tint; }
+    VerticalLayout {
+        padding: 12px;
+        spacing: 2px;
+        SectionLabel { text: root.label; }
+        Text {
+            text: root.value;
+            overflow: elide;
+            color: root.tint;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 28px;
+        }
+        if root.detail != "": Text {
+            text: root.detail;
+            overflow: elide;
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+    }
+}
+
+component Chip inherits Rectangle {
+    in property <string> text;
+    in property <color> tint: Theme.cyan;
+    height: 24px;
+    width: label.preferred-width + 16px;
+    border-width: 1px;
+    border-color: root.tint;
+    label := Text {
+        text: root.text;
+        color: root.tint;
+        font-family: Theme.font-mono;
+        font-size: Theme.size-xs;
+    }
+}
+
+// Una categoría con su barra de presupuesto.
+component CategoryBar inherits Rectangle {
+    in property <CategoryRow> item;
+    in property <bool> selected;
+    callback clicked;
+
+    property <color> tint: root.item.state == 3 ? Theme.red : root.item.state == 2 ? Theme.amber : Theme.cyan;
+    height: 44px;
+    background: root.selected ? Theme.red-faint : (touch.has-hover ? #ff2a3d0c : transparent);
+
+    VerticalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 5px;
+        spacing: 4px;
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            Text {
+                horizontal-stretch: 1;
+                text: Labels.finance-category(root.item.code, root.item.name);
+                overflow: elide;
+                color: root.item.has-spending || root.item.state != 0 ? Theme.text : Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+            Text {
+                text: root.item.state == 0 ? root.item.spent-text : root.item.spent-text + " / " + root.item.budget-text;
+                color: root.item.state >= 2 ? root.tint : Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+            }
+        }
+        Rectangle {
+            height: 5px;
+            background: root.item.state == 0 ? transparent : #ff2a3d22;
+            Rectangle {
+                x: 0;
+                width: parent.width * Math.min(1, root.item.ratio);
+                background: root.tint;
+                animate width { duration: Theme.slow; easing: ease-out; }
+            }
+        }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+// Pestaña FINANZAS.
+export component Finance {
+    property <float> shown: 0;
+    opacity: root.shown;
+    animate opacity { duration: Theme.normal; }
+    init => { root.shown = 1; }
+
+    property <string> new-category;
+
+    VerticalLayout {
+        padding-left: 32px;
+        padding-right: 32px;
+        padding-top: 18px;
+        padding-bottom: 12px;
+        spacing: Theme.gap-md;
+
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            Text {
+                text: Labels.month(FinanceState.month) + " " + FinanceState.year;
+                vertical-alignment: center;
+                color: Theme.red;
+                font-family: Theme.font-display;
+                font-weight: 700;
+                font-size: Theme.size-lg;
+                letter-spacing: 3px;
+            }
+            Rectangle { horizontal-stretch: 1; }
+            TermButton { text: "◀"; compact: true; clicked => { FinanceState.prev-month(); } }
+            TermButton {
+                text: @tr("THIS MONTH");
+                compact: true;
+                active: FinanceState.month-offset == 0;
+                clicked => { FinanceState.this-month(); }
+            }
+            TermButton { text: "▶"; compact: true; clicked => { FinanceState.next-month(); } }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.gap-md;
+            Tile {
+                label: @tr("INCOME");
+                value: FinanceState.income-text;
+                detail: @tr("{} fixed · {} other", FinanceState.fixed-income-text, FinanceState.informal-income-text);
+                tint: Theme.cyan;
+            }
+            Tile { label: @tr("SPENT"); value: FinanceState.expense-text; tint: Theme.red-glow; }
+            Tile {
+                label: @tr("BALANCE");
+                value: FinanceState.balance-text;
+                tint: FinanceState.balance-negative ? Theme.amber : Theme.cyan;
+            }
+            Tile {
+                label: @tr("BUDGET USED");
+                value: FinanceState.budget-used-text;
+                detail: @tr("only groups with a budget");
+                tint: Theme.red;
+            }
+        }
+
+        HorizontalLayout {
+            vertical-stretch: 1;
+            spacing: 24px;
+
+            // Entrada rápida y movimientos
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: Theme.gap-sm;
+                TermInput {
+                    label: @tr("NEW MOVEMENT · AMOUNT AND WHAT IT WAS, THEN ENTER");
+                    text <=> FinanceState.quick-text;
+                    edited => { FinanceState.quick-changed(); }
+                    accepted => { FinanceState.quick-add(); }
+                }
+                HorizontalLayout {
+                    height: 24px;
+                    spacing: Theme.gap-sm;
+                    if FinanceState.quick-text == "": Text {
+                        text: @tr("Try \"12.500 lunch\" or \"+20.000 sold a shirt\". The group is guessed from the words; # picks one.");
+                        vertical-alignment: center;
+                        overflow: elide;
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                    if FinanceState.quick-text != "" && FinanceState.preview-valid: Chip {
+                        text: (FinanceState.preview.kind == 1 ? @tr("Income") : @tr("Expense")) + " " + FinanceState.preview.amount-text;
+                        tint: FinanceState.preview.kind == 1 ? Theme.cyan : Theme.red-glow;
+                    }
+                    if FinanceState.quick-text != "" && FinanceState.preview-valid && FinanceState.preview.kind == 0: Chip {
+                        text: FinanceState.preview.category-code != "" || FinanceState.preview.category-name != ""
+                            ? Labels.finance-category(FinanceState.preview.category-code, FinanceState.preview.category-name)
+                            : @tr("No group");
+                        tint: Theme.text-dim;
+                    }
+                    if FinanceState.quick-text != "" && FinanceState.preview-valid: Chip {
+                        text: Labels.weekday(FinanceState.preview.weekday).to-lowercase() + " " + Labels.pad(FinanceState.preview.day) + "/" + Labels.pad(FinanceState.preview.month);
+                        tint: Theme.text-dim;
+                    }
+                    if FinanceState.quick-text != "" && !FinanceState.preview-valid: Text {
+                        text: @tr("Write an amount, for example 12.500.");
+                        vertical-alignment: center;
+                        color: Theme.amber;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                }
+                SectionLabel { text: @tr("MOVEMENTS"); }
+                ScrollView {
+                    vertical-stretch: 1;
+                    VerticalLayout {
+                        alignment: start;
+                        spacing: 2px;
+                        if FinanceState.entries.length == 0: Text {
+                            text: @tr("Nothing this month yet. Write your first expense or income above.");
+                            wrap: word-wrap;
+                            color: Theme.text-dim;
+                            font-family: Theme.font-mono;
+                            font-size: Theme.size-sm;
+                        }
+                        for entry in FinanceState.entries: Rectangle {
+                            height: 36px;
+                            background: hover.has-hover ? #ff2a3d0c : transparent;
+                            hover := TouchArea { }
+                            HorizontalLayout {
+                                padding-left: 8px;
+                                spacing: Theme.gap-md;
+                                Text {
+                                    width: 64px;
+                                    text: Labels.weekday(entry.weekday).to-lowercase() + " " + Labels.pad(entry.day);
+                                    vertical-alignment: center;
+                                    color: Theme.text-dim;
+                                    font-family: Theme.font-mono;
+                                    font-size: Theme.size-xs;
+                                }
+                                VerticalLayout {
+                                    horizontal-stretch: 1;
+                                    alignment: center;
+                                    Text {
+                                        text: entry.note != "" ? entry.note : (entry.kind == 1 ? @tr("Income") : @tr("Expense"));
+                                        overflow: elide;
+                                        color: Theme.text;
+                                        font-family: Theme.font-mono;
+                                        font-size: Theme.size-sm;
+                                    }
+                                    Text {
+                                        text: entry.kind == 1
+                                            ? (entry.income-type == 0 ? @tr("fixed income") : @tr("other income"))
+                                            : Labels.finance-category(entry.category-code, entry.category-name);
+                                        overflow: elide;
+                                        color: Theme.text-dim;
+                                        font-family: Theme.font-mono;
+                                        font-size: Theme.size-xs;
+                                    }
+                                }
+                                Text {
+                                    text: (entry.kind == 1 ? "+" : "−") + entry.amount-text;
+                                    vertical-alignment: center;
+                                    color: entry.kind == 1 ? Theme.cyan : Theme.red-glow;
+                                    font-family: Theme.font-mono;
+                                    font-size: Theme.size-sm;
+                                }
+                                if hover.has-hover: VerticalLayout {
+                                    alignment: center;
+                                    TermButton {
+                                        text: "×";
+                                        compact: true;
+                                        tiny: true;
+                                        clicked => { FinanceState.delete-entry(entry.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Grupos de gasto
+            VerticalLayout {
+                width: 330px;
+                spacing: Theme.gap-sm;
+                SectionLabel { text: @tr("SPENDING BY GROUP · CLICK TO SET A BUDGET"); }
+                ScrollView {
+                    vertical-stretch: 1;
+                    VerticalLayout {
+                        alignment: start;
+                        spacing: 2px;
+                        for category in FinanceState.categories: CategoryBar {
+                            item: category;
+                            selected: FinanceState.budget-id == category.id;
+                            clicked => { FinanceState.select-category(category.id); }
+                        }
+                    }
+                }
+                if FinanceState.budget-id != 0: VerticalLayout {
+                    spacing: Theme.gap-sm;
+                    HorizontalLayout {
+                        spacing: Theme.gap-sm;
+                        TermInput {
+                            label: @tr("MONTHLY BUDGET · {}", FinanceState.budget-name.to-uppercase());
+                            text <=> FinanceState.budget-text;
+                            accepted => { FinanceState.save-budget(); }
+                        }
+                        VerticalLayout {
+                            alignment: end;
+                            TermButton { text: @tr("SAVE"); active: true; clicked => { FinanceState.save-budget(); } }
+                        }
+                    }
+                    Text {
+                        text: FinanceState.budget-error ? @tr("Write an amount, or leave it empty for no budget.") : @tr("Leave it empty to remove the budget. You'll see a warning at 80%.");
+                        wrap: word-wrap;
+                        color: FinanceState.budget-error ? Theme.amber : Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                    TermButton { text: @tr("CLOSE"); compact: true; clicked => { FinanceState.close-budget(); } }
+                }
+                if FinanceState.budget-id == 0: HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    category-input := TermInput {
+                        label: @tr("NEW GROUP");
+                        text <=> root.new-category;
+                        accepted => {
+                            FinanceState.add-category(root.new-category);
+                            root.new-category = "";
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: end;
+                        TermButton {
+                            text: @tr("ADD");
+                            compact: true;
+                            clicked => {
+                                FinanceState.add-category(root.new-category);
+                                root.new-category = "";
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Fijos del mes
+            Rectangle {
+                width: 320px;
+                background: Theme.panel;
+                VerticalLayout {
+                    padding: 14px;
+                    spacing: Theme.gap-sm;
+
+                    if !FinanceState.fixed-open: VerticalLayout {
+                        spacing: Theme.gap-sm;
+                        SectionLabel { text: @tr("FIXED EACH MONTH"); }
+                        if FinanceState.fixed.length == 0: Text {
+                            text: @tr("Add what comes in or goes out every month: your salary, rent, subscriptions. Each month they show up here to log with one click.");
+                            wrap: word-wrap;
+                            color: Theme.text-dim;
+                            font-family: Theme.font-mono;
+                            font-size: Theme.size-xs;
+                        }
+                        ScrollView {
+                            vertical-stretch: 1;
+                            VerticalLayout {
+                                alignment: start;
+                                spacing: 4px;
+                                for item in FinanceState.fixed: Rectangle {
+                                    height: 46px;
+                                    border-width: 1px;
+                                    border-color: item.registered ? Theme.red-dim : (item.kind == 1 ? Theme.cyan : Theme.red);
+                                    TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { FinanceState.edit-fixed(item.id); }
+                                    }
+                                    HorizontalLayout {
+                                        padding-left: 10px;
+                                        padding-right: 6px;
+                                        spacing: Theme.gap-sm;
+                                        VerticalLayout {
+                                            horizontal-stretch: 1;
+                                            alignment: center;
+                                            Text {
+                                                text: item.note;
+                                                overflow: elide;
+                                                color: item.registered ? Theme.text-dim : Theme.text;
+                                                font-family: Theme.font-mono;
+                                                font-size: Theme.size-sm;
+                                            }
+                                            Text {
+                                                text: (item.kind == 1 ? "+" : "−") + item.amount-text + " · " + @tr("day {}", item.day-of-month);
+                                                color: item.kind == 1 ? Theme.cyan : Theme.red-glow;
+                                                font-family: Theme.font-mono;
+                                                font-size: Theme.size-xs;
+                                            }
+                                        }
+                                        VerticalLayout {
+                                            alignment: center;
+                                            if item.registered: Text {
+                                                text: "✓";
+                                                color: Theme.cyan;
+                                                font-family: Theme.font-mono;
+                                                font-size: Theme.size-md;
+                                            }
+                                            if !item.registered: TermButton {
+                                                text: @tr("LOG");
+                                                compact: true;
+                                                tiny: true;
+                                                active: true;
+                                                clicked => { FinanceState.register-fixed(item.id); }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        HorizontalLayout {
+                            spacing: Theme.gap-sm;
+                            TermButton { horizontal-stretch: 1; text: @tr("+ FIXED INCOME"); compact: true; clicked => { FinanceState.new-fixed(1); } }
+                            TermButton { horizontal-stretch: 1; text: @tr("+ FIXED EXPENSE"); compact: true; clicked => { FinanceState.new-fixed(0); } }
+                        }
+                    }
+
+                    if FinanceState.fixed-open: VerticalLayout {
+                        spacing: Theme.gap-sm;
+                        alignment: start;
+                        SectionLabel {
+                            text: FinanceState.fixed-kind == 1
+                                ? (FinanceState.fixed-id == 0 ? @tr("NEW FIXED INCOME") : @tr("FIXED INCOME"))
+                                : (FinanceState.fixed-id == 0 ? @tr("NEW FIXED EXPENSE") : @tr("FIXED EXPENSE"));
+                        }
+                        TermInput { label: @tr("WHAT"); text <=> FinanceState.fixed-note; }
+                        HorizontalLayout {
+                            spacing: Theme.gap-sm;
+                            TermInput { label: @tr("AMOUNT"); text <=> FinanceState.fixed-amount; }
+                            TermInput { label: @tr("DAY OF MONTH"); text <=> FinanceState.fixed-day; }
+                        }
+                        if FinanceState.fixed-kind == 0: VerticalLayout {
+                            spacing: 3px;
+                            SectionLabel { text: @tr("GROUP"); }
+                            for row in 4: HorizontalLayout {
+                                spacing: 3px;
+                                for col in 3: Rectangle {
+                                    property <int> i: row * 3 + col;
+                                    horizontal-stretch: 1;
+                                    height: 26px;
+                                    if self.i < FinanceState.categories.length: TermButton {
+                                        width: 100%;
+                                        height: 100%;
+                                        min-width: 0px;
+                                        tiny: true;
+                                        compact: true;
+                                        text: Labels.finance-category(FinanceState.categories[parent.i].code, FinanceState.categories[parent.i].name);
+                                        active: FinanceState.fixed-category == FinanceState.categories[parent.i].id;
+                                        clicked => { FinanceState.fixed-category = FinanceState.categories[parent.i].id; }
+                                    }
+                                }
+                            }
+                        }
+                        if FinanceState.fixed-error != 0: Text {
+                            text: FinanceState.fixed-error == 1 ? @tr("Write an amount, for example 12.500.")
+                                : FinanceState.fixed-error == 2 ? @tr("Write what it is.")
+                                : @tr("The day goes from 1 to 31. In shorter months it falls on the last day.");
+                            wrap: word-wrap;
+                            color: Theme.amber;
+                            font-family: Theme.font-mono;
+                            font-size: Theme.size-xs;
+                        }
+                        HorizontalLayout {
+                            spacing: Theme.gap-sm;
+                            TermButton { horizontal-stretch: 1; text: @tr("SAVE"); active: true; clicked => { FinanceState.save-fixed(); } }
+                            TermButton { text: @tr("CANCEL"); compact: true; clicked => { FinanceState.fixed-open = false; } }
+                        }
+                        if FinanceState.fixed-id != 0: TermButton {
+                            text: @tr("DELETE");
+                            compact: true;
+                            clicked => { FinanceState.delete-fixed(); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

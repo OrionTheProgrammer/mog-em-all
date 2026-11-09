@@ -4,6 +4,7 @@
 mod boot;
 mod clock;
 mod commands;
+mod finance;
 mod schedule;
 mod tasks;
 mod training;
@@ -41,11 +42,13 @@ fn main() -> Result<(), slint::PlatformError> {
     training::connect(&ui, &store);
     let (_schedule_timer, refresh_schedule) = schedule::connect(&ui, &store);
     let refresh_tasks = Rc::new(tasks::connect(&ui, &store));
+    let refresh_finance = finance::connect(&ui, &store);
     ui.on_tab_changed({
         let refresh_tasks = refresh_tasks.clone();
         move |_| {
             refresh_schedule();
             refresh_tasks();
+            refresh_finance();
         }
     });
     // Las tareas cambian de grupo con la hora (hoy → vencida): refrescar cada minuto.

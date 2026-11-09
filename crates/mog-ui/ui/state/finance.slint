@@ -1,0 +1,101 @@
+// Estado y acciones de la pestaña FINANZAS. Rust lo llena (crates/mog-app/src/finance.rs).
+// Los montos llegan ya escritos en la moneda elegida (por ejemplo "$12.500").
+
+export struct CategoryRow {
+    id: int,
+    // código de las incluidas ("food"); vacío en las propias
+    code: string,
+    name: string,
+    spent-text: string,
+    budget-text: string,
+    // gastado / presupuesto (0 si no tiene)
+    ratio: float,
+    // 0 sin presupuesto, 1 bien, 2 sobre el 80 %, 3 pasado
+    state: int,
+    has-spending: bool,
+}
+
+export struct EntryRow {
+    id: int,
+    // 0 gasto, 1 ingreso
+    kind: int,
+    amount-text: string,
+    note: string,
+    category-code: string,
+    category-name: string,
+    // 0 fijo, 1 informal (solo ingresos)
+    income-type: int,
+    day: int,
+    month: int,
+    weekday: int,
+    from-fixed: bool,
+}
+
+export struct FixedRow {
+    id: int,
+    kind: int,
+    amount-text: string,
+    note: string,
+    day-of-month: int,
+    category-code: string,
+    category-name: string,
+    // ya se registró este mes
+    registered: bool,
+}
+
+export global FinanceState {
+    in property <int> year;
+    in property <int> month;
+    in property <int> month-offset;
+    in property <string> currency;
+
+    in property <string> income-text;
+    in property <string> fixed-income-text;
+    in property <string> informal-income-text;
+    in property <string> expense-text;
+    in property <string> balance-text;
+    in property <bool> balance-negative;
+    in property <string> budget-used-text;
+
+    in property <[CategoryRow]> categories;
+    in property <[EntryRow]> entries;
+    in property <[FixedRow]> fixed;
+
+    // Entrada rápida
+    in-out property <string> quick-text;
+    in property <bool> preview-valid;
+    in property <EntryRow> preview;
+
+    // Presupuesto en edición (budget-id 0 = cerrado)
+    in property <int> budget-id;
+    in property <string> budget-name;
+    in-out property <string> budget-text;
+    in property <bool> budget-error;
+
+    // Fijo en edición (fixed-open false = cerrado)
+    in-out property <bool> fixed-open;
+    in property <int> fixed-id;
+    in-out property <int> fixed-kind;
+    in-out property <string> fixed-amount;
+    in-out property <string> fixed-note;
+    in-out property <string> fixed-day;
+    in-out property <int> fixed-category;
+    // 0 sin error, 1 monto, 2 nombre, 3 día
+    in property <int> fixed-error;
+
+    callback prev-month();
+    callback next-month();
+    callback this-month();
+    callback quick-changed();
+    callback quick-add() -> bool;
+    callback delete-entry(int);
+    callback select-category(int);
+    callback save-budget();
+    callback close-budget();
+    callback add-category(string);
+    callback register-fixed(int);
+    callback new-fixed(int);
+    callback edit-fixed(int);
+    callback save-fixed();
+    callback delete-fixed();
+}
