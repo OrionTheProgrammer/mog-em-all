@@ -30,6 +30,10 @@ for dir in "$root"/i18n/*/; do
         # Quita textos que ya no existen en la interfaz.
         msgattrib --no-obsolete --output-file="$po" "$po"
     fi
+    # Traducciones generadas (por ejemplo, los nombres del catálogo de ejercicios).
+    if [[ -f "$dir/fill.json" ]]; then
+        python3 "$root/tools/po_fill.py" "$po" "$dir/fill.json" >/dev/null
+    fi
     if [[ "$lang" == "$source_lang" ]]; then
         # El idioma fuente se traduce a sí mismo.
         msgen --output-file="$po" "$po"
