@@ -316,3 +316,76 @@ fn migration_files_are_numbered_without_gaps() {
         assert!(!migration.sql.trim().is_empty());
     }
 }
+
+#[test]
+fn active_session_can_be_resumed_or_discarded() {
+    let store = store_with_profile();
+    assert_eq!(store.active_session().unwrap(), None);
+    let bench = store.exercise_by_code("bench_press").unwrap().unwrap();
+    let id = store.start_session("Empuje A", MONDAY).unwrap();
+    store
+        .add_set(
+            id,
+            bench,
+            SetEntry {
+                reps: Some(8),
+                weight_kg: Some(60.0),
+                duration_s: None,
+            },
+        )
+        .unwrap();
+    store
+        .add_set(
+            id,
+            bench,
+            SetEntry {
+                reps: Some(6),
+                weight_kg: Some(62.5),
+                duration_s: None,
+            },
+        )
+        .unwrap();
+    let active = store.active_session().unwrap().unwrap();
+    assert_eq!((active.id, active.name.as_str()), (id, "Empuje A"));
+    assert_eq!(store.session_sets(id).unwrap().len(), 2);
+    assert!(store.remove_last_set(id).unwrap());
+    assert_eq!(store.session_sets(id).unwrap().len(), 1);
+    store.discard_session(id).unwrap();
+    assert_eq!(store.active_session().unwrap(), None);
+    assert!(
+        store.session_sets(id).unwrap().is_empty(),
+        "las series se borran con la sesión"
+    );
+}
+
+#[test]
+fn finished_session_reports_volume_and_breakdown() {
+    let mut store = store_with_profile();
+    let bench = store.exercise_by_code("bench_press").unwrap().unwrap();
+    let done = workout(
+        &mut store,
+        MONDAY,
+        52,
+        bench,
+        &[(8, 60.0), (8, 60.0), (6, 65.0)],
+    );
+    assert_eq!(done.sets, 3);
+    assert!((done.volume_kg - (480.0 + 480.0 + 390.0)).abs() < 1e-9);
+    assert_eq!(done.breakdown.minutes, 52);
+    assert_eq!(done.xp, done.breakdown.total);
+    let recent = store.recent_sessions(5).unwrap();
+    assert_eq!(recent.len(), 1);
+    assert_eq!((recent[0].sets, recent[0].xp), (3, done.xp));
+}
+
+#[test]
+fn third_session_of_the_day_is_flagged() {
+    let mut store = store_with_profile();
+    let squat = store.exercise_by_code("squat").unwrap().unwrap();
+    workout(&mut store, MONDAY, 30, squat, &[(5, 100.0)]);
+    workout(&mut store, MONDAY + HOUR, 30, squat, &[(5, 100.0)]);
+    let third = workout(&mut store, MONDAY + 2 * HOUR, 30, squat, &[(5, 100.0)]);
+    assert!(third.over_daily_cap);
+    assert!(third.breakdown.total > 0);
+    assert_eq!(third.xp, 0);
+}
