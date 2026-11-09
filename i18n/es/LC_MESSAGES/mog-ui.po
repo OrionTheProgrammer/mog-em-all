@@ -671,6 +671,125 @@ msgctxt "Overview"
 msgid "Reference only: BMI does not tell muscle from fat."
 msgstr "Solo referencial: el IMC no distingue músculo de grasa."
 
+#: crates/mog-ui/ui/screens/rankup.slint:89
+msgctxt "RankUpScreen"
+msgid "I CAN'T"
+msgstr "NO PUEDO"
+
+#: crates/mog-ui/ui/screens/rankup.slint:89
+msgctxt "RankUpScreen"
+msgid "I'LL START TOMORROW"
+msgstr "MAÑANA EMPIEZO"
+
+#: crates/mog-ui/ui/screens/rankup.slint:89
+msgctxt "RankUpScreen"
+msgid "WHAT FOR"
+msgstr "PARA QUÉ"
+
+#: crates/mog-ui/ui/screens/rankup.slint:89
+msgctxt "RankUpScreen"
+msgid "I'M NOT GOOD ENOUGH"
+msgstr "NO SIRVO"
+
+#: crates/mog-ui/ui/screens/rankup.slint:143
+msgctxt "RankUpScreen"
+msgid "WARNING · WARNING · WARNING"
+msgstr "ALERTA · ALERTA · ALERTA"
+
+#: crates/mog-ui/ui/screens/rankup.slint:159
+msgctxt "RankUpScreen"
+msgid "OVERLOAD 147%"
+msgstr "SOBRECARGA 147 %"
+
+#. Frases de un instante
+#: crates/mog-ui/ui/screens/rankup.slint:236
+msgctxt "RankUpScreen"
+msgid "ONE MORE SET"
+msgstr "OTRA SERIE"
+
+#: crates/mog-ui/ui/screens/rankup.slint:236
+msgctxt "RankUpScreen"
+msgid "NO SLEEP"
+msgstr "NO DORMIR"
+
+#. Frases de un instante
+#: crates/mog-ui/ui/screens/rankup.slint:258
+msgctxt "RankUpScreen"
+msgid "DON'T STOP"
+msgstr "NO TE DETENGAS"
+
+#. Frases de un instante
+#: crates/mog-ui/ui/screens/rankup.slint:258
+msgctxt "RankUpScreen"
+msgid "ALL OF THEM"
+msgstr "TODOS"
+
+#. Frases de un instante
+#: crates/mog-ui/ui/screens/rankup.slint:258
+msgctxt "RankUpScreen"
+msgid "NO MERCY"
+msgstr "SIN PIEDAD"
+
+#: crates/mog-ui/ui/screens/rankup.slint:282
+msgctxt "RankUpScreen"
+msgid "Are you sure? [y/n]"
+msgstr "¿Seguro? [s/n]"
+
+#: crates/mog-ui/ui/screens/rankup.slint:296
+msgctxt "RankUpScreen"
+msgid "y y y y y y y y y y y y y y y y"
+msgstr "s s s s s s s s s s s s s s s s"
+
+#: crates/mog-ui/ui/screens/rankup.slint:353
+msgctxt "RankUpScreen"
+msgid "NEW RANK"
+msgstr "NUEVO RANGO"
+
+#: crates/mog-ui/ui/screens/rankup.slint:353
+msgctxt "RankUpScreen"
+msgid "NEW DIVISION"
+msgstr "NUEVA DIVISIÓN"
+
+#: crates/mog-ui/ui/screens/rankup.slint:405
+msgctxt "RankUpScreen"
+msgid "NOBODY KNOWS WHO YOU ARE YET"
+msgstr "TODAVÍA NADIE SABE QUIÉN ERES"
+
+#: crates/mog-ui/ui/screens/rankup.slint:406
+msgctxt "RankUpScreen"
+msgid "THE REAL WORK STARTS NOW"
+msgstr "AHORA EMPIEZA EL TRABAJO DE VERDAD"
+
+#: crates/mog-ui/ui/screens/rankup.slint:407
+msgctxt "RankUpScreen"
+msgid "THE ONLY RIVAL WAS YOU"
+msgstr "EL ÚNICO RIVAL ERAS TÚ"
+
+#: crates/mog-ui/ui/screens/rankup.slint:408
+msgctxt "RankUpScreen"
+msgid "NOBODY TRAINS LIKE THIS"
+msgstr "NADIE ENTRENA ASÍ"
+
+#: crates/mog-ui/ui/screens/rankup.slint:409
+msgctxt "RankUpScreen"
+msgid "THE FLOOR FELT IT"
+msgstr "EL PISO LO SINTIÓ"
+
+#: crates/mog-ui/ui/screens/rankup.slint:410
+msgctxt "RankUpScreen"
+msgid "EVERYONE ELSE STAYS BELOW"
+msgstr "TODOS LOS DEMÁS QUEDAN ABAJO"
+
+#: crates/mog-ui/ui/screens/rankup.slint:411
+msgctxt "RankUpScreen"
+msgid "MOG 'EM ALL"
+msgstr "MOG 'EM ALL"
+
+#: crates/mog-ui/ui/screens/rankup.slint:446
+msgctxt "RankUpScreen"
+msgid "ENTER TO CONTINUE"
+msgstr "ENTER PARA CONTINUAR"
+
 #: crates/mog-ui/ui/screens/schedule.slint:181
 msgctxt "EventForm"
 msgid "NEW EVENT"
@@ -860,68 +979,68 @@ msgctxt "Schedule"
 msgid "Nothing else today."
 msgstr "Nada más por hoy."
 
-#: crates/mog-ui/ui/screens/settings.slint:47
+#: crates/mog-ui/ui/screens/settings.slint:48
 msgctxt "Settings"
 msgid "PROFILE"
 msgstr "PERFIL"
 
-#: crates/mog-ui/ui/screens/settings.slint:52
+#: crates/mog-ui/ui/screens/settings.slint:53
 msgctxt "Settings"
 msgid "SAVE PROFILE"
 msgstr "GUARDAR PERFIL"
 
-#: crates/mog-ui/ui/screens/settings.slint:57
+#: crates/mog-ui/ui/screens/settings.slint:58
 msgctxt "Settings"
 msgid "Saved."
 msgstr "Guardado."
 
-#: crates/mog-ui/ui/screens/settings.slint:70
+#: crates/mog-ui/ui/screens/settings.slint:71
 msgctxt "Settings"
 msgid "LANGUAGE"
 msgstr "IDIOMA"
 
-#: crates/mog-ui/ui/screens/settings.slint:78
+#: crates/mog-ui/ui/screens/settings.slint:79
 msgctxt "Settings"
 msgid "CURRENCY"
 msgstr "MONEDA"
 
-#: crates/mog-ui/ui/screens/settings.slint:92
+#: crates/mog-ui/ui/screens/settings.slint:93
 msgctxt "Settings"
 msgid "Amounts you already logged keep their number; only the symbol changes."
 msgstr ""
 "Los montos que ya anotaste conservan su número; solo cambia el símbolo."
 
-#: crates/mog-ui/ui/screens/settings.slint:100
+#: crates/mog-ui/ui/screens/settings.slint:101
 msgctxt "Settings"
 msgid "BACKGROUND AND REMINDERS"
 msgstr "SEGUNDO PLANO Y AVISOS"
 
-#: crates/mog-ui/ui/screens/settings.slint:102
+#: crates/mog-ui/ui/screens/settings.slint:103
 msgctxt "Settings"
 msgid "Remind me before events, tasks and workouts"
 msgstr "Avisarme antes de eventos, tareas y entrenamientos"
 
-#: crates/mog-ui/ui/screens/settings.slint:103
+#: crates/mog-ui/ui/screens/settings.slint:104
 msgctxt "Settings"
 msgid "Keep running in the tray when I close the window"
 msgstr "Seguir en la bandeja al cerrar la ventana"
 
-#: crates/mog-ui/ui/screens/settings.slint:104
+#: crates/mog-ui/ui/screens/settings.slint:105
 msgctxt "Settings"
 msgid "Start when I log in (hidden in the tray)"
 msgstr "Abrir al iniciar sesión (oculta en la bandeja)"
 
-#: crates/mog-ui/ui/screens/settings.slint:108
+#: crates/mog-ui/ui/screens/settings.slint:109
 msgctxt "Settings"
 msgid "ON"
 msgstr "SÍ"
 
-#: crates/mog-ui/ui/screens/settings.slint:108
+#: crates/mog-ui/ui/screens/settings.slint:109
 msgctxt "Settings"
 msgid "OFF"
 msgstr "NO"
 
-#: crates/mog-ui/ui/screens/settings.slint:130
+#: crates/mog-ui/ui/screens/settings.slint:131
 msgctxt "Settings"
 msgid ""
 "No system tray found on this desktop, so closing the window quits the app."
@@ -929,42 +1048,42 @@ msgstr ""
 "Este escritorio no tiene bandeja del sistema, así que cerrar la ventana "
 "cierra la app."
 
-#: crates/mog-ui/ui/screens/settings.slint:137
+#: crates/mog-ui/ui/screens/settings.slint:138
 msgctxt "Settings"
 msgid "SEND A TEST REMINDER"
 msgstr "PROBAR UN AVISO"
 
-#: crates/mog-ui/ui/screens/settings.slint:144
+#: crates/mog-ui/ui/screens/settings.slint:145
 msgctxt "Settings"
 msgid "YOUR DATA"
 msgstr "TUS DATOS"
 
-#: crates/mog-ui/ui/screens/settings.slint:153
+#: crates/mog-ui/ui/screens/settings.slint:154
 msgctxt "Settings"
 msgid "Database schema version {}"
 msgstr "Versión del esquema de la base: {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:166
+#: crates/mog-ui/ui/screens/settings.slint:167
 msgctxt "Settings"
 msgid "BACK UP NOW"
 msgstr "COPIA DE SEGURIDAD AHORA"
 
-#: crates/mog-ui/ui/screens/settings.slint:167
+#: crates/mog-ui/ui/screens/settings.slint:168
 msgctxt "Settings"
 msgid "OPEN FOLDER"
 msgstr "ABRIR CARPETA"
 
-#: crates/mog-ui/ui/screens/settings.slint:170
+#: crates/mog-ui/ui/screens/settings.slint:171
 msgctxt "Settings"
 msgid "Backup saved: {}"
 msgstr "Copia guardada: {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:181
+#: crates/mog-ui/ui/screens/settings.slint:182
 msgctxt "Settings"
 msgid "ABOUT"
 msgstr "ACERCA DE"
 
-#: crates/mog-ui/ui/screens/settings.slint:189
+#: crates/mog-ui/ui/screens/settings.slint:190
 msgctxt "Settings"
 msgid ""
 "Source-available under the PolyForm Noncommercial 1.0.0 license. Your data "
@@ -972,6 +1091,11 @@ msgid ""
 msgstr ""
 "Código disponible bajo la licencia PolyForm Noncommercial 1.0.0. Tus datos "
 "nunca salen de este equipo."
+
+#: crates/mog-ui/ui/screens/settings.slint:197
+msgctxt "Settings"
+msgid "RANK ANIMATIONS"
+msgstr "ANIMACIONES DE RANGO"
 
 #: crates/mog-ui/ui/screens/tasks.slint:13
 msgctxt "DueText"
