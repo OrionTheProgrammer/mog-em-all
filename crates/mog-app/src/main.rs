@@ -1,6 +1,7 @@
 //! Punto de entrada: conecta el motor de lógica (`mog-core`) con la interfaz (`mog-ui`).
 //! No contiene reglas de negocio ni dibujo.
 
+mod background;
 mod boot;
 mod clock;
 mod commands;
@@ -73,7 +74,12 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);
-    ui.run()
+    let (_background, start_hidden) = background::start(&ui, &store);
+    if !start_hidden {
+        ui.show()?;
+    }
+    // Con la ventana oculta en la bandeja la app sigue viva: solo termina al salir.
+    slint::run_event_loop_until_quit()
 }
 
 /// Abre la base de datos del usuario. Si no se puede, la app sigue con una base

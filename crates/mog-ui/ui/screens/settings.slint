@@ -97,6 +97,49 @@ export component Settings {
                 }
             }
             Card {
+                title: @tr("BACKGROUND AND REMINDERS");
+                for option[i] in [
+                    { on: SettingsState.notifications, text: @tr("Remind me before events, tasks and workouts") },
+                    { on: SettingsState.background-on-close, text: @tr("Keep running in the tray when I close the window") },
+                    { on: SettingsState.autostart, text: @tr("Start when I log in (hidden in the tray)") },
+                ]: HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    TermButton {
+                        text: option.on ? @tr("ON") : @tr("OFF");
+                        compact: true;
+                        tiny: true;
+                        min-width: 52px;
+                        active: option.on;
+                        clicked => {
+                            if (i == 0) { SettingsState.set-notifications(!option.on); }
+                            if (i == 1 && SettingsState.tray-available) { SettingsState.set-background-on-close(!option.on); }
+                            if (i == 2) { SettingsState.set-autostart(!option.on); }
+                        }
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: option.text;
+                        vertical-alignment: center;
+                        wrap: word-wrap;
+                        color: Theme.text;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                }
+                if !SettingsState.tray-available: Text {
+                    text: @tr("No system tray found on this desktop, so closing the window quits the app.");
+                    wrap: word-wrap;
+                    color: Theme.amber;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+                TermButton {
+                    text: @tr("SEND A TEST REMINDER");
+                    compact: true;
+                    clicked => { SettingsState.test-notification(); }
+                }
+            }
+            Card {
                 vertical-stretch: 1;
                 title: @tr("YOUR DATA");
                 Text {
