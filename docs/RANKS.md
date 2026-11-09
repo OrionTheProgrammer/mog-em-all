@@ -34,15 +34,27 @@ XP total para llegar al nivel `n`: `100 × (n − 1)^1,5`, con un máximo de 100
 
 ## Rangos de operador
 
-| Niveles | Rango |
-|---|---|
-| 1–9 | Chatarra |
-| 10–19 | Recluta |
-| 20–34 | Operador |
-| 35–49 | Mercenario |
-| 50–69 | Veterano |
-| 70–89 | Élite |
-| 90–100 | Leyenda |
+Cada rango se divide en tres divisiones (I, II y III, de menor a mayor). Los niveles del rango se reparten en tres tramos lo más parejos posible.
+
+| Niveles | Rango | Empieza la división II | Empieza la división III |
+|---|---|---|---|
+| 1–9 | No-Name | 4 | 7 |
+| 10–19 | Principiante | 14 | 17 |
+| 20–34 | Selfhater | 25 | 30 |
+| 35–49 | Insane | 40 | 45 |
+| 50–69 | Chad | 57 | 64 |
+| 70–89 | Mogger | 77 | 84 |
+| 90–100 | Psycho Mogger | 94 | 98 |
+
+En la interfaz, los galones de la insignia se encienden según la división: uno en I, dos en II y tres en III.
+
+## Animaciones
+
+Solo terminar entrenamientos da XP de nivel; las tareas tienen su propia animación pero no suben el nivel.
+
+- Subir de nivel: pantalla propia al terminar la sesión, con el detalle de la XP ganada.
+- Pasar de división: versión corta de la animación del rango.
+- Llegar a un rango nuevo: animación completa, distinta para cada rango.
 
 ## Clase de fuerza
 

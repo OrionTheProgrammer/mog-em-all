@@ -88,7 +88,7 @@ Se pueden escribir en español o en inglés. Las mayúsculas y las tildes no imp
 
 ### Rangos
 
-Hay dos medidas separadas. El nivel sube con XP por entrenar seguido, y como mide esfuerzo sirve para competir con amigos aunque tengan cuerpos distintos. La clase de fuerza va por ejercicio y depende de cuánto levantas en relación con tu peso. Los niveles se agrupan en siete rangos, de Chatarra a Leyenda. Las fórmulas y tablas están en [docs/RANKS.md](docs/RANKS.md).
+Hay dos medidas separadas. El nivel sube con XP por entrenar seguido, y como mide esfuerzo sirve para competir con amigos aunque tengan cuerpos distintos. La clase de fuerza va por ejercicio y depende de cuánto levantas en relación con tu peso. Los niveles se agrupan en siete rangos, de No-Name a Psycho Mogger, y cada rango tiene tres divisiones (I, II y III). Las fórmulas y tablas están en [docs/RANKS.md](docs/RANKS.md).
 
 ## Hoja de ruta
 
