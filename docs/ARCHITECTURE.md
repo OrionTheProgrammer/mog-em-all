@@ -44,10 +44,10 @@ El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la int
 
 La base de datos local, un archivo SQLite en la carpeta de datos del usuario (en Linux, `~/.local/share/mog-em-all/mog.db`). Guarda el perfil, los ejercicios y las sesiones con sus series.
 
-- `migrations.rs`: el esquema. Cada migración se aplica una vez y `PRAGMA user_version` guarda cuántas van. Una migración publicada no se edita; los cambios van en una nueva.
+- `migrations/` y `migrations.rs`: el esquema versionado. Cómo funciona y cómo agregar una migración está en [DATABASE.md](DATABASE.md).
 - Los ejercicios incluidos se guardan con un código (`bench_press`) que la interfaz traduce. Los que crea el usuario se guardan con su nombre.
 - Al cerrar una sesión se calculan la duración, los récords (1RM estimado contra el mejor anterior), la racha y la XP, usando las funciones de `mog-core`.
-- Si el archivo no se puede abrir, la app sigue con una base en memoria.
+- Si el archivo no se puede abrir, la app sigue con una base en memoria y la barra de estado avisa que no se está guardando nada.
 
 ## Social (fase posterior)
 

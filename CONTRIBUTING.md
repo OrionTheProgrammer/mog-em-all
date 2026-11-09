@@ -37,6 +37,10 @@ cargo test --workspace
 tools/i18n.sh --check
 ```
 
+## Base de datos
+
+Los cambios de esquema van en una migración nueva, nunca editando una existente. El proceso está en [docs/DATABASE.md](docs/DATABASE.md).
+
 ## Reglas de arquitectura
 
 - La lógica va en `mog-core` y no depende de Slint.

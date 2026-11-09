@@ -17,5 +17,6 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Versionado del esquema de la base de datos: migraciones en archivos SQL numerados, historial con huella de cada migración, copia de seguridad automática antes de migrar y rechazo de bases creadas por una versión más nueva (con aviso en la barra de estado).
 - Base de datos local (SQLite) con migraciones: perfil, ejercicios incluidos, sesiones y series. El nivel, la racha y las sesiones de la semana del panel salen de ahí.
 - Pantalla de carga nueva: registro con direcciones, columna hexadecimal, "ACCESO CONCEDIDO" y saludo con tu nombre.
