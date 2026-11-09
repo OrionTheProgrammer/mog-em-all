@@ -1121,6 +1121,29 @@ impl Store {
         Ok(())
     }
 
+    // Avisos
+
+    pub fn was_notified(&self, key: &str) -> Result<bool> {
+        Ok(self.conn.query_row(
+            "SELECT EXISTS (SELECT 1 FROM notification_log WHERE key = ?1)",
+            [key],
+            |row| row.get(0),
+        )?)
+    }
+
+    pub fn mark_notified(&self, key: &str, now: Timestamp) -> Result<()> {
+        self.conn.execute(
+            "INSERT OR IGNORE INTO notification_log (key, at) VALUES (?1, ?2)",
+            params![key, now],
+        )?;
+        // Los registros de hace más de 60 días ya no sirven.
+        self.conn.execute(
+            "DELETE FROM notification_log WHERE at < ?1",
+            [now - 60 * 86_400],
+        )?;
+        Ok(())
+    }
+
     // Finanzas
 
     fn seed_categories(&self) -> Result<()> {
