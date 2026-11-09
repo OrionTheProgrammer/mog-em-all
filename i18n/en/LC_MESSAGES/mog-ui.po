@@ -887,37 +887,79 @@ msgctxt "Settings"
 msgid "Amounts you already logged keep their number; only the symbol changes."
 msgstr "Amounts you already logged keep their number; only the symbol changes."
 
-#: crates/mog-ui/ui/screens/settings.slint:101
+#: crates/mog-ui/ui/screens/settings.slint:100
+msgctxt "Settings"
+msgid "BACKGROUND AND REMINDERS"
+msgstr "BACKGROUND AND REMINDERS"
+
+#: crates/mog-ui/ui/screens/settings.slint:102
+msgctxt "Settings"
+msgid "Remind me before events, tasks and workouts"
+msgstr "Remind me before events, tasks and workouts"
+
+#: crates/mog-ui/ui/screens/settings.slint:103
+msgctxt "Settings"
+msgid "Keep running in the tray when I close the window"
+msgstr "Keep running in the tray when I close the window"
+
+#: crates/mog-ui/ui/screens/settings.slint:104
+msgctxt "Settings"
+msgid "Start when I log in (hidden in the tray)"
+msgstr "Start when I log in (hidden in the tray)"
+
+#: crates/mog-ui/ui/screens/settings.slint:108
+msgctxt "Settings"
+msgid "ON"
+msgstr "ON"
+
+#: crates/mog-ui/ui/screens/settings.slint:108
+msgctxt "Settings"
+msgid "OFF"
+msgstr "OFF"
+
+#: crates/mog-ui/ui/screens/settings.slint:130
+msgctxt "Settings"
+msgid ""
+"No system tray found on this desktop, so closing the window quits the app."
+msgstr ""
+"No system tray found on this desktop, so closing the window quits the app."
+
+#: crates/mog-ui/ui/screens/settings.slint:137
+msgctxt "Settings"
+msgid "SEND A TEST REMINDER"
+msgstr "SEND A TEST REMINDER"
+
+#: crates/mog-ui/ui/screens/settings.slint:144
 msgctxt "Settings"
 msgid "YOUR DATA"
 msgstr "YOUR DATA"
 
-#: crates/mog-ui/ui/screens/settings.slint:110
+#: crates/mog-ui/ui/screens/settings.slint:153
 msgctxt "Settings"
 msgid "Database schema version {}"
 msgstr "Database schema version {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:123
+#: crates/mog-ui/ui/screens/settings.slint:166
 msgctxt "Settings"
 msgid "BACK UP NOW"
 msgstr "BACK UP NOW"
 
-#: crates/mog-ui/ui/screens/settings.slint:124
+#: crates/mog-ui/ui/screens/settings.slint:167
 msgctxt "Settings"
 msgid "OPEN FOLDER"
 msgstr "OPEN FOLDER"
 
-#: crates/mog-ui/ui/screens/settings.slint:127
+#: crates/mog-ui/ui/screens/settings.slint:170
 msgctxt "Settings"
 msgid "Backup saved: {}"
 msgstr "Backup saved: {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:138
+#: crates/mog-ui/ui/screens/settings.slint:181
 msgctxt "Settings"
 msgid "ABOUT"
 msgstr "ABOUT"
 
-#: crates/mog-ui/ui/screens/settings.slint:146
+#: crates/mog-ui/ui/screens/settings.slint:189
 msgctxt "Settings"
 msgid ""
 "Source-available under the PolyForm Noncommercial 1.0.0 license. Your data "

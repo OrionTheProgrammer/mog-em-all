@@ -89,6 +89,7 @@ Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene 
 - **Tus rutinas aparecen solas** en sus días. Si le das una hora a una rutina, se vuelve un bloque más.
 - **Choques a la vista:** lo que se pisa se muestra lado a lado y marcado.
 - **Clic en un espacio libre** para crear algo a esa hora, clic en un bloque para editarlo.
+- **Avisos del sistema** antes de cada evento, tarea o entrenamiento, aunque la ventana esté cerrada: la app puede quedarse en la bandeja y abrirse al iniciar sesión.
 - **El panel principal** muestra la rutina de hoy, lista para empezar, y lo que queda en tu día.
 
 <img src="docs/assets/schedule-es.png" alt="Horario semanal con clases, turnos y la rutina de hoy" width="100%">
@@ -186,7 +187,7 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
 - [ ] Fase 2 · Horario, tareas y notificaciones
   - [x] Horario semanal con eventos y días de entrenamiento
   - [x] Tareas con fecha de entrega, prioridad y repetición
-  - [ ] Segundo plano en la bandeja del sistema y notificaciones
+  - [x] Segundo plano en la bandeja del sistema y notificaciones (Linux; la bandeja en Windows queda pendiente)
 - [x] Fase 3 · Finanzas: gastos por grupo, ingresos fijos e informales, presupuestos.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.
 - [ ] Fase 5 · Cuentas, amigos y progreso comparado, con sincronización opcional.

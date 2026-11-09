@@ -89,6 +89,7 @@ It works offline and without an account. You can use it with the mouse or the ke
 - **Your routines show up on their own** on their days. Give a routine a time and it becomes one more block.
 - **Clashes are visible:** overlapping blocks sit side by side and get flagged.
 - **Click an empty slot** to add something at that time, click a block to edit it.
+- **System reminders** before each event, task or workout, even with the window closed: the app can stay in the tray and start when you log in.
 - **The dashboard** shows today's routine, ready to start, and what's left of your day.
 
 <img src="docs/assets/schedule-en.png" alt="Weekly schedule with classes, work shifts and today's routine" width="100%">
@@ -186,7 +187,7 @@ The database schema is versioned. Before any update that changes it, the app sav
 - [ ] Phase 2 · Schedule, tasks and notifications
   - [x] Weekly schedule with events and training days
   - [x] Tasks with due dates, priority and repetition
-  - [ ] Running in the system tray, with notifications
+  - [x] Running in the system tray, with notifications (Linux; the Windows tray is still pending)
 - [x] Phase 3 · Finances: spending by group, fixed and informal income, budgets.
 - [ ] Phase 4 · Share routines without a server, through a file or a QR code.
 - [ ] Phase 5 · Accounts, friends and compared progress, with optional sync.

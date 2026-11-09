@@ -17,3 +17,8 @@ slint.workspace = true
 chrono.workspace = true
 mog-storage.workspace = true
 dirs.workspace = true
+notify-rust.workspace = true
+auto-launch.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ksni.workspace = true

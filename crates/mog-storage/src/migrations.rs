@@ -56,6 +56,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "finances",
         sql: include_str!("../migrations/0006_finances.sql"),
     },
+    Migration {
+        version: 7,
+        name: "notifications",
+        sql: include_str!("../migrations/0007_notifications.sql"),
+    },
 ];
 
 /// Versión de esquema que entiende esta compilación de la app.

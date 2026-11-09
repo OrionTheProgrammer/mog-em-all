@@ -25,6 +25,12 @@ export global SettingsState {
 
     in property <string> version;
 
+    // Segundo plano y avisos
+    in property <bool> tray-available;
+    in property <bool> background-on-close;
+    in property <bool> autostart;
+    in property <bool> notifications;
+
     // Registro inicial (primera vez que se abre la app)
     in-out property <bool> onboarding;
 
@@ -34,4 +40,8 @@ export global SettingsState {
     callback open-folder();
     callback finish-onboarding();
     callback skip-onboarding();
+    callback set-background-on-close(bool);
+    callback set-autostart(bool);
+    callback set-notifications(bool);
+    callback test-notification();
 }

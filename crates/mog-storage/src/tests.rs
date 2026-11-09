@@ -202,7 +202,7 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
 
 /// Migración de prueba que va después de la última real.
 const NEXT: migrations::Migration = migrations::Migration {
-    version: 7,
+    version: 8,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
@@ -941,4 +941,18 @@ fn manual_backup_is_a_full_copy() {
     assert_eq!(restored.profile().unwrap().unwrap().weekly_goal, 4);
     drop(restored);
     let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn notifications_are_remembered_and_pruned() {
+    let store = store_with_profile();
+    assert!(!store.was_notified("event:1:20766").unwrap());
+    store.mark_notified("event:1:20766", MONDAY).unwrap();
+    store.mark_notified("event:1:20766", MONDAY).unwrap();
+    assert!(store.was_notified("event:1:20766").unwrap());
+    store.mark_notified("task:2", MONDAY + 61 * DAY).unwrap();
+    assert!(
+        !store.was_notified("event:1:20766").unwrap(),
+        "los viejos se borran"
+    );
 }

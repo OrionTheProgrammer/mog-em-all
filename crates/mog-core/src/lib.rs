@@ -9,6 +9,7 @@ pub mod command;
 pub mod finance;
 pub mod health;
 pub mod ranks;
+pub mod reminders;
 pub mod schedule;
 pub mod tasks;
 pub mod training;
