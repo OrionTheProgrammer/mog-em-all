@@ -29,7 +29,7 @@ trap cleanup EXIT
 sleep 1
 export DISPLAY="$display"
 
-ffmpeg -loglevel error -y -f x11grab -draw_mouse 0 -framerate 30 -video_size 1440x900 -i "$display" -t 15 "$tmp/demo.mp4" &
+ffmpeg -loglevel error -y -f x11grab -draw_mouse 0 -framerate 30 -video_size 1440x900 -i "$display" -t 17 "$tmp/demo.mp4" &
 rec=$!
 sleep 0.3
 env -u WAYLAND_DISPLAY LANG="$locale" "$root/target/release/mog-em-all" >/dev/null 2>&1 &
@@ -42,8 +42,8 @@ until xdotool windowfocus "$window" 2>/dev/null; do sleep 0.1; done
 shot() { import -window root "$out/$1-$lang.png"; }
 typed() { xdotool type --delay 70 "$1"; }
 
-sleep 1.3; shot boot
-sleep 2.6; shot hud
+sleep 3.5; shot boot
+sleep 2.0; shot hud
 xdotool type "/"; typed "$bmi"; sleep 0.3; xdotool key Return
 sleep 1.4; shot hud-bmi
 xdotool key Escape; sleep 0.6

@@ -4,14 +4,24 @@
 import { CommandFeedback, Clock } from "../types.slint";
 
 export global Labels {
+    // Mismo orden que ranks::Tier en mog-core.
     public pure function tier(t: int) -> string {
-        t == 0 ? @tr("Scrap") :
-        t == 1 ? @tr("Recruit") :
-        t == 2 ? @tr("Operator") :
-        t == 3 ? @tr("Mercenary") :
-        t == 4 ? @tr("Veteran") :
-        t == 5 ? @tr("Elite") :
-        @tr("Legend")
+        t == 0 ? @tr("No-Name") :
+        t == 1 ? @tr("Beginner") :
+        t == 2 ? @tr("Selfhater") :
+        t == 3 ? @tr("Insane") :
+        t == 4 ? @tr("Chad") :
+        t == 5 ? @tr("Mogger") :
+        @tr("Psycho Mogger")
+    }
+
+    public pure function roman(n: int) -> string {
+        n == 1 ? "I" : n == 2 ? "II" : "III"
+    }
+
+    // Rango completo con división, en mayúsculas: "CHAD II".
+    public pure function rank(t: int, division: int) -> string {
+        (Labels.tier(t) + " " + Labels.roman(division)).to-uppercase()
     }
 
     public pure function bmi-category(c: int) -> string {

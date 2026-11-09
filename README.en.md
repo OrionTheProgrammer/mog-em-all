@@ -88,7 +88,7 @@ Commands work in English or Spanish. Case and accents don't matter.
 
 ### Ranks
 
-There are two separate measures. Your level goes up with XP from training regularly; since it measures effort, you can compete with friends even if your bodies are very different. Strength class is per lift and depends on how much you lift relative to your bodyweight. Levels are grouped into seven ranks, from Scrap to Legend. Formulas and tables are in [docs/RANKS.md](docs/RANKS.md) (in Spanish).
+There are two separate measures. Your level goes up with XP from training regularly; since it measures effort, you can compete with friends even if your bodies are very different. Strength class is per lift and depends on how much you lift relative to your bodyweight. Levels are grouped into seven ranks, from No-Name to Psycho Mogger, and each rank has three divisions (I, II and III). Formulas and tables are in [docs/RANKS.md](docs/RANKS.md) (in Spanish).
 
 ## Roadmap
 

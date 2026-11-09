@@ -16,3 +16,5 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Logotipo animado "MOG / EM ALL" con el apóstrofo como corte diagonal, en la pantalla de carga y la barra superior.
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
+- Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pantalla de carga nueva: registro con direcciones, columna hexadecimal, "ACCESO CONCEDIDO" y saludo con tu nombre.

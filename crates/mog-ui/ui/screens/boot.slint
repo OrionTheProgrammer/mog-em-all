@@ -1,108 +1,199 @@
 import { Theme } from "../theme/theme.slint";
-import { Cursor } from "../components/effects.slint";
+import { Labels } from "../theme/labels.slint";
+import { OperatorInfo } from "../types.slint";
 import { Logo } from "../components/logo.slint";
-import { SegmentBar } from "../components/progress.slint";
 
-// Pantalla de carga. `progress` (0 a 1) lo maneja mog-app según el trabajo real de arranque.
+// Columna de volcado hexadecimal que corre hacia arriba. Es decorativa.
+component HexStream inherits Rectangle {
+    property <float> t: animation-tick() / 1ms;
+    property <string> block: "FF2A 3D07 0102 A1B7\n3FF0 0E11 7A14 20C2\nFFB0 2E12 040A 1D06\n0000 7F3C 9A1E 44D0\n8B2C 5E61 0DA9 F00D\nC0DE 1337 BEEF 0A0B\n";
+    clip: true;
+    border-width: 0;
+
+    Rectangle {
+        x: 0;
+        width: 1px;
+        background: Theme.red-dim;
+    }
+
+    text := Text {
+        x: 18px;
+        y: -Math.mod(root.t, 1200) / 1200 * (self.preferred-height / 2);
+        text: root.block + root.block + root.block + root.block + root.block + root.block + root.block + root.block;
+        color: Theme.red-dim;
+        font-family: Theme.font-mono;
+        font-size: Theme.size-xs;
+    }
+}
+
+// Pantalla de carga "secuencia de arranque". `progress` (0 a 1) lo maneja mog-app.
+// Al llegar a 1 se muestra el acceso concedido con el nombre del usuario.
 export component BootScreen inherits Rectangle {
     in property <float> progress;
+    in property <string> user-name;
+    in property <OperatorInfo> operator;
     callback skip();
 
     background: Theme.bg;
 
     property <bool> shown: false;
+    property <bool> granted: root.progress >= 1;
     init => { root.shown = true; }
 
-    property <[string]> steps: [
-        @tr("Initializing logic engine"),
-        @tr("Mounting local database"),
-        @tr("Loading language pack"),
-        @tr("Calibrating rank tables"),
-        @tr("Restoring operator profile"),
-        @tr("Starting interface"),
+    property <[{address: string, text: string}]> steps: [
+        { address: "0x00A1", text: @tr("Initializing logic engine") },
+        { address: "0x00B7", text: @tr("Mounting local database") },
+        { address: "0x01C2", text: @tr("Checking pending reminders") },
+        { address: "0x02F0", text: @tr("Calculating strength progress") },
+        { address: "0x03AA", text: @tr("Restoring profile · {}", Labels.rank(root.operator.tier, root.operator.division)) },
+        { address: "0x03FF", text: @tr("Starting interface") },
     ];
 
     TouchArea {
         clicked => { root.skip(); }
     }
 
-    VerticalLayout {
-        alignment: center;
+    HorizontalLayout {
         padding-left: 96px;
         padding-right: 96px;
-        spacing: Theme.gap-lg;
+        padding-top: 72px;
+        padding-bottom: 72px;
+        spacing: 48px;
 
         VerticalLayout {
-            spacing: Theme.gap-md;
-            Logo {
-                font-size: 110px;
-                active: root.shown;
-            }
-            Text {
-                text: @tr("PERSONAL TRACKING SYSTEM");
-                color: Theme.text-dim;
-                font-family: Theme.font-mono;
-                font-size: Theme.size-sm;
-                letter-spacing: 6px;
-            }
-        }
+            horizontal-stretch: 1;
+            alignment: center;
+            spacing: Theme.gap-lg;
 
-        VerticalLayout {
-            spacing: 4px;
-            for step[i] in root.steps: HorizontalLayout {
-                property <bool> started: root.progress * root.steps.length > i;
-                property <bool> done: root.progress * root.steps.length >= i + 1;
-                opacity: self.started ? 1 : 0;
-                animate opacity { duration: Theme.fast; }
+            VerticalLayout {
                 spacing: Theme.gap-md;
-
+                Logo {
+                    font-size: 110px;
+                    active: root.shown;
+                }
                 Text {
-                    text: "> " + step;
-                    color: Theme.text;
+                    text: @tr("PERSONAL TRACKING SYSTEM");
+                    color: Theme.text-dim;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-sm;
+                    letter-spacing: 6px;
                 }
+            }
+
+            VerticalLayout {
+                spacing: 4px;
+                for step[i] in root.steps: HorizontalLayout {
+                    property <bool> started: root.progress * root.steps.length > i;
+                    property <bool> done: root.progress * root.steps.length >= i + 1;
+                    opacity: self.started ? 1 : 0;
+                    animate opacity { duration: Theme.fast; }
+                    spacing: Theme.gap-md;
+
+                    Text {
+                        text: step.address;
+                        color: Theme.red-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    Text {
+                        text: step.text;
+                        horizontal-stretch: 1;
+                        color: Theme.text;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    Text {
+                        text: done ? "[ OK ]" : "[ .. ]";
+                        color: done ? Theme.cyan : Theme.amber;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                spacing: Theme.gap-md;
                 Rectangle {
                     horizontal-stretch: 1;
+                    height: 16px;
+                    border-width: 1px;
+                    border-color: Theme.red-dim;
+                    Rectangle {
+                        x: 2px;
+                        y: 2px;
+                        height: parent.height - 4px;
+                        width: (parent.width - 4px) * root.progress;
+                        background: @linear-gradient(90deg, Theme.red 0%, Theme.red-glow 100%);
+                    }
                 }
                 Text {
-                    text: done ? "[ OK ]" : "[ .. ]";
-                    color: done ? Theme.cyan : Theme.red-dim;
+                    text: root.granted ? @tr("READY") : @tr("LOADING");
+                    vertical-alignment: center;
+                    color: Theme.red;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-sm;
+                    letter-spacing: 2px;
                 }
             }
-        }
 
-        HorizontalLayout {
-            spacing: Theme.gap-md;
-            SegmentBar {
-                value: root.progress;
-                segments: 48;
-                height: 14px;
-            }
-            Text {
-                min-width: 52px;
-                text: Math.round(root.progress * 100) + "%";
-                horizontal-alignment: right;
-                color: Theme.red;
-                font-family: Theme.font-mono;
-                font-size: Theme.size-sm;
-            }
-        }
-
-        HorizontalLayout {
-            spacing: Theme.gap-sm;
-            alignment: start;
             Text {
                 text: @tr("Click to skip");
-                vertical-alignment: center;
                 color: Theme.red-dim;
                 font-family: Theme.font-mono;
                 font-size: Theme.size-xs;
                 letter-spacing: 2px;
             }
-            Cursor { }
+        }
+
+        HexStream {
+            width: 240px;
+        }
+    }
+
+    // Acceso concedido + nombre
+    VerticalLayout {
+        y: root.height - self.preferred-height - 56px;
+        height: self.preferred-height;
+        spacing: Theme.gap-md;
+        alignment: end;
+        opacity: root.granted ? 1 : 0;
+
+        HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                background: Theme.red;
+                width: granted-text.preferred-width + 56px;
+                height: granted-text.preferred-height + 20px;
+                transform-scale: root.granted ? 1 : 1.15;
+                animate transform-scale { duration: 180ms; easing: ease-out; }
+                granted-text := Text {
+                    text: @tr("ACCESS GRANTED");
+                    color: Theme.bg;
+                    font-family: Theme.font-display;
+                    font-weight: 700;
+                    font-size: 54px;
+                    letter-spacing: 16px;
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                width: name.preferred-width * (root.granted ? 1 : 0);
+                height: name.preferred-height;
+                clip: true;
+                animate width { duration: 500ms; delay: 250ms; easing: ease-out; }
+                name := Text {
+                    x: 0;
+                    width: self.preferred-width;
+                    text: @tr("WELCOME, {}", root.user-name);
+                    color: Theme.cyan;
+                    font-family: Theme.font-display;
+                    font-weight: 700;
+                    font-size: 30px;
+                    letter-spacing: 10px;
+                }
+            }
         }
     }
 }

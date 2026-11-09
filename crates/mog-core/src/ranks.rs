@@ -79,40 +79,40 @@ pub fn level_from_xp(total_xp: u64) -> LevelProgress {
     }
 }
 
-/// Rango de operador, agrupa tramos de niveles.
+/// Rango de operador, agrupa tramos de niveles. Cada rango tiene tres divisiones (I, II, III).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Tier {
-    Scrap,
-    Recruit,
-    Operator,
-    Mercenary,
-    Veteran,
-    Elite,
-    Legend,
+    NoName,
+    Beginner,
+    Selfhater,
+    Insane,
+    Chad,
+    Mogger,
+    PsychoMogger,
 }
 
 pub fn tier_for_level(level: u32) -> Tier {
     match level {
-        0..=9 => Tier::Scrap,
-        10..=19 => Tier::Recruit,
-        20..=34 => Tier::Operator,
-        35..=49 => Tier::Mercenary,
-        50..=69 => Tier::Veteran,
-        70..=89 => Tier::Elite,
-        _ => Tier::Legend,
+        0..=9 => Tier::NoName,
+        10..=19 => Tier::Beginner,
+        20..=34 => Tier::Selfhater,
+        35..=49 => Tier::Insane,
+        50..=69 => Tier::Chad,
+        70..=89 => Tier::Mogger,
+        _ => Tier::PsychoMogger,
     }
 }
 
 /// Primer nivel de cada rango, en el orden de `Tier`.
 const TIER_STARTS: [u32; 7] = [1, 10, 20, 35, 50, 70, 90];
 
-/// Nivel en el que empieza el siguiente rango, o `None` si ya es Leyenda.
+/// Nivel en el que empieza el siguiente rango, o `None` si ya es Psycho Mogger.
 pub fn next_tier_level(level: u32) -> Option<u32> {
     TIER_STARTS.iter().copied().find(|&start| start > level)
 }
 
-/// Avance dentro del rango actual, de 0 a 1 (Leyenda en el nivel máximo da 1).
-pub fn tier_progress(level: u32) -> f64 {
+/// Primer y último nivel (inclusive) del rango que contiene `level`.
+fn tier_band(level: u32) -> (u32, u32) {
     let level = level.clamp(1, MAX_LEVEL);
     let start = TIER_STARTS
         .iter()
@@ -120,11 +120,63 @@ pub fn tier_progress(level: u32) -> f64 {
         .rev()
         .find(|&s| s <= level)
         .unwrap_or(1);
-    let end = next_tier_level(level).unwrap_or(MAX_LEVEL);
+    let end = next_tier_level(level).map_or(MAX_LEVEL, |next| next - 1);
+    (start, end)
+}
+
+/// División dentro del rango: 1, 2 o 3. Cada rango se reparte en tres tramos de niveles.
+pub fn division(level: u32) -> u8 {
+    let (start, end) = tier_band(level);
+    let span = end - start + 1;
+    let offset = level.clamp(start, end) - start;
+    (1 + offset * 3 / span) as u8
+}
+
+/// Nivel en el que empieza la división siguiente (o el rango siguiente).
+/// `None` en la última división de Psycho Mogger.
+pub fn next_division_level(level: u32) -> Option<u32> {
+    let (start, end) = tier_band(level);
+    let span = end - start + 1;
+    let current = division(level) as u32;
+    if current < 3 {
+        // Primer nivel cuya división es current + 1: start + ceil(current * span / 3).
+        Some(start + (current * span).div_ceil(3))
+    } else {
+        next_tier_level(level)
+    }
+}
+
+/// Avance dentro del rango actual, de 0 a 1 (Psycho Mogger en el nivel máximo da 1).
+pub fn tier_progress(level: u32) -> f64 {
+    let (start, end) = tier_band(level);
     if end == start {
         return 1.0;
     }
-    (level - start) as f64 / (end - start) as f64
+    (level.clamp(start, end) - start) as f64 / (end - start) as f64
+}
+
+/// Qué tan grande fue un cambio de nivel, para decidir qué animación mostrar.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RankChange {
+    /// Subió de nivel sin cambiar de división.
+    LevelOnly,
+    /// Pasó a la división siguiente dentro del mismo rango.
+    Division,
+    /// Llegó a un rango nuevo.
+    Tier,
+}
+
+pub fn rank_change(old_level: u32, new_level: u32) -> Option<RankChange> {
+    if new_level <= old_level {
+        return None;
+    }
+    Some(if tier_for_level(new_level) != tier_for_level(old_level) {
+        RankChange::Tier
+    } else if division(new_level) != division(old_level) {
+        RankChange::Division
+    } else {
+        RankChange::LevelOnly
+    })
 }
 
 /// Ejercicios con tabla de clase de fuerza.
@@ -281,10 +333,10 @@ mod tests {
 
     #[test]
     fn tiers() {
-        assert_eq!(tier_for_level(1), Tier::Scrap);
-        assert_eq!(tier_for_level(10), Tier::Recruit);
-        assert_eq!(tier_for_level(49), Tier::Mercenary);
-        assert_eq!(tier_for_level(100), Tier::Legend);
+        assert_eq!(tier_for_level(1), Tier::NoName);
+        assert_eq!(tier_for_level(10), Tier::Beginner);
+        assert_eq!(tier_for_level(49), Tier::Insane);
+        assert_eq!(tier_for_level(100), Tier::PsychoMogger);
     }
 
     #[test]
@@ -294,12 +346,52 @@ mod tests {
         assert_eq!(next_tier_level(95), None);
         assert_eq!(tier_progress(1), 0.0);
         assert_eq!(tier_progress(20), 0.0);
-        assert!((tier_progress(30) - 10.0 / 15.0).abs() < 1e-9);
+        assert!((tier_progress(30) - 10.0 / 14.0).abs() < 1e-9);
+        assert_eq!(tier_progress(34), 1.0);
         assert_eq!(tier_progress(MAX_LEVEL), 1.0);
         for level in 1..=MAX_LEVEL {
             let p = tier_progress(level);
             assert!((0.0..=1.0).contains(&p), "nivel {level}: {p}");
         }
+    }
+
+    #[test]
+    fn divisions_split_each_tier_in_three() {
+        // Chad va del 50 al 69: I 50-56, II 57-63, III 64-69.
+        assert_eq!(division(50), 1);
+        assert_eq!(division(56), 1);
+        assert_eq!(division(57), 2);
+        assert_eq!(division(63), 2);
+        assert_eq!(division(64), 3);
+        assert_eq!(division(69), 3);
+        // No-Name va del 1 al 9: tres niveles por división.
+        assert_eq!((division(1), division(4), division(7)), (1, 2, 3));
+        assert_eq!(division(MAX_LEVEL), 3);
+    }
+
+    #[test]
+    fn next_division_matches_division() {
+        for level in 1..MAX_LEVEL {
+            if let Some(next) = next_division_level(level) {
+                assert!(next > level, "nivel {level}");
+                let before = (tier_for_level(next - 1), division(next - 1));
+                let after = (tier_for_level(next), division(next));
+                assert_ne!(before, after, "nivel {next} no empieza una división");
+                assert_eq!(before, (tier_for_level(level), division(level)));
+            }
+        }
+        assert_eq!(next_division_level(50), Some(57));
+        assert_eq!(next_division_level(64), Some(70));
+        assert_eq!(next_division_level(MAX_LEVEL), None);
+    }
+
+    #[test]
+    fn rank_changes() {
+        assert_eq!(rank_change(5, 5), None);
+        assert_eq!(rank_change(51, 52), Some(RankChange::LevelOnly));
+        assert_eq!(rank_change(56, 57), Some(RankChange::Division));
+        assert_eq!(rank_change(69, 70), Some(RankChange::Tier));
+        assert_eq!(rank_change(8, 23), Some(RankChange::Tier));
     }
 
     #[test]

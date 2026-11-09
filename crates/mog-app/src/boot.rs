@@ -12,7 +12,8 @@ use mog_ui::AppWindow;
 use slint::{ComponentHandle, Timer, TimerMode};
 
 const MIN_BOOT: Duration = Duration::from_millis(2400);
-const HOLD_AT_FULL: Duration = Duration::from_millis(350);
+// Tiempo que se ve el acceso concedido antes de pasar al HUD.
+const HOLD_AT_FULL: Duration = Duration::from_millis(1600);
 
 /// Devuelve el temporizador; hay que mantenerlo vivo mientras dure el arranque.
 pub fn start(ui: &AppWindow) -> Timer {
