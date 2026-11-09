@@ -76,6 +76,9 @@ sleep 1.2; shot training
 # Anotar la serie que propone la app: se ve el descanso corriendo.
 xdotool mousemove 560 340 click 1; xdotool key Return
 sleep 3; shot training-rest
+xdotool key Escape; sleep 0.3
+xdotool key e; sleep 0.3; xdotool key e
+sleep 1.2; shot schedule
 
 ffmpeg -loglevel error -y -i "$tmp/demo.mp4" \
     -vf "fps=15,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" \
