@@ -17,6 +17,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pestaña AJUSTES: perfil (nombre, peso, altura, tablas de fuerza y meta semanal), idioma (ahora se recuerda), moneda, ubicación e historial del esquema de la base, copia de seguridad manual, abrir la carpeta de datos y créditos.
+- Registro inicial la primera vez que se abre la app, con el estilo de la animación de No-Name. Se puede dejar para después.
+- El IMC del panel se calcula solo con el peso y la altura del perfil.
 - Pestaña FINANZAS:
   - Entrada rápida de movimientos: "12.500 almuerzo" es un gasto en Comida (el grupo se deduce de las palabras), "+20.000 venta polera" es un ingreso informal; entiende "ayer", `#grupo` y montos como 15k.
   - Resumen del mes: ingresos fijos y otros, gastos, balance y cuánto del presupuesto se usó.

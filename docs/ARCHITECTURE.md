@@ -44,7 +44,7 @@ Todo el dibujo. Dentro de `ui/`:
 
 ## mog-app
 
-El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja las pestañas de entrenamiento (`training.rs`) horario (`schedule.rs`), tareas (`tasks.rs`) y finanzas (`finance.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
+El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja las pestañas de entrenamiento (`training.rs`) horario (`schedule.rs`), tareas (`tasks.rs`), finanzas (`finance.rs`) y ajustes (`settings.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
 
 ## mog-storage
 
