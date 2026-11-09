@@ -1,11 +1,11 @@
 import { ScrollView } from "std-widgets.slint";
 import { Theme } from "../theme/theme.slint";
 import { Labels } from "../theme/labels.slint";
-import { TrainingState, RoutineExerciseRow, SetRow } from "../state/training.slint";
+import { TrainingState, RoutineExerciseRow, SetRow, ExerciseItem } from "../state/training.slint";
 import { TermButton } from "../components/button.slint";
 import { TermInput } from "../components/input.slint";
 import { SegmentBar } from "../components/progress.slint";
-import { SectionLabel } from "../components/hud.slint";
+import { SectionLabel, KeyHint } from "../components/hud.slint";
 
 // Meta de un ejercicio en una línea: "4 × 6–8 · 70 kg · 2:30".
 component TargetText inherits Text {
@@ -100,6 +100,120 @@ component DayToggles {
     }
 }
 
+// Paso de "primeros pasos": hecho o pendiente.
+component Step {
+    in property <int> number;
+    in property <string> text;
+    in property <bool> done;
+    HorizontalLayout {
+        spacing: Theme.gap-md;
+        Text {
+            width: 26px;
+            text: root.done ? "✓" : root.number;
+            color: root.done ? Theme.cyan : Theme.red;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: Theme.size-md;
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+            wrap: word-wrap;
+            color: root.done ? Theme.text-dim : Theme.text;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-sm;
+        }
+    }
+}
+
+// Ficha de un ejercicio: qué trabaja, con qué se hace y cómo entra a una rutina.
+component ExerciseCard inherits Rectangle {
+    in property <ExerciseItem> item;
+    background: Theme.panel;
+    border-width: 1px;
+    border-color: Theme.red-dim;
+
+    VerticalLayout {
+        padding: 12px;
+        spacing: 4px;
+        Text {
+            text: Labels.exercise(root.item.code, root.item.name);
+            wrap: word-wrap;
+            color: Theme.red-glow;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: Theme.size-md;
+        }
+        Text {
+            text: root.item.muscle >= 0
+                ? Labels.muscle(root.item.muscle)
+                    + (root.item.secondary.length > 0 ? " · " + @tr("also") + " " + Labels.muscle(root.item.secondary[0]) : "")
+                    + (root.item.secondary.length > 1 ? ", " + Labels.muscle(root.item.secondary[1]) : "")
+                    + (root.item.secondary.length > 2 ? ", " + Labels.muscle(root.item.secondary[2]) : "")
+                : @tr("No muscle group");
+            wrap: word-wrap;
+            color: Theme.cyan;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        Text {
+            text: (root.item.equipment >= 0 ? Labels.equipment(root.item.equipment) + " · " : "") + Labels.exercise-kind(root.item.kind);
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        if root.item.lift >= 0: Text {
+            text: @tr("Counts for your strength class (E to S).");
+            color: Theme.amber;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        if !root.item.custom: Text {
+            text: root.item.kind == 2
+                ? @tr("Added to a routine with {} rest", Labels.duration(root.item.rest-s))
+                : @tr("Added to a routine as {}–{} reps, {} rest", root.item.reps-min, root.item.reps-max, Labels.duration(root.item.rest-s));
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+    }
+}
+
+// Buscador y filtro por músculo de la biblioteca.
+component LibraryFilter {
+    callback changed();
+    VerticalLayout {
+        spacing: 4px;
+        TermInput {
+            label: @tr("SEARCH");
+            text <=> TrainingState.filter-query;
+            edited => { root.changed(); }
+        }
+        // "Todos" más los 13 grupos, en filas de 4 para que quepan en la columna.
+        for row in 4: HorizontalLayout {
+            spacing: 3px;
+            for col in 4: Rectangle {
+                property <int> m: row * 4 + col - 1;
+                horizontal-stretch: 1;
+                height: 28px;
+                if self.m <= 12: TermButton {
+                    width: 100%;
+                    height: 100%;
+                    min-width: 0px;
+                    tiny: true;
+                    text: parent.m < 0 ? @tr("All") : Labels.muscle(parent.m);
+                    compact: true;
+                    active: TrainingState.filter-muscle == parent.m;
+                    clicked => {
+                        TrainingState.filter-muscle = parent.m;
+                        root.changed();
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Sin sesión: rutinas de hoy, editor de rutinas y biblioteca de ejercicios.
 component PlanView {
     property <int> routine-row: -1;
@@ -111,6 +225,10 @@ component PlanView {
     property <string> rest-text;
     property <bool> target-error;
     property <bool> confirm-delete;
+    property <bool> creating;
+    property <string> new-exercise-name;
+    property <int> new-exercise-kind: 0;
+    property <bool> new-exercise-error;
 
     function pick-row(i: int) {
         root.routine-row = i;
@@ -212,8 +330,43 @@ component PlanView {
             if TrainingState.editing.id == 0: VerticalLayout {
                 alignment: start;
                 spacing: Theme.gap-md;
+                if !(TrainingState.steps[0] && TrainingState.steps[1] && TrainingState.steps[2] && TrainingState.steps[3]): VerticalLayout {
+                    spacing: Theme.gap-md;
+                    SectionLabel { text: @tr("FIRST STEPS"); }
+                    Step { number: 1; done: TrainingState.steps[0]; text: @tr("Create a routine for one training day, for example \"Chest\". Bottom left."); }
+                    Step { number: 2; done: TrainingState.steps[1]; text: @tr("Add its exercises from the library on the right. Each one comes with a starting goal."); }
+                    Step { number: 3; done: TrainingState.steps[2]; text: @tr("Mark the days you do it. On those days it shows up under TODAY."); }
+                    Step { number: 4; done: TrainingState.steps[3]; text: @tr("Start it and log each set. The rest timer runs on its own."); }
+                    Rectangle { height: Theme.gap-md; }
+                }
                 SectionLabel { text: @tr("ROUTINE"); }
                 Muted { text: @tr("Pick a routine on the left to edit its days and exercises."); }
+                Rectangle { height: Theme.gap-md; }
+                SectionLabel { text: @tr("RECENT SESSIONS"); }
+                if TrainingState.recent.length == 0: Muted { text: @tr("Your finished sessions will show up here."); }
+                for item in TrainingState.recent: HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    Text {
+                        text: Labels.pad(item.day) + "/" + Labels.pad(item.month);
+                        color: Theme.red-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: item.name;
+                        overflow: elide;
+                        color: Theme.text;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    Text {
+                        text: @tr("{} min · +{} XP", item.duration-min, item.xp);
+                        color: Theme.cyan;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                }
             }
 
             if TrainingState.editing.id != 0: VerticalLayout {
@@ -338,14 +491,25 @@ component PlanView {
         // Biblioteca de ejercicios
         VerticalLayout {
             horizontal-stretch: 1;
-            min-width: 240px;
+            min-width: 300px;
             spacing: Theme.gap-sm;
-            SectionLabel { text: @tr("EXERCISE LIBRARY"); }
+            SectionLabel {
+                text: @tr("EXERCISE LIBRARY · {} OF {}", TrainingState.exercises.length, TrainingState.exercises-total);
+            }
+            LibraryFilter {
+                vertical-stretch: 0;
+                changed => {
+                    root.library-row = 0;
+                    TrainingState.filter-changed();
+                }
+            }
             ScrollView {
                 vertical-stretch: 1;
+                min-height: 120px;
                 VerticalLayout {
                     alignment: start;
-                    spacing: 4px;
+                    spacing: 3px;
+                    if TrainingState.exercises.length == 0: Muted { text: @tr("Nothing matches. Try another word or pick All."); }
                     for item[i] in TrainingState.exercises: TermButton {
                         text: Labels.exercise(item.code, item.name);
                         compact: true;
@@ -354,37 +518,77 @@ component PlanView {
                     }
                 }
             }
-            TermButton {
-                text: @tr("ADD TO ROUTINE");
-                active: TrainingState.editing.id != 0;
-                clicked => {
-                    if (TrainingState.editing.id != 0) {
-                        TrainingState.add-to-routine(TrainingState.editing.id, TrainingState.exercises[root.library-row].id);
+            if !root.creating && root.library-row < TrainingState.exercises.length: ExerciseCard {
+                item: TrainingState.exercises[root.library-row];
+            }
+            if !root.creating: HorizontalLayout {
+                spacing: Theme.gap-sm;
+                TermButton {
+                    horizontal-stretch: 1;
+                    text: TrainingState.editing.id != 0 ? @tr("ADD TO {}", TrainingState.editing.name.to-uppercase()) : @tr("PICK A ROUTINE TO ADD");
+                    active: TrainingState.editing.id != 0 && TrainingState.exercises.length > 0;
+                    clicked => {
+                        if (TrainingState.editing.id != 0 && root.library-row < TrainingState.exercises.length) {
+                            TrainingState.add-to-routine(TrainingState.editing.id, TrainingState.exercises[root.library-row].id);
+                        }
+                    }
+                }
+                TermButton {
+                    text: @tr("NEW");
+                    compact: true;
+                    clicked => {
+                        root.creating = true;
+                        root.new-exercise-error = false;
                     }
                 }
             }
-            SectionLabel { text: @tr("RECENT SESSIONS"); }
-            for item in TrainingState.recent: HorizontalLayout {
+            if root.creating: VerticalLayout {
                 spacing: Theme.gap-sm;
-                Text {
-                    text: Labels.pad(item.day) + "/" + Labels.pad(item.month);
-                    color: Theme.red-dim;
+                SectionLabel { text: @tr("NEW EXERCISE"); }
+                TermInput {
+                    label: @tr("NAME");
+                    text <=> root.new-exercise-name;
+                }
+                HorizontalLayout {
+                    spacing: 3px;
+                    for k in 3: TermButton {
+                        text: k == 0 ? @tr("Weight") : k == 1 ? @tr("Bodyweight") : @tr("Time");
+                        compact: true;
+                        active: root.new-exercise-kind == k;
+                        clicked => { root.new-exercise-kind = k; }
+                    }
+                }
+                Muted {
+                    text: TrainingState.filter-muscle >= 0
+                        ? @tr("Muscle group: {} (the one picked above).", Labels.muscle(TrainingState.filter-muscle))
+                        : @tr("Pick a muscle group above if you want the exercise filed under one.");
+                }
+                if root.new-exercise-error: Text {
+                    text: @tr("Write a name.");
+                    color: Theme.amber;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-xs;
                 }
-                Text {
-                    horizontal-stretch: 1;
-                    text: item.name;
-                    overflow: elide;
-                    color: Theme.text;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-xs;
-                }
-                Text {
-                    text: "+" + item.xp + " XP";
-                    color: Theme.cyan;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-xs;
+                HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    TermButton {
+                        horizontal-stretch: 1;
+                        text: @tr("CREATE EXERCISE");
+                        active: true;
+                        clicked => {
+                            if (TrainingState.create-exercise(root.new-exercise-name, root.new-exercise-kind, TrainingState.filter-muscle)) {
+                                root.creating = false;
+                                root.new-exercise-name = "";
+                            } else {
+                                root.new-exercise-error = true;
+                            }
+                        }
+                    }
+                    TermButton {
+                        text: @tr("CANCEL");
+                        compact: true;
+                        clicked => { root.creating = false; }
+                    }
                 }
             }
         }
@@ -590,7 +794,9 @@ component SessionView {
                 }
                 Text {
                     text: TrainingState.current.in-routine
-                        ? @tr("Set {} of {} · goal {}–{} reps", TrainingState.current.done + 1, TrainingState.current.sets, TrainingState.current.reps-min, TrainingState.current.reps-max)
+                        ? (TrainingState.current.done >= TrainingState.current.sets
+                            ? @tr("Goal done ({} sets). Extra sets also count.", TrainingState.current.sets)
+                            : @tr("Set {} of {} · goal {}–{} reps", TrainingState.current.done + 1, TrainingState.current.sets, TrainingState.current.reps-min, TrainingState.current.reps-max))
                         : @tr("Set {}", TrainingState.current.done + 1);
                     color: Theme.cyan;
                     font-family: Theme.font-mono;
@@ -600,12 +806,20 @@ component SessionView {
                 SectionLabel { text: @tr("SET TYPE"); }
                 HorizontalLayout {
                     spacing: 4px;
-                    for t in 5: TermButton {
+                    // En el orden en que se suelen hacer: calentamiento, aproximación, trabajo, al fallo...
+                    for t in [0, 1, 5, 4, 2, 3]: TermButton {
                         text: Labels.set-type(t);
                         compact: true;
                         active: root.set-type == t;
                         clicked => { root.set-type = t; }
                     }
+                }
+                Text {
+                    text: Labels.set-type-help(root.set-type);
+                    wrap: word-wrap;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
                 }
 
                 HorizontalLayout {
@@ -643,6 +857,32 @@ component SessionView {
                     clicked => { root.submit(); }
                 }
                 RestPanel { }
+                if TrainingState.next.exercise-id != 0 && TrainingState.next.exercise-id != TrainingState.current.id: HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    Text {
+                        text: @tr("NEXT");
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                        letter-spacing: 3px;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: Labels.exercise(TrainingState.next.code, TrainingState.next.name) + " · "
+                            + TrainingState.next.sets + " × " + TrainingState.next.reps-min + "–" + TrainingState.next.reps-max;
+                        overflow: elide;
+                        color: Theme.text;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                        vertical-alignment: center;
+                    }
+                    TermButton {
+                        text: @tr("GO");
+                        compact: true;
+                        clicked => { TrainingState.select-exercise(TrainingState.next.exercise-id); }
+                    }
+                }
             }
         }
 
@@ -714,6 +954,32 @@ component SessionView {
     }
 }
 
+// Indicación de una línea con la acción que toca ahora y sus teclas.
+component HintBar inherits Rectangle {
+    in property <string> text;
+    in property <string> key;
+    height: 34px;
+    background: Theme.panel;
+    HorizontalLayout {
+        padding-left: 32px;
+        padding-right: 32px;
+        spacing: Theme.gap-md;
+        if root.key != "": VerticalLayout {
+            alignment: center;
+            KeyHint { key: root.key; }
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+            vertical-alignment: center;
+            overflow: elide;
+            color: Theme.text;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-sm;
+        }
+    }
+}
+
 // Pestaña ENTRENAMIENTO.
 export component Training {
     property <float> shown: 0;
@@ -721,12 +987,37 @@ export component Training {
     animate opacity { duration: Theme.normal; }
     init => { root.shown = 1; }
 
-    if !TrainingState.session.active: PlanView {
-        width: 100%;
-        height: 100%;
-    }
-    if TrainingState.session.active: SessionView {
-        width: 100%;
-        height: 100%;
+    property <bool> resting: TrainingState.rest-until > TrainingState.now;
+
+    VerticalLayout {
+        Rectangle {
+            vertical-stretch: 1;
+            if !TrainingState.session.active: PlanView {
+                width: 100%;
+                height: 100%;
+            }
+            if TrainingState.session.active: SessionView {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        HintBar {
+            key: TrainingState.session.active && TrainingState.current.id != 0 && !root.resting ? "ENTER" : "";
+            text: TrainingState.session.active
+                ? (TrainingState.current.id == 0
+                    ? @tr("Pick an exercise from the plan on the left.")
+                    : root.resting
+                        ? @tr("Rest. Meanwhile you can adjust reps and weight for the next set.")
+                        : @tr("Do the set, check reps and weight, and press ENTER to log it."))
+                : TrainingState.routines.length == 0
+                    ? @tr("Start by creating a routine: write a name bottom left and press ENTER.")
+                    : TrainingState.editing.id == 0
+                        ? @tr("Pick a routine to edit it, or start today's at the top left.")
+                        : TrainingState.editing.exercises.length == 0
+                            ? @tr("Pick an exercise in the library and press ADD.")
+                            : !(TrainingState.editing.days[0] || TrainingState.editing.days[1] || TrainingState.editing.days[2] || TrainingState.editing.days[3] || TrainingState.editing.days[4] || TrainingState.editing.days[5] || TrainingState.editing.days[6])
+                                ? @tr("Mark the days for this routine so it shows up under TODAY.")
+                                : @tr("Click an exercise of the routine to change its goal, or keep adding from the library.");
+        }
     }
 }

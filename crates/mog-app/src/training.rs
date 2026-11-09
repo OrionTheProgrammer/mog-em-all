@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use chrono::{Datelike, Local, TimeZone};
-use mog_core::ranks;
+use mog_core::catalog::{self, Muscle};
+use mog_core::ranks::{self, Lift};
 use mog_core::training::{SetType, Weekday};
 use mog_storage::{
     Exercise, ExerciseId, ExerciseKind, FinishedSession, Routine, RoutineId, SetEntry, Store,
@@ -149,6 +150,38 @@ pub fn connect(ui: &AppWindow, store: &SharedStore) {
                 saved = report(store.update_routine_exercise(i64::from(row), target)).is_some()
             });
             saved
+        }
+    });
+
+    // Biblioteca
+
+    state.on_filter_changed({
+        let ctx = ctx.clone();
+        move || ctx.run(|_, _, _| {})
+    });
+    state.on_create_exercise({
+        let ctx = ctx.clone();
+        move |name, kind, muscle| {
+            let name = name.trim().to_string();
+            if name.is_empty() || name.chars().count() > 60 {
+                return false;
+            }
+            let kind = match kind {
+                1 => ExerciseKind::Bodyweight,
+                2 => ExerciseKind::Timed,
+                _ => ExerciseKind::Weighted,
+            };
+            let mut created = false;
+            ctx.run(|ui, store, _| {
+                let muscle = Muscle::from_index(i64::from(muscle));
+                created = report(store.add_custom_exercise(&name, kind, muscle)).is_some();
+                if created {
+                    // Mostrar el ejercicio nuevo aunque no coincida con la búsqueda escrita.
+                    ui.global::<TrainingState>()
+                        .set_filter_query(SharedString::new());
+                }
+            });
+            created
         }
     });
 
@@ -348,7 +381,15 @@ fn refresh(ui: &AppWindow, store: &Store, view: &View) {
 
     let exercises = store.exercises().unwrap_or_default();
     let by_id: HashMap<ExerciseId, &Exercise> = exercises.iter().map(|e| (e.id, e)).collect();
-    state.set_exercises(model(exercises.iter().map(exercise_item).collect()));
+    let (muscle, query) = (state.get_filter_muscle(), state.get_filter_query());
+    state.set_exercises_total(exercises.len() as i32);
+    state.set_exercises(model(
+        exercises
+            .iter()
+            .filter(|e| passes_filter(e, muscle, &query))
+            .map(exercise_item)
+            .collect(),
+    ));
 
     let routines = store.routines().unwrap_or_default();
     state.set_routines(model(
@@ -384,13 +425,22 @@ fn refresh(ui: &AppWindow, store: &Store, view: &View) {
         },
     });
 
-    state.set_recent(model(recent_rows(store)));
+    let recent = recent_rows(store);
+    // Primeros pasos: rutina creada, con ejercicios, con días, primera sesión hecha.
+    state.set_steps(model(vec![
+        !routines.is_empty(),
+        routines.iter().any(|r| !r.exercises.is_empty()),
+        routines.iter().any(|r| !r.weekdays.is_empty()),
+        !recent.is_empty(),
+    ]));
+    state.set_recent(model(recent));
 
     let Some(session) = store.active_session().ok().flatten() else {
         state.set_session(ActiveSession::default());
         state.set_plan(model(Vec::new()));
         state.set_sets(model(Vec::new()));
         state.set_current(CurrentExercise::default());
+        state.set_next(RoutineExerciseRow::default());
         return;
     };
     state.set_session(ActiveSession {
@@ -442,6 +492,21 @@ fn refresh(ui: &AppWindow, store: &Store, view: &View) {
         })
         .or_else(|| exercises.first().map(|e| e.id));
     view.current.set(current);
+    // Siguiente pendiente del plan después del actual.
+    let next = current
+        .and_then(|id| plan.iter().position(|row| i64::from(row.exercise_id) == id))
+        .map_or(0, |i| i + 1);
+    let pending = |row: &&RoutineExerciseRow| {
+        row.done < row.sets && Some(i64::from(row.exercise_id)) != current
+    };
+    state.set_next(
+        plan.iter()
+            .skip(next)
+            .find(pending)
+            .or_else(|| plan.iter().find(pending))
+            .cloned()
+            .unwrap_or_default(),
+    );
     state.set_plan(model(plan));
 
     let current = current.and_then(|id| by_id.get(&id).copied());
@@ -708,12 +773,53 @@ fn exercises_by_id(store: &Store) -> HashMap<ExerciseId, Exercise> {
 }
 
 fn exercise_item(exercise: &Exercise) -> ExerciseItem {
+    let info = exercise.catalog();
     ExerciseItem {
         id: exercise.id as i32,
         code: text(&exercise.code),
         name: text(&exercise.name),
         kind: kind_index(exercise.kind),
+        muscle: exercise.muscle.map_or(-1, |m| i32::from(m.index())),
+        secondary: model(
+            info.map(|i| i.secondary.iter().map(|m| i32::from(m.index())).collect())
+                .unwrap_or_default(),
+        ),
+        equipment: info.map_or(-1, |i| i32::from(i.equipment.index())),
+        lift: exercise.lift.map_or(-1, lift_index),
+        reps_min: info.map_or(8, |i| i.reps_min as i32),
+        reps_max: info.map_or(12, |i| i.reps_max as i32),
+        rest_s: info.map_or(90, |i| i.rest_s as i32),
+        custom: info.is_none(),
     }
+}
+
+fn lift_index(lift: Lift) -> i32 {
+    [
+        Lift::Squat,
+        Lift::BenchPress,
+        Lift::Deadlift,
+        Lift::OverheadPress,
+        Lift::BarbellRow,
+        Lift::PullUp,
+    ]
+    .iter()
+    .position(|l| *l == lift)
+    .map_or(-1, |i| i as i32)
+}
+
+/// Si el ejercicio pasa el filtro de músculo y la búsqueda de la biblioteca.
+fn passes_filter(exercise: &Exercise, muscle: i32, query: &str) -> bool {
+    let muscle_ok = muscle < 0
+        || exercise.muscle.map(|m| i32::from(m.index())) == Some(muscle)
+        || exercise
+            .catalog()
+            .is_some_and(|c| c.secondary.iter().any(|m| i32::from(m.index()) == muscle));
+    let query_ok = query.trim().is_empty()
+        || match exercise.catalog() {
+            Some(info) => catalog::matches(info, query),
+            None => catalog::text_matches(exercise.name.as_deref().unwrap_or_default(), query),
+        };
+    muscle_ok && query_ok
 }
 
 fn kind_index(kind: ExerciseKind) -> i32 {
