@@ -1,0 +1,112 @@
+# Catálogo de ejercicios incluidos. Una fila por ejercicio.
+# code: identificador estable (nunca se cambia; la base de datos lo guarda).
+# muscle / secondary: chest back shoulders biceps triceps forearms quads hamstrings glutes calves core full_body cardio (secundarios separados por |)
+# equipment: barbell dumbbell machine cable bodyweight kettlebell band smith ez_bar none
+# kind: weighted bodyweight timed
+# pattern: squat hinge lunge horizontal_push vertical_push horizontal_pull vertical_pull isolation carry core cardio olympic
+# lift: tabla de clase de fuerza que usa (squat bench_press deadlift overhead_press barbell_row pull_up) o vacío
+code,name_en,name_es,muscle,secondary,equipment,kind,pattern,lift,reps_min,reps_max,rest_s
+bench_press,Bench press,Press de banca,chest,triceps|shoulders,barbell,weighted,horizontal_push,bench_press,6,8,150
+incline_bench_press,Incline bench press,Press inclinado con barra,chest,shoulders|triceps,barbell,weighted,horizontal_push,,6,10,120
+decline_bench_press,Decline bench press,Press declinado con barra,chest,triceps,barbell,weighted,horizontal_push,,6,10,120
+close_grip_bench_press,Close-grip bench press,Press de banca agarre cerrado,triceps,chest|shoulders,barbell,weighted,horizontal_push,,6,10,120
+dumbbell_bench_press,Dumbbell bench press,Press de banca con mancuernas,chest,triceps|shoulders,dumbbell,weighted,horizontal_push,,8,12,90
+incline_dumbbell_press,Incline dumbbell press,Press inclinado con mancuernas,chest,shoulders|triceps,dumbbell,weighted,horizontal_push,,8,12,90
+smith_bench_press,Smith machine bench press,Press de banca en multipower,chest,triceps|shoulders,smith,weighted,horizontal_push,,8,12,90
+machine_chest_press,Machine chest press,Press de pecho en máquina,chest,triceps,machine,weighted,horizontal_push,,8,12,90
+dumbbell_fly,Dumbbell fly,Aperturas con mancuernas,chest,,dumbbell,weighted,isolation,,10,15,60
+cable_crossover,Cable crossover,Cruce de poleas,chest,,cable,weighted,isolation,,12,15,60
+pec_deck,Pec deck,Contractora de pecho,chest,,machine,weighted,isolation,,12,15,60
+push_up,Push-up,Flexiones,chest,triceps|shoulders|core,bodyweight,bodyweight,horizontal_push,,10,20,60
+dip,Dip,Fondos,chest,triceps|shoulders,bodyweight,bodyweight,vertical_push,,8,12,90
+deadlift,Deadlift,Peso muerto,back,hamstrings|glutes|forearms,barbell,weighted,hinge,deadlift,3,5,180
+sumo_deadlift,Sumo deadlift,Peso muerto sumo,glutes,quads|back|hamstrings,barbell,weighted,hinge,,3,6,180
+rack_pull,Rack pull,Peso muerto desde rack,back,glutes|forearms,barbell,weighted,hinge,,4,6,150
+barbell_row,Barbell row,Remo con barra,back,biceps|forearms,barbell,weighted,horizontal_pull,barbell_row,6,10,120
+pendlay_row,Pendlay row,Remo Pendlay,back,biceps,barbell,weighted,horizontal_pull,,5,8,120
+dumbbell_row,One-arm dumbbell row,Remo con mancuerna a una mano,back,biceps,dumbbell,weighted,horizontal_pull,,8,12,90
+t_bar_row,T-bar row,Remo en T,back,biceps,barbell,weighted,horizontal_pull,,8,12,90
+seated_cable_row,Seated cable row,Remo sentado en polea,back,biceps,cable,weighted,horizontal_pull,,10,12,90
+machine_row,Machine row,Remo en máquina,back,biceps,machine,weighted,horizontal_pull,,10,12,90
+inverted_row,Inverted row,Remo invertido,back,biceps|core,bodyweight,bodyweight,horizontal_pull,,8,15,60
+pull_up,Pull-up,Dominadas,back,biceps|forearms,bodyweight,bodyweight,vertical_pull,pull_up,5,10,120
+chin_up,Chin-up,Dominadas supinas,back,biceps,bodyweight,bodyweight,vertical_pull,,5,10,120
+lat_pulldown,Lat pulldown,Jalón al pecho,back,biceps,cable,weighted,vertical_pull,,8,12,90
+close_grip_pulldown,Close-grip pulldown,Jalón agarre cerrado,back,biceps,cable,weighted,vertical_pull,,8,12,90
+straight_arm_pulldown,Straight-arm pulldown,Pullover en polea,back,,cable,weighted,isolation,,12,15,60
+shrug,Shrug,Encogimientos,back,forearms,dumbbell,weighted,isolation,,10,15,60
+back_extension,Back extension,Extensión lumbar,back,glutes|hamstrings,bodyweight,bodyweight,hinge,,12,15,60
+overhead_press,Overhead press,Press militar,shoulders,triceps|core,barbell,weighted,vertical_push,overhead_press,5,8,150
+dumbbell_shoulder_press,Dumbbell shoulder press,Press de hombros con mancuernas,shoulders,triceps,dumbbell,weighted,vertical_push,,8,12,90
+arnold_press,Arnold press,Press Arnold,shoulders,triceps,dumbbell,weighted,vertical_push,,8,12,90
+machine_shoulder_press,Machine shoulder press,Press de hombros en máquina,shoulders,triceps,machine,weighted,vertical_push,,8,12,90
+landmine_press,Landmine press,Press landmine,shoulders,chest|triceps,barbell,weighted,vertical_push,,8,12,90
+lateral_raise,Lateral raise,Elevaciones laterales,shoulders,,dumbbell,weighted,isolation,,12,15,60
+cable_lateral_raise,Cable lateral raise,Elevación lateral en polea,shoulders,,cable,weighted,isolation,,12,15,60
+front_raise,Front raise,Elevaciones frontales,shoulders,,dumbbell,weighted,isolation,,10,15,60
+rear_delt_fly,Rear delt fly,Pájaros (deltoide posterior),shoulders,back,dumbbell,weighted,isolation,,12,15,60
+face_pull,Face pull,Face pull,shoulders,back,cable,weighted,isolation,,12,15,60
+upright_row,Upright row,Remo al mentón,shoulders,back,barbell,weighted,vertical_pull,,10,12,90
+barbell_curl,Barbell curl,Curl con barra,biceps,forearms,barbell,weighted,isolation,,8,12,60
+ez_bar_curl,EZ-bar curl,Curl con barra Z,biceps,forearms,ez_bar,weighted,isolation,,8,12,60
+dumbbell_curl,Dumbbell curl,Curl con mancuernas,biceps,forearms,dumbbell,weighted,isolation,,10,12,60
+hammer_curl,Hammer curl,Curl martillo,biceps,forearms,dumbbell,weighted,isolation,,10,12,60
+incline_dumbbell_curl,Incline dumbbell curl,Curl inclinado con mancuernas,biceps,,dumbbell,weighted,isolation,,10,12,60
+preacher_curl,Preacher curl,Curl predicador,biceps,,ez_bar,weighted,isolation,,10,12,60
+cable_curl,Cable curl,Curl en polea,biceps,,cable,weighted,isolation,,12,15,60
+concentration_curl,Concentration curl,Curl concentrado,biceps,,dumbbell,weighted,isolation,,10,12,60
+triceps_pushdown,Triceps pushdown,Extensión de tríceps en polea,triceps,,cable,weighted,isolation,,10,15,60
+rope_pushdown,Rope pushdown,Extensión de tríceps con cuerda,triceps,,cable,weighted,isolation,,10,15,60
+skull_crusher,Skull crusher,Press francés,triceps,,ez_bar,weighted,isolation,,8,12,90
+overhead_triceps_extension,Overhead triceps extension,Extensión de tríceps sobre la cabeza,triceps,,dumbbell,weighted,isolation,,10,12,60
+triceps_kickback,Triceps kickback,Patada de tríceps,triceps,,dumbbell,weighted,isolation,,12,15,60
+bench_dip,Bench dip,Fondos en banco,triceps,chest|shoulders,bodyweight,bodyweight,vertical_push,,10,15,60
+wrist_curl,Wrist curl,Curl de muñeca,forearms,,dumbbell,weighted,isolation,,12,20,45
+reverse_curl,Reverse curl,Curl invertido,forearms,biceps,barbell,weighted,isolation,,10,15,60
+farmer_carry,Farmer's carry,Paseo del granjero,forearms,core|back|full_body,dumbbell,timed,carry,,1,1,90
+squat,Back squat,Sentadilla,quads,glutes|hamstrings|core,barbell,weighted,squat,squat,5,8,180
+front_squat,Front squat,Sentadilla frontal,quads,glutes|core,barbell,weighted,squat,,5,8,150
+goblet_squat,Goblet squat,Sentadilla goblet,quads,glutes|core,dumbbell,weighted,squat,,8,12,90
+hack_squat,Hack squat,Sentadilla hack,quads,glutes,machine,weighted,squat,,8,12,120
+smith_squat,Smith machine squat,Sentadilla en multipower,quads,glutes,smith,weighted,squat,,8,12,120
+leg_press,Leg press,Prensa de piernas,quads,glutes|hamstrings,machine,weighted,squat,,8,12,120
+bulgarian_split_squat,Bulgarian split squat,Sentadilla búlgara,quads,glutes,dumbbell,weighted,lunge,,8,12,90
+lunge,Lunge,Zancadas,quads,glutes|hamstrings,dumbbell,weighted,lunge,,10,12,90
+walking_lunge,Walking lunge,Zancadas caminando,quads,glutes|hamstrings,dumbbell,weighted,lunge,,10,14,90
+step_up,Step-up,Subida al cajón,quads,glutes,dumbbell,weighted,lunge,,10,12,90
+leg_extension,Leg extension,Extensión de cuádriceps,quads,,machine,weighted,isolation,,12,15,60
+romanian_deadlift,Romanian deadlift,Peso muerto rumano,hamstrings,glutes|back,barbell,weighted,hinge,,8,10,120
+stiff_leg_deadlift,Stiff-leg deadlift,Peso muerto piernas rígidas,hamstrings,glutes|back,barbell,weighted,hinge,,8,10,120
+good_morning,Good morning,Buenos días,hamstrings,back|glutes,barbell,weighted,hinge,,8,12,90
+leg_curl,Lying leg curl,Curl femoral acostado,hamstrings,,machine,weighted,isolation,,10,15,60
+seated_leg_curl,Seated leg curl,Curl femoral sentado,hamstrings,,machine,weighted,isolation,,10,15,60
+nordic_curl,Nordic curl,Curl nórdico,hamstrings,,bodyweight,bodyweight,isolation,,4,8,90
+hip_thrust,Hip thrust,Hip thrust,glutes,hamstrings,barbell,weighted,hinge,,8,12,90
+glute_bridge,Glute bridge,Puente de glúteos,glutes,hamstrings,bodyweight,bodyweight,hinge,,12,20,60
+cable_kickback,Cable glute kickback,Patada de glúteo en polea,glutes,,cable,weighted,isolation,,12,15,60
+hip_abduction,Hip abduction,Abducción de cadera,glutes,,machine,weighted,isolation,,12,20,60
+standing_calf_raise,Standing calf raise,Elevación de talones de pie,calves,,machine,weighted,isolation,,10,15,60
+seated_calf_raise,Seated calf raise,Elevación de talones sentado,calves,,machine,weighted,isolation,,12,20,60
+plank,Plank,Plancha,core,shoulders,bodyweight,timed,core,,1,1,60
+side_plank,Side plank,Plancha lateral,core,,bodyweight,timed,core,,1,1,45
+hollow_hold,Hollow hold,Hollow hold,core,,bodyweight,timed,core,,1,1,45
+crunch,Crunch,Abdominales,core,,bodyweight,bodyweight,core,,15,25,45
+cable_crunch,Cable crunch,Abdominales en polea,core,,cable,weighted,core,,12,15,60
+hanging_leg_raise,Hanging leg raise,Elevación de piernas colgado,core,forearms,bodyweight,bodyweight,core,,8,15,60
+ab_wheel,Ab wheel rollout,Rueda abdominal,core,shoulders,bodyweight,bodyweight,core,,8,12,60
+russian_twist,Russian twist,Giros rusos,core,,bodyweight,bodyweight,core,,15,25,45
+dead_bug,Dead bug,Dead bug,core,,bodyweight,bodyweight,core,,10,16,45
+mountain_climber,Mountain climbers,Escaladores,core,cardio,bodyweight,timed,cardio,,1,1,45
+kettlebell_swing,Kettlebell swing,Swing con kettlebell,glutes,hamstrings|back|full_body,kettlebell,weighted,hinge,,12,20,60
+power_clean,Power clean,Cargada de potencia,full_body,back|quads|glutes,barbell,weighted,olympic,,3,5,150
+clean_and_press,Clean and press,Cargada y press,full_body,shoulders|back|quads,barbell,weighted,olympic,,3,6,150
+thruster,Thruster,Thruster,full_body,quads|shoulders,barbell,weighted,olympic,,6,10,120
+burpee,Burpee,Burpees,full_body,cardio|chest,bodyweight,bodyweight,cardio,,10,20,60
+run,Run,Correr,cardio,quads|calves,none,timed,cardio,,1,1,0
+walk,Walk,Caminar,cardio,quads|calves,none,timed,cardio,,1,1,0
+cycling,Cycling,Bicicleta,cardio,quads,machine,timed,cardio,,1,1,0
+rowing_machine,Rowing machine,Remo ergómetro,cardio,back|quads,machine,timed,cardio,,1,1,0
+elliptical,Elliptical,Elíptica,cardio,quads,machine,timed,cardio,,1,1,0
+stair_climber,Stair climber,Escaladora,cardio,quads|glutes|calves,machine,timed,cardio,,1,1,0
+jump_rope,Jump rope,Saltar la cuerda,cardio,calves,none,timed,cardio,,1,1,60
+swimming,Swimming,Natación,cardio,full_body,none,timed,cardio,,1,1,0

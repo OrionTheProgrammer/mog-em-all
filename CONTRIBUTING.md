@@ -37,6 +37,12 @@ cargo test --workspace
 tools/i18n.sh --check
 ```
 
+## Agregar ejercicios al catálogo
+
+1. Agregar una fila en `crates/mog-core/data/exercises.csv` (las columnas están explicadas al principio del archivo). El `code` es permanente.
+2. Correr `tools/gen_exercises.py`: regenera los nombres para la interfaz y su traducción al español.
+3. Correr `tools/i18n.sh` y `cargo test -p mog-core` (valida el catálogo).
+
 ## Base de datos
 
 Los cambios de esquema van en una migración nueva, nunca editando una existente. El proceso está en [docs/DATABASE.md](docs/DATABASE.md).

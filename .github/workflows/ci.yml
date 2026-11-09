@@ -20,6 +20,8 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
+      - name: Nombres de ejercicios generados al día
+        run: python3 tools/gen_exercises.py --check
       - name: Traducciones completas
         run: |
           cargo install slint-tr-extractor --locked

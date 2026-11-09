@@ -55,6 +55,28 @@ sleep 1.6
 xdotool type "/"; typed "$back"; sleep 0.3; xdotool key Return
 wait "$rec"
 
+kill "$app" 2>/dev/null || true
+sleep 0.5
+
+# Pestaña de entrenamiento con datos de ejemplo (una sesión en curso).
+seeded="$tmp/seeded"
+env -u WAYLAND_DISPLAY XDG_DATA_HOME="$seeded" LANG="$locale" "$root/target/release/mog-em-all" >/dev/null 2>&1 &
+app=$!
+sleep 2
+kill "$app"; wait "$app" 2>/dev/null || true
+python3 "$root/tools/demo_seed.py" "$seeded/mog-em-all/mog.db" "$lang"
+env -u WAYLAND_DISPLAY XDG_DATA_HOME="$seeded" LANG="$locale" "$root/target/release/mog-em-all" >/dev/null 2>&1 &
+app=$!
+window=""
+until [[ -n "$window" ]]; do sleep 0.1; window="$(xdotool search --onlyvisible --name "mog" 2>/dev/null | head -1 || true)"; done
+until xdotool windowfocus "$window" 2>/dev/null; do sleep 0.1; done
+sleep 0.5; xdotool mousemove 700 450 click 1
+sleep 1.5; xdotool key e
+sleep 1.2; shot training
+# Anotar la serie que propone la app: se ve el descanso corriendo.
+xdotool mousemove 560 340 click 1; xdotool key Return
+sleep 3; shot training-rest
+
 ffmpeg -loglevel error -y -i "$tmp/demo.mp4" \
     -vf "fps=15,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" \
     "$out/demo-$lang.gif"

@@ -1,0 +1,112 @@
+// Generado por tools/gen_exercises.py desde crates/mog-core/data/exercises.csv.
+// No editar a mano: cambiar el CSV y volver a correr el script.
+
+export global ExerciseNames {
+    public pure function name(code: string) -> string {
+        code == "bench_press" ? @tr("Bench press") :
+        code == "incline_bench_press" ? @tr("Incline bench press") :
+        code == "decline_bench_press" ? @tr("Decline bench press") :
+        code == "close_grip_bench_press" ? @tr("Close-grip bench press") :
+        code == "dumbbell_bench_press" ? @tr("Dumbbell bench press") :
+        code == "incline_dumbbell_press" ? @tr("Incline dumbbell press") :
+        code == "smith_bench_press" ? @tr("Smith machine bench press") :
+        code == "machine_chest_press" ? @tr("Machine chest press") :
+        code == "dumbbell_fly" ? @tr("Dumbbell fly") :
+        code == "cable_crossover" ? @tr("Cable crossover") :
+        code == "pec_deck" ? @tr("Pec deck") :
+        code == "push_up" ? @tr("Push-up") :
+        code == "dip" ? @tr("Dip") :
+        code == "deadlift" ? @tr("Deadlift") :
+        code == "sumo_deadlift" ? @tr("Sumo deadlift") :
+        code == "rack_pull" ? @tr("Rack pull") :
+        code == "barbell_row" ? @tr("Barbell row") :
+        code == "pendlay_row" ? @tr("Pendlay row") :
+        code == "dumbbell_row" ? @tr("One-arm dumbbell row") :
+        code == "t_bar_row" ? @tr("T-bar row") :
+        code == "seated_cable_row" ? @tr("Seated cable row") :
+        code == "machine_row" ? @tr("Machine row") :
+        code == "inverted_row" ? @tr("Inverted row") :
+        code == "pull_up" ? @tr("Pull-up") :
+        code == "chin_up" ? @tr("Chin-up") :
+        code == "lat_pulldown" ? @tr("Lat pulldown") :
+        code == "close_grip_pulldown" ? @tr("Close-grip pulldown") :
+        code == "straight_arm_pulldown" ? @tr("Straight-arm pulldown") :
+        code == "shrug" ? @tr("Shrug") :
+        code == "back_extension" ? @tr("Back extension") :
+        code == "overhead_press" ? @tr("Overhead press") :
+        code == "dumbbell_shoulder_press" ? @tr("Dumbbell shoulder press") :
+        code == "arnold_press" ? @tr("Arnold press") :
+        code == "machine_shoulder_press" ? @tr("Machine shoulder press") :
+        code == "landmine_press" ? @tr("Landmine press") :
+        code == "lateral_raise" ? @tr("Lateral raise") :
+        code == "cable_lateral_raise" ? @tr("Cable lateral raise") :
+        code == "front_raise" ? @tr("Front raise") :
+        code == "rear_delt_fly" ? @tr("Rear delt fly") :
+        code == "face_pull" ? @tr("Face pull") :
+        code == "upright_row" ? @tr("Upright row") :
+        code == "barbell_curl" ? @tr("Barbell curl") :
+        code == "ez_bar_curl" ? @tr("EZ-bar curl") :
+        code == "dumbbell_curl" ? @tr("Dumbbell curl") :
+        code == "hammer_curl" ? @tr("Hammer curl") :
+        code == "incline_dumbbell_curl" ? @tr("Incline dumbbell curl") :
+        code == "preacher_curl" ? @tr("Preacher curl") :
+        code == "cable_curl" ? @tr("Cable curl") :
+        code == "concentration_curl" ? @tr("Concentration curl") :
+        code == "triceps_pushdown" ? @tr("Triceps pushdown") :
+        code == "rope_pushdown" ? @tr("Rope pushdown") :
+        code == "skull_crusher" ? @tr("Skull crusher") :
+        code == "overhead_triceps_extension" ? @tr("Overhead triceps extension") :
+        code == "triceps_kickback" ? @tr("Triceps kickback") :
+        code == "bench_dip" ? @tr("Bench dip") :
+        code == "wrist_curl" ? @tr("Wrist curl") :
+        code == "reverse_curl" ? @tr("Reverse curl") :
+        code == "farmer_carry" ? @tr("Farmer's carry") :
+        code == "squat" ? @tr("Back squat") :
+        code == "front_squat" ? @tr("Front squat") :
+        code == "goblet_squat" ? @tr("Goblet squat") :
+        code == "hack_squat" ? @tr("Hack squat") :
+        code == "smith_squat" ? @tr("Smith machine squat") :
+        code == "leg_press" ? @tr("Leg press") :
+        code == "bulgarian_split_squat" ? @tr("Bulgarian split squat") :
+        code == "lunge" ? @tr("Lunge") :
+        code == "walking_lunge" ? @tr("Walking lunge") :
+        code == "step_up" ? @tr("Step-up") :
+        code == "leg_extension" ? @tr("Leg extension") :
+        code == "romanian_deadlift" ? @tr("Romanian deadlift") :
+        code == "stiff_leg_deadlift" ? @tr("Stiff-leg deadlift") :
+        code == "good_morning" ? @tr("Good morning") :
+        code == "leg_curl" ? @tr("Lying leg curl") :
+        code == "seated_leg_curl" ? @tr("Seated leg curl") :
+        code == "nordic_curl" ? @tr("Nordic curl") :
+        code == "hip_thrust" ? @tr("Hip thrust") :
+        code == "glute_bridge" ? @tr("Glute bridge") :
+        code == "cable_kickback" ? @tr("Cable glute kickback") :
+        code == "hip_abduction" ? @tr("Hip abduction") :
+        code == "standing_calf_raise" ? @tr("Standing calf raise") :
+        code == "seated_calf_raise" ? @tr("Seated calf raise") :
+        code == "plank" ? @tr("Plank") :
+        code == "side_plank" ? @tr("Side plank") :
+        code == "hollow_hold" ? @tr("Hollow hold") :
+        code == "crunch" ? @tr("Crunch") :
+        code == "cable_crunch" ? @tr("Cable crunch") :
+        code == "hanging_leg_raise" ? @tr("Hanging leg raise") :
+        code == "ab_wheel" ? @tr("Ab wheel rollout") :
+        code == "russian_twist" ? @tr("Russian twist") :
+        code == "dead_bug" ? @tr("Dead bug") :
+        code == "mountain_climber" ? @tr("Mountain climbers") :
+        code == "kettlebell_swing" ? @tr("Kettlebell swing") :
+        code == "power_clean" ? @tr("Power clean") :
+        code == "clean_and_press" ? @tr("Clean and press") :
+        code == "thruster" ? @tr("Thruster") :
+        code == "burpee" ? @tr("Burpee") :
+        code == "run" ? @tr("Run") :
+        code == "walk" ? @tr("Walk") :
+        code == "cycling" ? @tr("Cycling") :
+        code == "rowing_machine" ? @tr("Rowing machine") :
+        code == "elliptical" ? @tr("Elliptical") :
+        code == "stair_climber" ? @tr("Stair climber") :
+        code == "jump_rope" ? @tr("Jump rope") :
+        code == "swimming" ? @tr("Swimming") :
+        ""
+    }
+}

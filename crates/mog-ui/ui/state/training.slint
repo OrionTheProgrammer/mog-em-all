@@ -9,6 +9,18 @@ export struct ExerciseItem {
     name: string,
     // 0 con carga, 1 peso corporal, 2 por tiempo
     kind: int,
+    // índice de catalog::Muscle, -1 si no tiene
+    muscle: int,
+    secondary: [int],
+    // índice de catalog::Equipment, -1 en los propios
+    equipment: int,
+    // tabla de clase de fuerza (ranks::Lift), -1 si no cuenta
+    lift: int,
+    // meta con la que entra a una rutina
+    reps-min: int,
+    reps-max: int,
+    rest-s: int,
+    custom: bool,
 }
 
 export struct RoutineItem {
@@ -94,7 +106,13 @@ export global TrainingState {
     in property <int> now;
     in property <int> weekday;
 
+    // Biblioteca ya filtrada por músculo y búsqueda.
     in property <[ExerciseItem]> exercises;
+    in property <int> exercises-total;
+    in-out property <int> filter-muscle: -1;
+    in-out property <string> filter-query;
+    // Primeros pasos: rutina creada, con ejercicios, con días, primera sesión hecha.
+    in property <[bool]> steps;
     in property <[RoutineItem]> routines;
     in property <[SessionRow]> recent;
 
@@ -104,6 +122,8 @@ export global TrainingState {
     in property <ActiveSession> session;
     in property <[RoutineExerciseRow]> plan;
     in property <CurrentExercise> current;
+    // Siguiente ejercicio pendiente del plan (exercise-id 0 si no hay).
+    in property <RoutineExerciseRow> next;
     in property <[SetRow]> sets;
 
     // Descanso: termina en `rest-until` (segundos desde 1970) y dura `rest-total`.
@@ -121,6 +141,11 @@ export global TrainingState {
     callback move-in-routine(int, int);
     // fila, series, reps mín, reps máx, peso, descanso (texto). Devuelve si se guardó.
     callback save-target(int, string, string, string, string, string) -> bool;
+
+    // Biblioteca
+    callback filter-changed();
+    // nombre, tipo (0 carga, 1 peso corporal, 2 tiempo), músculo. Devuelve si se creó.
+    callback create-exercise(string, int, int) -> bool;
 
     // Sesión
     callback start-routine(int);

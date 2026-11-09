@@ -10,7 +10,9 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use chrono::{Datelike, Local, TimeZone};
+use mog_core::catalog::{self, Muscle};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
+pub use mog_core::training::ExerciseKind;
 use mog_core::training::{SetType, Weekday};
 use rusqlite::{Connection, OptionalExtension, params};
 
@@ -91,16 +93,6 @@ pub struct Profile {
     pub weekly_goal: u32,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ExerciseKind {
-    /// Carga externa: peso y repeticiones.
-    Weighted,
-    /// Peso corporal, con lastre opcional.
-    Bodyweight,
-    /// Se mide en tiempo (plancha, correr).
-    Timed,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Exercise {
     pub id: ExerciseId,
@@ -110,6 +102,15 @@ pub struct Exercise {
     pub name: Option<String>,
     pub kind: ExerciseKind,
     pub lift: Option<Lift>,
+    /// Músculo principal: del catálogo en los incluidos, elegido por el usuario en los propios.
+    pub muscle: Option<Muscle>,
+}
+
+impl Exercise {
+    /// Ficha del catálogo, si es un ejercicio incluido.
+    pub fn catalog(&self) -> Option<&'static catalog::CatalogExercise> {
+        self.code.as_deref().and_then(catalog::find)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -218,32 +219,6 @@ pub struct WeekStats {
     pub streak_weeks: u32,
 }
 
-/// Ejercicios que vienen con la app. El código es estable; no se cambia nunca.
-const BUILTIN_EXERCISES: &[(&str, ExerciseKind, Option<Lift>)] = &[
-    ("squat", ExerciseKind::Weighted, Some(Lift::Squat)),
-    (
-        "bench_press",
-        ExerciseKind::Weighted,
-        Some(Lift::BenchPress),
-    ),
-    ("deadlift", ExerciseKind::Weighted, Some(Lift::Deadlift)),
-    (
-        "overhead_press",
-        ExerciseKind::Weighted,
-        Some(Lift::OverheadPress),
-    ),
-    (
-        "barbell_row",
-        ExerciseKind::Weighted,
-        Some(Lift::BarbellRow),
-    ),
-    ("pull_up", ExerciseKind::Bodyweight, Some(Lift::PullUp)),
-    ("dip", ExerciseKind::Bodyweight, None),
-    ("push_up", ExerciseKind::Bodyweight, None),
-    ("plank", ExerciseKind::Timed, None),
-    ("run", ExerciseKind::Timed, None),
-];
-
 pub struct Store {
     conn: Connection,
 }
@@ -295,12 +270,18 @@ impl Store {
         migrations::latest()
     }
 
+    /// Agrega los ejercicios del catálogo que falten. Corre en cada apertura, así
+    /// las bases existentes reciben los ejercicios nuevos de cada versión.
     fn seed_exercises(&self) -> Result<()> {
-        for (code, kind, lift) in BUILTIN_EXERCISES {
-            self.conn.execute(
-                "INSERT OR IGNORE INTO exercise (code, name, kind, lift) VALUES (?1, NULL, ?2, ?3)",
-                params![code, kind_to_i64(*kind), lift.map(lift_to_i64)],
-            )?;
+        let mut stmt = self.conn.prepare(
+            "INSERT OR IGNORE INTO exercise (code, name, kind, lift) VALUES (?1, NULL, ?2, ?3)",
+        )?;
+        for e in catalog::all() {
+            stmt.execute(params![
+                e.code,
+                kind_to_i64(e.kind),
+                e.lift.map(lift_to_i64)
+            ])?;
         }
         Ok(())
     }
@@ -353,17 +334,39 @@ impl Store {
     pub fn exercises(&self) -> Result<Vec<Exercise>> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, code, name, kind, lift FROM exercise ORDER BY id")?;
+            .prepare("SELECT id, code, name, kind, lift, muscle FROM exercise")?;
         let rows = stmt.query_map([], |row| {
+            let code: Option<String> = row.get(1)?;
+            let stored_muscle = row.get::<_, Option<i64>>(5)?.and_then(Muscle::from_index);
+            let muscle = code
+                .as_deref()
+                .and_then(catalog::find)
+                .map(|c| c.muscle)
+                .or(stored_muscle);
             Ok(Exercise {
                 id: row.get(0)?,
-                code: row.get(1)?,
+                code,
                 name: row.get(2)?,
                 kind: kind_from_i64(row.get(3)?),
                 lift: row.get::<_, Option<i64>>(4)?.and_then(lift_from_i64),
+                muscle,
             })
         })?;
-        Ok(rows.collect::<rusqlite::Result<_>>()?)
+        let mut exercises: Vec<Exercise> = rows.collect::<rusqlite::Result<_>>()?;
+        // Orden del catálogo (agrupado por músculo); los propios al final, por nombre.
+        let position = |e: &Exercise| {
+            e.code
+                .as_deref()
+                .and_then(|c| catalog::all().iter().position(|x| x.code == c))
+                .unwrap_or(usize::MAX)
+        };
+        exercises.sort_by(|a, b| {
+            position(a)
+                .cmp(&position(b))
+                .then_with(|| a.name.cmp(&b.name))
+                .then_with(|| a.id.cmp(&b.id))
+        });
+        Ok(exercises)
     }
 
     pub fn exercise_by_code(&self, code: &str) -> Result<Option<ExerciseId>> {
@@ -375,10 +378,15 @@ impl Store {
             .optional()?)
     }
 
-    pub fn add_custom_exercise(&self, name: &str, kind: ExerciseKind) -> Result<ExerciseId> {
+    pub fn add_custom_exercise(
+        &self,
+        name: &str,
+        kind: ExerciseKind,
+        muscle: Option<Muscle>,
+    ) -> Result<ExerciseId> {
         self.conn.execute(
-            "INSERT INTO exercise (code, name, kind, lift) VALUES (NULL, ?1, ?2, NULL)",
-            params![name.trim(), kind_to_i64(kind)],
+            "INSERT INTO exercise (code, name, kind, lift, muscle) VALUES (NULL, ?1, ?2, NULL, ?3)",
+            params![name.trim(), kind_to_i64(kind), muscle.map(Muscle::index)],
         )?;
         Ok(self.conn.last_insert_rowid())
     }
@@ -428,8 +436,9 @@ impl Store {
         let records = self.records_in(session, started_at, bodyweight)?;
         let sessions_today = self.finished_sessions_on_day(ended_at)?;
 
+        // Calentamiento (1) y aproximación (5) no son series de trabajo: ver SetType::counts_as_work.
         let (sets, volume_kg) = self.conn.query_row(
-            "SELECT COUNT(*), COALESCE(SUM(CASE WHEN e.kind = 0 AND s.set_type != 1 THEN s.reps * s.weight_kg END), 0)
+            "SELECT COUNT(*), COALESCE(SUM(CASE WHEN e.kind = 0 AND s.set_type NOT IN (1, 5) THEN s.reps * s.weight_kg END), 0)
              FROM workout_set s JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1",
             [session],
             |row| Ok((row.get::<_, u32>(0)?, row.get::<_, f64>(1)?)),
@@ -653,7 +662,22 @@ impl Store {
         routine: RoutineId,
         exercise: ExerciseId,
     ) -> Result<RoutineExerciseId> {
-        let t = Target::default();
+        // La meta inicial sale del catálogo (un básico va a 6–8 con descanso largo,
+        // un aislamiento a 10–15 con descanso corto).
+        let code: Option<String> = self.conn.query_row(
+            "SELECT code FROM exercise WHERE id = ?1",
+            [exercise],
+            |row| row.get(0),
+        )?;
+        let t = match code.as_deref().and_then(catalog::find) {
+            Some(c) => Target {
+                reps_min: c.reps_min,
+                reps_max: c.reps_max,
+                rest_s: c.rest_s,
+                ..Target::default()
+            },
+            None => Target::default(),
+        };
         self.conn.execute(
             "INSERT INTO routine_exercise (routine_id, exercise_id, position, target_sets, reps_min, reps_max, weight_kg, rest_s)
              VALUES (?1, ?2, (SELECT COALESCE(MAX(position), -1) + 1 FROM routine_exercise WHERE routine_id = ?1),
@@ -728,7 +752,7 @@ impl Store {
             .conn
             .query_row(
                 "SELECT reps, weight_kg, duration_s, set_type, completed_at FROM workout_set
-                 WHERE exercise_id = ?1 AND set_type != 1 ORDER BY id DESC LIMIT 1",
+                 WHERE exercise_id = ?1 AND set_type NOT IN (1, 5) ORDER BY id DESC LIMIT 1",
                 [exercise],
                 |row| {
                     Ok(SetEntry {
@@ -798,7 +822,7 @@ impl Store {
     ) -> Result<Vec<PersonalRecord>> {
         let best_now = self.best_e1rm(
             "SELECT s.exercise_id, s.reps, s.weight_kg, e.kind FROM workout_set s
-             JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1 AND s.set_type != 1",
+             JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1 AND s.set_type NOT IN (1, 5)",
             session,
             bodyweight,
         )?;
@@ -806,7 +830,7 @@ impl Store {
             "SELECT s.exercise_id, s.reps, s.weight_kg, e.kind FROM workout_set s
              JOIN exercise e ON e.id = s.exercise_id
              JOIN session x ON x.id = s.session_id
-             WHERE x.ended_at IS NOT NULL AND x.ended_at <= ?1 AND s.set_type != 1",
+             WHERE x.ended_at IS NOT NULL AND x.ended_at <= ?1 AND s.set_type NOT IN (1, 5)",
             started_at,
             bodyweight,
         )?;

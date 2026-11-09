@@ -2,6 +2,7 @@
 // El motor nunca devuelve textos; aquí se decide qué se muestra.
 
 import { CommandFeedback, Clock } from "../types.slint";
+import { ExerciseNames } from "exercise-names.slint";
 
 export global Labels {
     // Mismo orden que ranks::Tier en mog-core.
@@ -17,17 +18,53 @@ export global Labels {
 
     // Nombre de un ejercicio: los incluidos se traducen, los propios se muestran tal cual.
     public pure function exercise(code: string, name: string) -> string {
-        code == "squat" ? @tr("Squat") :
-        code == "bench_press" ? @tr("Bench press") :
-        code == "deadlift" ? @tr("Deadlift") :
-        code == "overhead_press" ? @tr("Overhead press") :
-        code == "barbell_row" ? @tr("Barbell row") :
-        code == "pull_up" ? @tr("Pull-up") :
-        code == "dip" ? @tr("Dip") :
-        code == "push_up" ? @tr("Push-up") :
-        code == "plank" ? @tr("Plank") :
-        code == "run" ? @tr("Run") :
-        name
+        code != "" ? ExerciseNames.name(code) : name
+    }
+
+    // Mismo orden que catalog::Muscle en mog-core.
+    public pure function muscle(m: int) -> string {
+        m == 0 ? @tr("Chest") :
+        m == 1 ? @tr("Back") :
+        m == 2 ? @tr("Shoulders") :
+        m == 3 ? @tr("Biceps") :
+        m == 4 ? @tr("Triceps") :
+        m == 5 ? @tr("Forearms") :
+        m == 6 ? @tr("Quads") :
+        m == 7 ? @tr("Hamstrings") :
+        m == 8 ? @tr("Glutes") :
+        m == 9 ? @tr("Calves") :
+        m == 10 ? @tr("Core") :
+        m == 11 ? @tr("Full body") :
+        m == 12 ? @tr("Cardio") :
+        @tr("Other")
+    }
+
+    // Mismo orden que catalog::Equipment.
+    public pure function equipment(e: int) -> string {
+        e == 0 ? @tr("Barbell") :
+        e == 1 ? @tr("Dumbbells") :
+        e == 2 ? @tr("Machine") :
+        e == 3 ? @tr("Cable") :
+        e == 4 ? @tr("Bodyweight") :
+        e == 5 ? @tr("Kettlebell") :
+        e == 6 ? @tr("Band") :
+        e == 7 ? @tr("Smith machine") :
+        e == 8 ? @tr("EZ bar") :
+        @tr("No equipment")
+    }
+
+    public pure function exercise-kind(k: int) -> string {
+        k == 0 ? @tr("Weight and reps") : k == 1 ? @tr("Bodyweight, extra weight optional") : @tr("Time")
+    }
+
+    // Mismo orden que ranks::Lift.
+    public pure function lift(l: int) -> string {
+        l == 0 ? ExerciseNames.name("squat") :
+        l == 1 ? ExerciseNames.name("bench_press") :
+        l == 2 ? ExerciseNames.name("deadlift") :
+        l == 3 ? ExerciseNames.name("overhead_press") :
+        l == 4 ? ExerciseNames.name("barbell_row") :
+        ExerciseNames.name("pull_up")
     }
 
     public pure function duration(seconds: int) -> string {
@@ -84,12 +121,23 @@ export global Labels {
         t == 2 ? @tr("Dropset") :
         t == 3 ? @tr("Superset") :
         t == 4 ? @tr("To failure") :
+        t == 5 ? @tr("Approach") :
         @tr("Normal set")
+    }
+
+    // Qué significa cada tipo, en una línea.
+    public pure function set-type-help(t: int) -> string {
+        t == 1 ? @tr("Light sets to get warm. They don't count toward your goal, records or volume.") :
+        t == 2 ? @tr("Lower the weight and keep going with no rest. The rest timer won't start.") :
+        t == 3 ? @tr("Chain it with another exercise with no rest. The rest timer won't start.") :
+        t == 4 ? @tr("Your hardest set, all the way to failure. Counts as a work set.") :
+        t == 5 ? @tr("Build up toward your heavy set, for example before going to failure. Not a work set.") :
+        @tr("A regular work set. It counts toward the goal of the exercise.")
     }
 
     // Letra corta para la lista de series.
     public pure function set-type-tag(t: int) -> string {
-        t == 1 ? @tr("WU") : t == 2 ? @tr("DS") : t == 3 ? @tr("SS") : t == 4 ? @tr("F") : ""
+        t == 1 ? @tr("WU") : t == 2 ? @tr("DS") : t == 3 ? @tr("SS") : t == 4 ? @tr("F") : t == 5 ? @tr("AP") : ""
     }
 
     public pure function pad(n: int) -> string {

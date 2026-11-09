@@ -4,6 +4,7 @@
 //! interfaz: devuelve datos y enums, y `mog-ui` decide cómo mostrarlos y en qué
 //! idioma.
 
+pub mod catalog;
 pub mod command;
 pub mod health;
 pub mod ranks;
