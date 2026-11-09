@@ -28,6 +28,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
   - Grupos de gasto con presupuesto mensual; la barra se pone ámbar al 80 % y roja al pasarse. Se pueden crear grupos propios.
   - Ingresos y gastos fijos de cada mes (sueldo, arriendo, suscripciones), que se registran con un clic y quedan marcados.
   - Moneda por defecto: peso chileno; montos con los separadores del idioma.
+- Animaciones de subida de rango: una distinta para cada rango, cada vez más intensa. Pasar de división muestra una versión corta. Se pueden ver todas desde la galería de AJUSTES → Acerca de.
 - Migración 6 de la base de datos (ajustes y finanzas).
 - Pestaña TAREAS:
   - Entrada rápida que entiende fecha, hora, prioridad, repetición y etiqueta en español o inglés ("Pagar arriendo mañana 18:00 !alta #casa"), con vista previa mientras se escribe.
