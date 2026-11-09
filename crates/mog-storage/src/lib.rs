@@ -13,8 +13,64 @@ use chrono::{Datelike, Local, TimeZone};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
 use rusqlite::{Connection, OptionalExtension, params};
 
-pub use rusqlite::Error;
-pub type Result<T> = rusqlite::Result<T>;
+pub use migrations::AppliedMigration;
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(Debug)]
+pub enum Error {
+    Sqlite(rusqlite::Error),
+    Io(std::io::Error),
+    /// La base la creó una versión más nueva de la app. No se toca para no perder datos.
+    NewerSchema {
+        found: u32,
+        supported: u32,
+    },
+    /// El SQL de una migración ya aplicada cambió. Es un error de desarrollo.
+    ModifiedMigration {
+        version: u32,
+    },
+    /// La base registra una migración que esta versión no conoce.
+    UnknownMigration {
+        version: u32,
+    },
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::Sqlite(err) => write!(f, "SQLite: {err}"),
+            Error::Io(err) => write!(f, "archivo: {err}"),
+            Error::NewerSchema { found, supported } => write!(
+                f,
+                "la base de datos tiene el esquema {found} y esta versión de la app solo entiende hasta el {supported}; actualiza la app"
+            ),
+            Error::ModifiedMigration { version } => {
+                write!(f, "la migración {version} cambió después de aplicarse")
+            }
+            Error::UnknownMigration { version } => {
+                write!(
+                    f,
+                    "la base registra la migración {version}, que esta versión no conoce"
+                )
+            }
+        }
+    }
+}
+
+impl std::error::Error for Error {}
+
+impl From<rusqlite::Error> for Error {
+    fn from(err: rusqlite::Error) -> Self {
+        Error::Sqlite(err)
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        Error::Io(err)
+    }
+}
 
 /// Segundos desde 1970 (UTC). Es la unidad de tiempo de toda la base de datos.
 pub type Timestamp = i64;
@@ -122,24 +178,45 @@ impl Store {
         data_dir.join("mog-em-all").join("mog.db")
     }
 
+    /// Abre (o crea) la base en `path` y la lleva a la última versión del esquema.
+    /// Si hay migraciones pendientes sobre una base con datos, antes guarda una copia
+    /// del archivo junto al original (`mog.db.v1-<fecha>.bak`).
     pub fn open(path: &Path) -> Result<Self> {
+        Self::open_with(path, migrations::MIGRATIONS)
+    }
+
+    fn open_with(path: &Path, list: &[migrations::Migration]) -> Result<Self> {
         if let Some(parent) = path.parent() {
-            // Si no se puede crear la carpeta, el error real aparece al abrir el archivo.
-            let _ = std::fs::create_dir_all(parent);
+            std::fs::create_dir_all(parent)?;
         }
-        Self::init(Connection::open(path)?)
+        let conn = Connection::open(path)?;
+        let from = migrations::current_version(&conn)?;
+        if from > 0 && migrations::pending(&conn, list)? > 0 {
+            backup(&conn, path, from)?;
+        }
+        Self::init(conn, list)
     }
 
     pub fn open_in_memory() -> Result<Self> {
-        Self::init(Connection::open_in_memory()?)
+        Self::init(Connection::open_in_memory()?, migrations::MIGRATIONS)
     }
 
-    fn init(mut conn: Connection) -> Result<Self> {
+    fn init(mut conn: Connection, list: &[migrations::Migration]) -> Result<Self> {
         conn.pragma_update(None, "foreign_keys", true)?;
-        migrations::run(&mut conn)?;
+        migrations::run(&mut conn, list, chrono::Utc::now().timestamp())?;
         let store = Self { conn };
         store.seed_exercises()?;
         Ok(store)
+    }
+
+    /// Migraciones aplicadas a esta base, de la más antigua a la más nueva.
+    pub fn migration_history(&self) -> Result<Vec<AppliedMigration>> {
+        migrations::history(&self.conn)
+    }
+
+    /// Versión de esquema más nueva que entiende esta compilación.
+    pub fn supported_schema_version() -> u32 {
+        migrations::latest()
     }
 
     fn seed_exercises(&self) -> Result<()> {
@@ -155,7 +232,8 @@ impl Store {
     // Perfil
 
     pub fn profile(&self) -> Result<Option<Profile>> {
-        self.conn
+        Ok(self
+            .conn
             .query_row(
                 "SELECT name, bodyweight_kg, height_cm, body_profile, weekly_goal FROM profile WHERE id = 1",
                 [],
@@ -169,7 +247,7 @@ impl Store {
                     })
                 },
             )
-            .optional()
+            .optional()?)
     }
 
     pub fn save_profile(&self, profile: &Profile, now: Timestamp) -> Result<()> {
@@ -209,15 +287,16 @@ impl Store {
                 lift: row.get::<_, Option<i64>>(4)?.and_then(lift_from_i64),
             })
         })?;
-        rows.collect()
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
 
     pub fn exercise_by_code(&self, code: &str) -> Result<Option<ExerciseId>> {
-        self.conn
+        Ok(self
+            .conn
             .query_row("SELECT id FROM exercise WHERE code = ?1", [code], |row| {
                 row.get(0)
             })
-            .optional()
+            .optional()?)
     }
 
     pub fn add_custom_exercise(&self, name: &str, kind: ExerciseKind) -> Result<ExerciseId> {
@@ -298,11 +377,12 @@ impl Store {
     }
 
     pub fn total_xp(&self) -> Result<u64> {
-        self.conn
-            .query_row("SELECT COALESCE(SUM(xp), 0) FROM session", [], |row| {
-                row.get::<_, i64>(0)
-            })
-            .map(|v| v.max(0) as u64)
+        let total: i64 =
+            self.conn
+                .query_row("SELECT COALESCE(SUM(xp), 0) FROM session", [], |row| {
+                    row.get(0)
+                })?;
+        Ok(total.max(0) as u64)
     }
 
     /// Sesiones de la semana actual y racha de semanas, a la fecha `now`.
@@ -413,12 +493,26 @@ impl Store {
         Ok(best)
     }
 
-    pub fn schema_version(&self) -> Result<usize> {
-        let version: i64 = self
-            .conn
-            .pragma_query_value(None, "user_version", |row| row.get(0))?;
-        Ok(usize::try_from(version).unwrap_or(0))
+    pub fn schema_version(&self) -> Result<u32> {
+        migrations::current_version(&self.conn)
     }
+}
+
+/// Copia el archivo antes de migrar, con la API de respaldo de SQLite
+/// (así la copia es consistente aunque la base esté abierta).
+fn backup(conn: &Connection, path: &Path, from_version: u32) -> Result<PathBuf> {
+    let stamp = Local::now().format("%Y%m%d-%H%M%S");
+    let file = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("mog.db");
+    let target = path.with_file_name(format!("{file}.v{from_version}-{stamp}.bak"));
+    conn.backup(
+        rusqlite::MAIN_DB,
+        &target,
+        None::<fn(rusqlite::backup::Progress)>,
+    )?;
+    Ok(target)
 }
 
 /// Semana local como número continuo (semanas desde una fecha fija, empezando en lunes).

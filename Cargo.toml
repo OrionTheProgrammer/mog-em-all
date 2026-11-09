@@ -16,7 +16,7 @@ mog-ui = { path = "crates/mog-ui" }
 slint = "1.18"
 slint-build = "1.18"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
-rusqlite = { version = "0.41", features = ["bundled"] }
+rusqlite = { version = "0.41", features = ["bundled", "backup"] }
 dirs = "7"
 
 [profile.release]
