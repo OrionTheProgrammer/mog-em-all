@@ -6,6 +6,7 @@
 
 pub mod catalog;
 pub mod command;
+pub mod finance;
 pub mod health;
 pub mod ranks;
 pub mod schedule;
