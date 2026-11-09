@@ -21,6 +21,9 @@ Rust puro, sin dependencias de interfaz. Devuelve números, structs y enums, y d
 - `health`: IMC.
 - `ranks`: XP, niveles, rangos y clases de fuerza.
 - `command`: intérprete de la línea de comandos del HUD (español e inglés).
+- `catalog`: catálogo de ejercicios, leído de `data/exercises.csv`.
+- `training`: tipos de serie y forma de medir un ejercicio.
+- `schedule`: horas, repetición semanal o de una vez, y cómo acomodar los bloques que se pisan.
 
 Más adelante: `workouts`, `routines`, `tasks`, `schedule`, `finance`.
 
@@ -39,7 +42,7 @@ Todo el dibujo. Dentro de `ui/`:
 
 ## mog-app
 
-El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja la pestaña de entrenamiento (`training.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
+El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja las pestañas de entrenamiento (`training.rs`) y horario (`schedule.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
 
 ## mog-storage
 

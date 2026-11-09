@@ -46,7 +46,7 @@ mog 'em all junta en un solo lugar lo que normalmente anotas en varias apps: el 
 Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene una línea de comandos para las acciones rápidas.
 
 > [!NOTE]
-> El proyecto está en desarrollo (`0.1.0-dev`). El entrenamiento, los rangos y el IMC funcionan. Tareas, horarios y finanzas llegan en las próximas fases; el detalle está en la [hoja de ruta](#hoja-de-ruta).
+> El proyecto está en desarrollo (`0.1.0-dev`). El entrenamiento, el horario, los rangos y el IMC funcionan. Tareas, notificaciones y finanzas llegan en las próximas fases; el detalle está en la [hoja de ruta](#hoja-de-ruta).
 
 ## Funciones
 
@@ -68,6 +68,16 @@ Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene 
 - **Récords.** Se comparan con el 1RM estimado de tu mejor serie anterior en cada ejercicio.
 - **Clase de fuerza.** De E a S en los básicos (sentadilla, banca, peso muerto, press militar, remo y dominadas), según cuánto levantas en relación con tu peso. Las fórmulas están en [docs/RANKS.md](docs/RANKS.md).
 - **Pantalla de fin de sesión.** Resumen, récords nuevos y el detalle de la XP línea por línea mientras sube el nivel.
+
+### Horario
+
+- **La semana en una grilla** por horas, con tus clases, turnos y cualquier otra cosa, que se repiten cada semana o pasan una sola vez.
+- **Tus rutinas aparecen solas** en sus días. Si le das una hora a una rutina, se vuelve un bloque más.
+- **Choques a la vista:** lo que se pisa se muestra lado a lado y marcado.
+- **Clic en un espacio libre** para crear algo a esa hora, clic en un bloque para editarlo.
+- **El panel principal** muestra la rutina de hoy, lista para empezar, y lo que queda en tu día.
+
+<img src="docs/assets/schedule-es.png" alt="Horario semanal con clases, turnos y la rutina de hoy" width="100%">
 
 ### Interfaz
 
@@ -158,7 +168,10 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
   - [x] Pantalla de fin de sesión con nivel y récords
   - [ ] Perfil (peso, altura, meta semanal) y ajustes
   - [ ] Animaciones de subida de rango
-- [ ] Fase 2 · Horario semanal con los días de entrenamiento, tareas y notificaciones en segundo plano.
+- [ ] Fase 2 · Horario, tareas y notificaciones
+  - [x] Horario semanal con eventos y días de entrenamiento
+  - [ ] Tareas con fecha de entrega, prioridad y repetición
+  - [ ] Segundo plano en la bandeja del sistema y notificaciones
 - [ ] Fase 3 · Finanzas: gastos por grupo, ingresos fijos e informales, presupuestos.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.
 - [ ] Fase 5 · Cuentas, amigos y progreso comparado, con sincronización opcional.

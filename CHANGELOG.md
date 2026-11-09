@@ -17,6 +17,14 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pestaña HORARIOS:
+  - La semana en una grilla por horas, con navegación entre semanas y una línea que marca la hora actual.
+  - Eventos que se repiten cada semana o que ocurren una vez, con tipo (clase, trabajo, estudio, personal, otro) y un aviso previo guardado para las notificaciones.
+  - Clic en un espacio libre crea un evento a esa hora; clic en un bloque lo edita.
+  - Las rutinas aparecen solas en sus días; con hora, como bloque.
+  - Los bloques que se pisan se muestran lado a lado y se cuentan como choques.
+- El panel principal muestra la rutina de hoy con un botón para empezarla (o continuar la sesión en curso) y lo que queda del día en el horario.
+- Migración 4 de la base de datos (eventos y hora de las rutinas).
 - Catálogo de 104 ejercicios. Cada uno tiene músculo principal y secundarios, equipo, forma de medirse, patrón de movimiento, si cuenta para la clase de fuerza, y la meta y el descanso con que entra a una rutina. Se puede buscar en español o inglés y filtrar por músculo. También se pueden crear ejercicios propios.
 - Serie de aproximación, para las series que suben hacia la serie fuerte (por ejemplo, antes de una al fallo). No cuenta como serie de trabajo.
 - Guía en la pestaña de entrenamiento: primeros pasos que se marcan solos, una barra de indicaciones con lo que toca hacer, explicación de cada tipo de serie, y el próximo ejercicio del plan durante la sesión.
