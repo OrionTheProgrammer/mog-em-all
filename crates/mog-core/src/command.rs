@@ -7,8 +7,8 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Module {
     Dashboard,
-    Workouts,
-    Routines,
+    /// Entrenamiento: rutinas y sesiones en una sola pestaña.
+    Training,
     Tasks,
     Schedule,
     Finances,
@@ -16,10 +16,9 @@ pub enum Module {
 }
 
 impl Module {
-    pub const ALL: [Module; 7] = [
+    pub const ALL: [Module; 6] = [
         Module::Dashboard,
-        Module::Workouts,
-        Module::Routines,
+        Module::Training,
         Module::Tasks,
         Module::Schedule,
         Module::Finances,
@@ -29,8 +28,10 @@ impl Module {
     fn from_word(word: &str) -> Option<Module> {
         Some(match word {
             "panel" | "dashboard" | "inicio" | "home" => Module::Dashboard,
-            "ejercicio" | "ejercicios" | "entrenar" | "workout" | "workouts" => Module::Workouts,
-            "rutina" | "rutinas" | "routine" | "routines" => Module::Routines,
+            "entrenamiento" | "entrenar" | "ejercicio" | "ejercicios" | "rutina" | "rutinas"
+            | "gym" | "training" | "workout" | "workouts" | "routine" | "routines" => {
+                Module::Training
+            }
             "tarea" | "tareas" | "task" | "tasks" => Module::Tasks,
             "horario" | "horarios" | "calendario" | "schedule" | "calendar" => Module::Schedule,
             "finanza" | "finanzas" | "dinero" | "finance" | "finances" | "money" => {
@@ -129,7 +130,8 @@ mod tests {
 
     #[test]
     fn navigation_in_both_languages() {
-        assert_eq!(parse("ir rutinas"), Command::Go(Module::Routines));
+        assert_eq!(parse("ir rutinas"), Command::Go(Module::Training));
+        assert_eq!(parse("entrenamiento"), Command::Go(Module::Training));
         assert_eq!(parse("go finances"), Command::Go(Module::Finances));
         assert_eq!(parse("CONFIGURACIÓN"), Command::Go(Module::Settings));
         assert_eq!(parse("ir"), Command::Usage(UsageOf::Go));
