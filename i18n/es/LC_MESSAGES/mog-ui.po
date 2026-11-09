@@ -81,7 +81,21 @@ msgctxt "CommandLine"
 msgid "ENTER runs · / focuses · ESC leaves"
 msgstr "ENTER ejecuta · / enfoca · ESC sale"
 
-#: crates/mog-ui/ui/screens/hud.slint:233
+#: crates/mog-ui/ui/screens/hud.slint:235
+msgctxt "Hud"
+msgid ""
+"YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
+"SAVED"
+msgstr ""
+"TUS DATOS SON DE UNA VERSIÓN MÁS NUEVA · ACTUALIZA LA APP · NO SE ESTÁ "
+"GUARDANDO NADA"
+
+#: crates/mog-ui/ui/screens/hud.slint:237
+msgctxt "Hud"
+msgid "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
+msgstr "NO SE PUDIERON ABRIR TUS DATOS · NO SE ESTÁ GUARDANDO NADA"
+
+#: crates/mog-ui/ui/screens/hud.slint:238
 msgctxt "Hud"
 msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
 msgstr "MODO LOCAL · DATOS GUARDADOS EN ESTE EQUIPO"
