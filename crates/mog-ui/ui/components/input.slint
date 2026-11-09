@@ -6,6 +6,7 @@ export component TermInput {
     in property <InputType> input-type: InputType.text;
     in-out property <string> text <=> input.text;
     callback edited();
+    callback accepted();
 
     VerticalLayout {
         spacing: Theme.gap-sm;
@@ -39,6 +40,7 @@ export component TermInput {
                     selection-background-color: Theme.red-dim;
                     input-type: root.input-type;
                     edited => { root.edited(); }
+                    accepted => { root.accepted(); }
                 }
 
                 if root.suffix != "": Text {

@@ -4,6 +4,7 @@
 mod boot;
 mod clock;
 mod commands;
+mod workouts;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -35,6 +36,7 @@ fn main() -> Result<(), slint::PlatformError> {
     ui.set_storage_status(storage_status);
     let store = Rc::new(RefCell::new(store));
     refresh_progress(&ui, &store.borrow());
+    workouts::connect(&ui, &store);
 
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);

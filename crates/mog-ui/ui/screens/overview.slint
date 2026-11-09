@@ -164,11 +164,11 @@ export component Overview {
             SectionLabel { text: @tr("STATUS"); }
             StatRow {
                 label: @tr("Streak");
-                value: @tr("{} weeks", root.week.streak-weeks);
+                value: @tr("{n} week" | "{n} weeks" % root.week.streak-weeks);
             }
             StatRow {
                 label: @tr("This week");
-                value: @tr("{} sessions", root.week.sessions);
+                value: @tr("{n} session" | "{n} sessions" % root.week.sessions);
             }
             StatRow {
                 label: @tr("BMI");

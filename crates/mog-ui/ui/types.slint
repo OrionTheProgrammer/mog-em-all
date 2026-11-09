@@ -45,3 +45,73 @@ export struct CommandFeedback {
     value: float,
     category: int,
 }
+
+// Ejercicio disponible. kind: 0 con carga, 1 peso corporal, 2 por tiempo.
+export struct ExerciseItem {
+    id: int,
+    // código de los ejercicios incluidos ("squat"); vacío en los propios
+    code: string,
+    // nombre de los ejercicios propios
+    name: string,
+    kind: int,
+}
+
+export struct SetRow {
+    code: string,
+    name: string,
+    kind: int,
+    reps: int,
+    weight: float,
+    duration-s: int,
+}
+
+export struct SessionRow {
+    name: string,
+    day: int,
+    month: int,
+    duration-min: int,
+    sets: int,
+    xp: int,
+}
+
+export struct ActiveSession {
+    active: bool,
+    name: string,
+    // segundos desde 1970
+    started-at: int,
+}
+
+export struct RecordRow {
+    code: string,
+    name: string,
+    new-kg: float,
+    previous-kg: float,
+}
+
+// Datos de la pantalla que aparece al terminar un entrenamiento.
+export struct LevelUp {
+    visible: bool,
+    session-name: string,
+    duration-min: int,
+    sets: int,
+    volume-kg: float,
+    records: [RecordRow],
+    base: int,
+    minutes: int,
+    records-xp: int,
+    streak-weeks: int,
+    streak-pct: int,
+    total: int,
+    over-cap: bool,
+    level-before: int,
+    level-after: int,
+    // avance dentro del nivel, 0 a 1, antes y después
+    progress-before: float,
+    progress-after: float,
+    xp-in-level: int,
+    xp-for-next: int,
+    tier: int,
+    division: int,
+    // 0 sin cambio, 1 subió de nivel, 2 cambió de división, 3 rango nuevo
+    rank-change: int,
+}
