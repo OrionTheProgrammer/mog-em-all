@@ -28,6 +28,7 @@ fn main() -> Result<(), slint::PlatformError> {
 
     // Hasta que exista la base de datos, el perfil arranca vacío.
     ui.set_operator(operator_info(0));
+    ui.set_user_name(user_name().into());
     ui.set_week(WeekStats {
         sessions: 0,
         streak_weeks: 0,
@@ -36,6 +37,15 @@ fn main() -> Result<(), slint::PlatformError> {
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);
     ui.run()
+}
+
+/// Nombre para el saludo de la pantalla de carga. Hasta que exista el perfil,
+/// se usa el nombre de la cuenta del sistema.
+fn user_name() -> String {
+    std::env::var("USER")
+        .or_else(|_| std::env::var("USERNAME"))
+        .unwrap_or_default()
+        .to_uppercase()
 }
 
 /// Idiomas incluidos. El primero es el de respaldo.
@@ -100,5 +110,7 @@ fn operator_info(total_xp: u64) -> OperatorInfo {
         total_xp: to_i32(total_xp),
         tier_progress: ranks::tier_progress(progress.level) as f32,
         next_tier_level: ranks::next_tier_level(progress.level).map_or(0, |l| l as i32),
+        division: ranks::division(progress.level) as i32,
+        next_division_level: ranks::next_division_level(progress.level).map_or(0, |l| l as i32),
     }
 }

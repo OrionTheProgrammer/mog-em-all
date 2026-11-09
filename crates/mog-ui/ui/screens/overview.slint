@@ -87,11 +87,11 @@ export component Overview {
                     alignment: center;
                     Insignia {
                         size: 170px;
-                        lit: Math.min(3, 1 + Math.floor(root.operator.tier-progress * 3));
+                        lit: root.operator.division;
                     }
                 }
                 Text {
-                    text: Labels.tier(root.operator.tier).to-uppercase();
+                    text: Labels.rank(root.operator.tier, root.operator.division);
                     horizontal-alignment: center;
                     color: Theme.cyan;
                     font-family: Theme.font-display;
@@ -126,7 +126,13 @@ export component Overview {
                                 horizontal-stretch: 1;
                             }
                             Text {
-                                text: root.operator.next-tier-level > 0 ? @tr("{} AT LV {}", Labels.tier(root.operator.tier + 1).to-uppercase(), root.operator.next-tier-level) : "";
+                                text: root.operator.next-division-level > 0
+                                    ? @tr("{} AT LV {}",
+                                        root.operator.division < 3
+                                            ? Labels.rank(root.operator.tier, root.operator.division + 1)
+                                            : Labels.rank(root.operator.tier + 1, 1),
+                                        root.operator.next-division-level)
+                                    : "";
                                 color: Theme.text-dim;
                                 font-family: Theme.font-mono;
                                 font-size: Theme.size-xs;

@@ -18,6 +18,7 @@ export component AppWindow inherits Window {
 
     in property <string> version;
     in property <float> boot-progress;
+    in property <string> user-name;
     in property <bool> booted;
     in property <OperatorInfo> operator;
     in property <WeekStats> week;
@@ -51,6 +52,8 @@ export component AppWindow inherits Window {
 
     BootScreen {
         progress: root.boot-progress;
+        user-name: root.user-name;
+        operator: root.operator;
         opacity: root.booted ? 0 : 1;
         visible: self.opacity > 0.01;
         animate opacity { duration: Theme.normal; }

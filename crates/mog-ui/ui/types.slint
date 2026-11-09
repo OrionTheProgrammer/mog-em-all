@@ -18,6 +18,10 @@ export struct OperatorInfo {
     tier-progress: float,
     // nivel donde empieza el siguiente rango; 0 si ya es el último
     next-tier-level: int,
+    // división dentro del rango: 1, 2 o 3
+    division: int,
+    // nivel donde empieza la división siguiente; 0 si ya es la última
+    next-division-level: int,
 }
 
 export struct WeekStats {
