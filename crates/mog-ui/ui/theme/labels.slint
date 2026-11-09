@@ -140,6 +140,21 @@ export global Labels {
         t == 1 ? @tr("WU") : t == 2 ? @tr("DS") : t == 3 ? @tr("SS") : t == 4 ? @tr("F") : t == 5 ? @tr("AP") : ""
     }
 
+    // Minutos desde la medianoche como "08:30".
+    public pure function time(minutes: int) -> string {
+        Labels.pad(Math.floor(minutes / 60)) + ":" + Labels.pad(Math.mod(minutes, 60))
+    }
+
+    // Mismo orden que storage::EventKind; el 5 es entrenamiento (una rutina).
+    public pure function event-kind(k: int) -> string {
+        k == 0 ? @tr("Class") :
+        k == 1 ? @tr("Work") :
+        k == 2 ? @tr("Study") :
+        k == 3 ? @tr("Personal") :
+        k == 4 ? @tr("Other") :
+        @tr("Training")
+    }
+
     public pure function pad(n: int) -> string {
         n < 10 ? "0" + n : "" + n
     }

@@ -4,6 +4,7 @@
 mod boot;
 mod clock;
 mod commands;
+mod schedule;
 mod training;
 
 use std::cell::RefCell;
@@ -37,6 +38,8 @@ fn main() -> Result<(), slint::PlatformError> {
     let store = Rc::new(RefCell::new(store));
     refresh_progress(&ui, &store.borrow());
     training::connect(&ui, &store);
+    let (_schedule_timer, refresh_schedule) = schedule::connect(&ui, &store);
+    ui.on_tab_changed(move |_| refresh_schedule());
 
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);

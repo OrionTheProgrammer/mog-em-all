@@ -1,0 +1,75 @@
+// Estado y acciones de la pestaña HORARIOS. Rust lo llena (crates/mog-app/src/schedule.rs).
+
+// Un bloque en la grilla de un día.
+export struct Block {
+    id: int,
+    // 0 evento, 1 rutina
+    source: int,
+    title: string,
+    // 0 clase, 1 trabajo, 2 estudio, 3 personal, 4 otro, 5 entrenamiento
+    kind: int,
+    start-min: int,
+    end-min: int,
+    // columna dentro del día cuando se pisa con otros
+    lane: int,
+    lanes: int,
+    conflict: bool,
+}
+
+export struct DayColumn {
+    day: int,
+    month: int,
+    weekday: int,
+    today: bool,
+    blocks: [Block],
+    // rutinas de ese día sin hora fija
+    untimed: [Block],
+}
+
+export global ScheduleState {
+    in property <[DayColumn]> days;
+    in property <int> from-min: 420;
+    in property <int> to-min: 1320;
+    // minuto actual del día, para la línea de "ahora"
+    in property <int> now-min;
+    in property <int> week-offset;
+    in property <int> conflicts;
+    // lo que queda del día, para el panel principal
+    in property <[Block]> today-left;
+
+    // Formulario de evento (form-open = true mientras se crea o edita)
+    in-out property <bool> form-open;
+    in-out property <int> form-id;
+    in-out property <string> form-title;
+    in-out property <int> form-kind;
+    in-out property <bool> form-weekly: true;
+    in property <[bool]> form-days;
+    in-out property <string> form-date;
+    in-out property <string> form-start;
+    in-out property <string> form-end;
+    // índice en [sin aviso, 5, 10, 15, 30, 60 min]
+    in-out property <int> form-reminder: 2;
+    // 0 sin error, 1 falta título, 2 horas, 3 días, 4 fecha
+    in property <int> form-error;
+
+    // Hora de una rutina (routine-id 0 = ninguna abierta)
+    in property <int> routine-id;
+    in property <string> routine-name;
+    in-out property <string> routine-start;
+    in-out property <string> routine-duration;
+    in property <bool> routine-error;
+
+    callback prev-week();
+    callback next-week();
+    callback this-week();
+    // día (0 lunes ... 6 domingo de la semana mostrada), minuto
+    callback new-event-at(int, int);
+    callback edit-event(int);
+    callback toggle-form-day(int);
+    callback save-event();
+    callback delete-event(int);
+    callback close-form();
+    callback open-routine(int);
+    callback save-routine-time();
+    callback clear-routine-time();
+}

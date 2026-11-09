@@ -114,6 +114,8 @@ export global TrainingState {
     // Primeros pasos: rutina creada, con ejercicios, con días, primera sesión hecha.
     in property <[bool]> steps;
     in property <[RoutineItem]> routines;
+    // cuántas rutinas tocan hoy
+    in property <int> today-count;
     in property <[SessionRow]> recent;
 
     // Rutina abierta en el editor (id 0 = ninguna)
