@@ -1,0 +1,136 @@
+// Estado y acciones de la pestaña ENTRENAMIENTO. Rust lo llena y responde a los callbacks
+// (crates/mog-app/src/training.rs); las pantallas solo leen y llaman.
+
+export struct ExerciseItem {
+    id: int,
+    // código de los ejercicios incluidos ("squat"); vacío en los propios
+    code: string,
+    // nombre de los ejercicios propios
+    name: string,
+    // 0 con carga, 1 peso corporal, 2 por tiempo
+    kind: int,
+}
+
+export struct RoutineItem {
+    id: int,
+    name: string,
+    // 7 valores, lunes a domingo
+    days: [bool],
+    exercise-count: int,
+    today: bool,
+}
+
+export struct RoutineExerciseRow {
+    // id de la fila dentro de la rutina
+    id: int,
+    exercise-id: int,
+    code: string,
+    name: string,
+    kind: int,
+    sets: int,
+    reps-min: int,
+    reps-max: int,
+    // -1 si no tiene peso fijado
+    weight: float,
+    rest-s: int,
+    // series de trabajo hechas en la sesión en curso
+    done: int,
+}
+
+export struct RoutineDetail {
+    id: int,
+    name: string,
+    days: [bool],
+    exercises: [RoutineExerciseRow],
+}
+
+// Ejercicio que se está haciendo ahora en la sesión.
+export struct CurrentExercise {
+    id: int,
+    code: string,
+    name: string,
+    kind: int,
+    in-routine: bool,
+    sets: int,
+    reps-min: int,
+    reps-max: int,
+    weight: float,
+    rest-s: int,
+    done: int,
+    // propuesta para la próxima serie (de la meta o de la última vez)
+    suggest-reps: string,
+    suggest-weight: string,
+}
+
+export struct SetRow {
+    code: string,
+    name: string,
+    kind: int,
+    reps: int,
+    weight: float,
+    duration-s: int,
+    // 0 normal, 1 calentamiento, 2 dropset, 3 superserie, 4 al fallo
+    set-type: int,
+}
+
+export struct SessionRow {
+    name: string,
+    day: int,
+    month: int,
+    duration-min: int,
+    sets: int,
+    xp: int,
+}
+
+export struct ActiveSession {
+    active: bool,
+    name: string,
+    // segundos desde 1970
+    started-at: int,
+}
+
+export global TrainingState {
+    // Reloj en segundos desde 1970, se actualiza cada segundo.
+    in property <int> now;
+    in property <int> weekday;
+
+    in property <[ExerciseItem]> exercises;
+    in property <[RoutineItem]> routines;
+    in property <[SessionRow]> recent;
+
+    // Rutina abierta en el editor (id 0 = ninguna)
+    in property <RoutineDetail> editing;
+
+    in property <ActiveSession> session;
+    in property <[RoutineExerciseRow]> plan;
+    in property <CurrentExercise> current;
+    in property <[SetRow]> sets;
+
+    // Descanso: termina en `rest-until` (segundos desde 1970) y dura `rest-total`.
+    in property <int> rest-until;
+    in property <int> rest-total;
+
+    // Rutinas
+    callback create-routine(string);
+    callback select-routine(int);
+    callback rename-routine(int, string);
+    callback delete-routine(int);
+    callback toggle-day(int, int);
+    callback add-to-routine(int, int);
+    callback remove-from-routine(int);
+    callback move-in-routine(int, int);
+    // fila, series, reps mín, reps máx, peso, descanso (texto). Devuelve si se guardó.
+    callback save-target(int, string, string, string, string, string) -> bool;
+
+    // Sesión
+    callback start-routine(int);
+    callback start-free(string);
+    callback select-exercise(int);
+    // ejercicio, reps, peso, tiempo, tipo de serie. Devuelve si se guardó.
+    callback add-set(int, string, string, string, int) -> bool;
+    callback undo-set();
+    callback discard-session();
+    callback finish-session();
+    callback adjust-rest(int);
+    callback skip-rest();
+}

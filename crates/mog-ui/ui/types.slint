@@ -46,41 +46,6 @@ export struct CommandFeedback {
     category: int,
 }
 
-// Ejercicio disponible. kind: 0 con carga, 1 peso corporal, 2 por tiempo.
-export struct ExerciseItem {
-    id: int,
-    // código de los ejercicios incluidos ("squat"); vacío en los propios
-    code: string,
-    // nombre de los ejercicios propios
-    name: string,
-    kind: int,
-}
-
-export struct SetRow {
-    code: string,
-    name: string,
-    kind: int,
-    reps: int,
-    weight: float,
-    duration-s: int,
-}
-
-export struct SessionRow {
-    name: string,
-    day: int,
-    month: int,
-    duration-min: int,
-    sets: int,
-    xp: int,
-}
-
-export struct ActiveSession {
-    active: bool,
-    name: string,
-    // segundos desde 1970
-    started-at: int,
-}
-
 export struct RecordRow {
     code: string,
     name: string,

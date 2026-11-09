@@ -40,6 +40,7 @@ fn workout(
                     reps: Some(reps),
                     weight_kg: Some(weight),
                     duration_s: None,
+                    ..Default::default()
                 },
             )
             .unwrap();
@@ -193,11 +194,23 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
     (dir, path)
 }
 
-const V2: migrations::Migration = migrations::Migration {
-    version: 2,
+/// Migración de prueba que va después de la última real.
+const NEXT: migrations::Migration = migrations::Migration {
+    version: 3,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
+
+fn with_next() -> Vec<migrations::Migration> {
+    let mut list = migrations::MIGRATIONS.to_vec();
+    assert_eq!(
+        NEXT.version,
+        migrations::latest() + 1,
+        "actualizar NEXT al agregar migraciones"
+    );
+    list.push(NEXT);
+    list
+}
 
 #[test]
 fn upgrade_keeps_data_and_makes_a_backup() {
@@ -219,25 +232,31 @@ fn upgrade_keeps_data_and_makes_a_backup() {
         let squat = store.exercise_by_code("squat").unwrap().unwrap();
         workout(&mut store, MONDAY, 30, squat, &[(5, 100.0)]);
     }
-    let both = [migrations::MIGRATIONS[0], V2];
-    let store = Store::open_with(&path, &both).unwrap();
-    assert_eq!(store.schema_version().unwrap(), 2);
+    let store = Store::open_with(&path, &with_next()).unwrap();
+    assert_eq!(store.schema_version().unwrap(), NEXT.version);
     assert_eq!(store.profile().unwrap().unwrap().name, "Orion");
     assert!(store.total_xp().unwrap() > 0);
     let history = store.migration_history().unwrap();
-    assert_eq!(
-        history.iter().map(|m| m.version).collect::<Vec<_>>(),
-        vec![1, 2]
-    );
+    assert_eq!(history.last().unwrap().version, NEXT.version);
     let backups: Vec<_> = std::fs::read_dir(&dir)
         .unwrap()
         .filter_map(|e| e.ok())
-        .filter(|e| e.file_name().to_string_lossy().contains(".v1-"))
+        .filter(|e| {
+            e.file_name()
+                .to_string_lossy()
+                .contains(&format!(".v{}-", migrations::latest()))
+        })
         .collect();
-    assert_eq!(backups.len(), 1, "debe quedar una copia de la versión 1");
-    // La copia es una base válida en la versión 1.
+    assert_eq!(
+        backups.len(),
+        1,
+        "debe quedar una copia de la versión anterior"
+    );
     let old = Connection::open(backups[0].path()).unwrap();
-    assert_eq!(migrations::current_version(&old).unwrap(), 1);
+    assert_eq!(
+        migrations::current_version(&old).unwrap(),
+        migrations::latest()
+    );
     drop((store, old));
     let _ = std::fs::remove_dir_all(dir);
 }
@@ -255,21 +274,15 @@ fn no_backup_when_nothing_to_migrate() {
 #[test]
 fn newer_schema_is_refused_and_left_untouched() {
     let (dir, path) = temp_db("newer");
-    {
-        let both = [migrations::MIGRATIONS[0], V2];
-        drop(Store::open_with(&path, &both).unwrap());
-    }
-    let only_v1 = [migrations::MIGRATIONS[0]];
-    match Store::open_with(&path, &only_v1) {
-        Err(Error::NewerSchema {
-            found: 2,
-            supported: 1,
-        }) => {}
+    drop(Store::open_with(&path, &with_next()).unwrap());
+    match Store::open(&path) {
+        Err(Error::NewerSchema { found, supported })
+            if found == NEXT.version && supported == migrations::latest() => {}
         Err(other) => panic!("error inesperado: {other}"),
         Ok(_) => panic!("debió rechazar la base"),
     }
     let conn = Connection::open(&path).unwrap();
-    assert_eq!(migrations::current_version(&conn).unwrap(), 2);
+    assert_eq!(migrations::current_version(&conn).unwrap(), NEXT.version);
     drop(conn);
     let _ = std::fs::remove_dir_all(dir);
 }
@@ -303,8 +316,11 @@ fn databases_from_before_the_history_table_are_adopted() {
         conn.pragma_update(None, "user_version", 1i64).unwrap();
     }
     let store = Store::open(&path).unwrap();
-    assert_eq!(store.schema_version().unwrap(), 1);
-    assert_eq!(store.migration_history().unwrap().len(), 1);
+    assert_eq!(store.schema_version().unwrap(), migrations::latest());
+    assert_eq!(
+        store.migration_history().unwrap().len(),
+        migrations::MIGRATIONS.len()
+    );
     drop(store);
     let _ = std::fs::remove_dir_all(dir);
 }
@@ -331,6 +347,7 @@ fn active_session_can_be_resumed_or_discarded() {
                 reps: Some(8),
                 weight_kg: Some(60.0),
                 duration_s: None,
+                ..Default::default()
             },
         )
         .unwrap();
@@ -342,6 +359,7 @@ fn active_session_can_be_resumed_or_discarded() {
                 reps: Some(6),
                 weight_kg: Some(62.5),
                 duration_s: None,
+                ..Default::default()
             },
         )
         .unwrap();
@@ -388,4 +406,150 @@ fn third_session_of_the_day_is_flagged() {
     assert!(third.over_daily_cap);
     assert!(third.breakdown.total > 0);
     assert_eq!(third.xp, 0);
+}
+
+#[test]
+fn version_1_databases_upgrade_to_routines_keeping_sessions() {
+    let (dir, path) = temp_db("v1to2");
+    {
+        // Datos escritos como los dejaba la versión 1, con SQL directo.
+        let store = Store::open_with(&path, &migrations::MIGRATIONS[..1]).unwrap();
+        assert_eq!(store.schema_version().unwrap(), 1);
+        store
+            .conn
+            .execute_batch(
+                "INSERT INTO session (id, name, started_at, ended_at, xp) VALUES (7, 'Antigua', 1000, 3400, 90);
+                 INSERT INTO workout_set (session_id, exercise_id, reps, weight_kg) VALUES (7, 2, 5, 70);",
+            )
+            .unwrap();
+    }
+    let store = Store::open(&path).unwrap();
+    assert_eq!(store.schema_version().unwrap(), 2);
+    assert_eq!(store.total_xp().unwrap(), 90);
+    let recent = store.recent_sessions(5).unwrap();
+    assert_eq!((recent.len(), recent[0].sets), (1, 1));
+    assert!(store.routines().unwrap().is_empty());
+    let sets = store.session_sets(recent[0].id).unwrap();
+    assert_eq!(
+        sets[0].set.set_type,
+        SetType::Normal,
+        "las series viejas quedan como normales"
+    );
+    drop(store);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+// Rutinas
+
+#[test]
+fn routines_with_days_and_ordered_exercises() {
+    let mut store = store_with_profile();
+    let bench = store.exercise_by_code("bench_press").unwrap().unwrap();
+    let dip = store.exercise_by_code("dip").unwrap().unwrap();
+    let press = store.exercise_by_code("overhead_press").unwrap().unwrap();
+    let chest = store.create_routine("Pecho", MONDAY).unwrap();
+    store.set_routine_days(chest, &[0, 3]).unwrap();
+    let a = store.add_routine_exercise(chest, bench).unwrap();
+    let b = store.add_routine_exercise(chest, dip).unwrap();
+    let c = store.add_routine_exercise(chest, press).unwrap();
+    store
+        .update_routine_exercise(
+            a,
+            Target {
+                sets: 4,
+                reps_min: 6,
+                reps_max: 8,
+                weight_kg: Some(70.0),
+                rest_s: 150,
+            },
+        )
+        .unwrap();
+    store.move_routine_exercise(c, -1).unwrap();
+    store.move_routine_exercise(a, -1).unwrap(); // ya es el primero: no cambia
+
+    let routine = store.routine(chest).unwrap().unwrap();
+    assert_eq!(routine.weekdays, vec![0, 3]);
+    assert_eq!(
+        routine.exercises.iter().map(|e| e.id).collect::<Vec<_>>(),
+        vec![a, c, b]
+    );
+    assert_eq!(routine.exercises[0].target.rest_s, 150);
+    assert_eq!(store.routines_for(0).unwrap().len(), 1);
+    assert!(store.routines_for(1).unwrap().is_empty());
+
+    store.remove_routine_exercise(c).unwrap();
+    store.set_routine_days(chest, &[2]).unwrap();
+    let routine = store.routine(chest).unwrap().unwrap();
+    assert_eq!(
+        (routine.exercises.len(), routine.weekdays.clone()),
+        (2, vec![2])
+    );
+}
+
+#[test]
+fn deleting_a_routine_keeps_its_sessions() {
+    let mut store = store_with_profile();
+    let squat = store.exercise_by_code("squat").unwrap().unwrap();
+    let legs = store.create_routine("Pierna", MONDAY).unwrap();
+    store.add_routine_exercise(legs, squat).unwrap();
+    let session = store.start_routine_session(legs, MONDAY).unwrap();
+    let active = store.active_session().unwrap().unwrap();
+    assert_eq!(
+        (active.name.as_str(), active.routine_id),
+        ("Pierna", Some(legs))
+    );
+    store
+        .add_set(
+            session,
+            squat,
+            SetEntry {
+                reps: Some(5),
+                weight_kg: Some(100.0),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    store.finish_session(session, MONDAY + 30 * 60).unwrap();
+    store.delete_routine(legs).unwrap();
+    assert!(store.routines().unwrap().is_empty());
+    assert_eq!(store.recent_sessions(5).unwrap().len(), 1);
+}
+
+#[test]
+fn warm_ups_do_not_count_for_records_or_volume() {
+    let mut store = store_with_profile();
+    let bench = store.exercise_by_code("bench_press").unwrap().unwrap();
+    workout(&mut store, MONDAY, 40, bench, &[(5, 70.0)]);
+    let session = store.start_session("Empuje", MONDAY + DAY).unwrap();
+    let warm = SetEntry {
+        reps: Some(10),
+        weight_kg: Some(100.0),
+        set_type: SetType::WarmUp,
+        ..Default::default()
+    };
+    store.add_set(session, bench, warm).unwrap();
+    store
+        .add_set(
+            session,
+            bench,
+            SetEntry {
+                reps: Some(5),
+                weight_kg: Some(70.0),
+                set_type: SetType::Drop,
+                completed_at: Some(MONDAY + DAY + 60),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    let done = store
+        .finish_session(session, MONDAY + DAY + 40 * 60)
+        .unwrap();
+    assert!(done.records.is_empty(), "el calentamiento no es récord");
+    assert!((done.volume_kg - 350.0).abs() < 1e-9);
+    assert_eq!(done.sets, 2);
+    let last = store.last_work_set(bench).unwrap().unwrap();
+    assert_eq!(
+        (last.set_type, last.completed_at),
+        (SetType::Drop, Some(MONDAY + DAY + 60))
+    );
 }

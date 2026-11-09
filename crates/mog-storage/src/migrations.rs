@@ -25,11 +25,18 @@ pub struct Migration {
 
 /// Todas las migraciones, en orden. Para agregar una: crear el archivo `.sql`
 /// con el número siguiente y sumarla al final de esta lista.
-pub const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial",
-    sql: include_str!("../migrations/0001_initial.sql"),
-}];
+pub const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial",
+        sql: include_str!("../migrations/0001_initial.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "routines",
+        sql: include_str!("../migrations/0002_routines.sql"),
+    },
+];
 
 /// Versión de esquema que entiende esta compilación de la app.
 pub fn latest() -> u32 {

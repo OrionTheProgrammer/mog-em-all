@@ -1,11 +1,13 @@
 import { Theme } from "theme/theme.slint";
-import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, ExerciseItem, SetRow, SessionRow, ActiveSession, RecordRow, LevelUp } from "types.slint";
+import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp } from "types.slint";
+import { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession } from "state/training.slint";
 import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
 import { Hud } from "screens/hud.slint";
 import { LevelUpScreen } from "screens/levelup.slint";
 
-export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, ExerciseItem, SetRow, SessionRow, ActiveSession, RecordRow, LevelUp }
+export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp }
+export { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession }
 
 export component AppWindow inherits Window {
     title: "mog 'em all";
@@ -28,11 +30,6 @@ export component AppWindow inherits Window {
     in property <string> language;
     // 0 normal, 1 la base es de una versión más nueva, 2 no se pudo abrir la base
     in property <int> storage-status;
-    in property <[ExerciseItem]> exercises;
-    in property <[SetRow]> sets;
-    in property <[SessionRow]> recent;
-    in property <ActiveSession> session;
-    in property <int> now;
     in-out property <LevelUp> level-up;
     in-out property <BmiResult> bmi;
     in-out property <int> current-module: 0;
@@ -40,11 +37,7 @@ export component AppWindow inherits Window {
     callback select-language(string);
     callback run-command(string);
     callback skip-boot();
-    callback start-session(string);
-    callback add-set(int, string, string, string) -> bool;
-    callback undo-set();
-    callback discard-session();
-    callback finish-session();
+
 
     hud := Hud {
         y: root.booted ? 0px : 24px;
@@ -58,16 +51,7 @@ export component AppWindow inherits Window {
         clock: root.clock;
         feedback: root.feedback;
         storage-status: root.storage-status;
-        exercises: root.exercises;
-        sets: root.sets;
-        recent: root.recent;
-        session: root.session;
-        now: root.now;
-        start-session(name) => { root.start-session(name); }
-        add-set(id, reps, weight, duration) => { return root.add-set(id, reps, weight, duration); }
-        undo-set => { root.undo-set(); }
-        discard-session => { root.discard-session(); }
-        finish-session => { root.finish-session(); }
+
         bmi <=> root.bmi;
         current <=> root.current-module;
         compute-bmi(w, h) => { return root.compute-bmi(w, h); }

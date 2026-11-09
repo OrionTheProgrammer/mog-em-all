@@ -26,12 +26,12 @@
 
 ## What it is
 
-mog 'em all puts in one place what you would normally track in four different apps: to-dos, schedule, spending and training. The training side gets the most attention. Every session earns XP, you level up by staying consistent, and each lift gets a strength class from E to S based on your bodyweight. Later on you will be able to share routines with friends and compare how you both progress.
+mog 'em all puts in one place what you would normally track in four different apps: to-dos, schedule, spending and training. The training side gets the most attention: you build routines by weekday (say, Monday is chest day), log each set during the session with its type (normal, warm-up, dropset, superset or to failure), and a rest timer starts on its own. Every session earns XP, you level up by staying consistent, and each lift gets a strength class from E to S based on your bodyweight. Later on you will be able to share routines with friends and compare how you both progress.
 
-You can drive it with the keyboard or the mouse. There is a command line at the bottom of the screen for quick actions (`bmi 78.5 176`, `go routines`), and Q and E move between tabs.
+You can drive it with the keyboard or the mouse. There is a command line at the bottom of the screen for quick actions (`bmi 78.5 176`, `go training`), and Q and E move between tabs.
 
 > [!NOTE]
-> This is early development. The interface, the rank system and BMI work; workouts, routines, tasks, schedule and finances arrive in phases. See the [roadmap](#roadmap).
+> This is early development. The interface, ranks, BMI and training (routines, sessions, sets and rest) work. Tasks, schedule and finances arrive in phases. See the [roadmap](#roadmap).
 
 <table>
 <tr>
@@ -81,7 +81,7 @@ Commands work in English or Spanish. Case and accents don't matter.
 
 | Command | What it does |
 |---|---|
-| `go <module>` or just `<module>` | Opens a module: `go routines`, `finances` |
+| `go <module>` or just `<module>` | Opens a module: `go training`, `finances` |
 | `bmi <weight kg> <height cm>` | Calculates BMI and shows it on the dashboard: `bmi 78.5 176` |
 | `lang es` / `lang en` | Switches the interface language |
 | `help` | Lists the commands |
@@ -93,7 +93,7 @@ There are two separate measures. Your level goes up with XP from training regula
 ## Roadmap
 
 - [x] Phase 0 · Project base: HUD interface, boot screen, animated logo, ranks, BMI, command line, Spanish and English.
-- [ ] Phase 1 · Local database (SQLite) ✓, workout logging ✓, level-up screen ✓, profile, routines, settings and rank animations.
+- [ ] Phase 1 · Local database (SQLite) ✓, workout logging ✓, level-up screen ✓, routines by weekday ✓, rest timer and set types ✓, profile, settings and rank animations.
 - [ ] Phase 2 · Tasks and weekly schedule.
 - [ ] Phase 3 · Finances: income, expenses, categories and budget.
 - [ ] Phase 4 · Share routines without a server, through a file or a QR code.
