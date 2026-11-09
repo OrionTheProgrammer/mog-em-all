@@ -405,6 +405,12 @@ fn refresh(ui: &AppWindow, store: &Store, view: &View) {
             .collect(),
     ));
 
+    state.set_today_count(
+        routines
+            .iter()
+            .filter(|r| r.weekdays.contains(&today))
+            .count() as i32,
+    );
     let editing = view
         .editing
         .get()

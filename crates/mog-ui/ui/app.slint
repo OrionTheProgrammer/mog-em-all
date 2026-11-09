@@ -1,5 +1,6 @@
 import { Theme } from "theme/theme.slint";
 import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp } from "types.slint";
+import { ScheduleState, Block, DayColumn } from "state/schedule.slint";
 import { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession } from "state/training.slint";
 import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
@@ -7,6 +8,7 @@ import { Hud } from "screens/hud.slint";
 import { LevelUpScreen } from "screens/levelup.slint";
 
 export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp }
+export { ScheduleState, Block, DayColumn }
 export { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession }
 
 export component AppWindow inherits Window {
@@ -37,6 +39,8 @@ export component AppWindow inherits Window {
     callback select-language(string);
     callback run-command(string);
     callback skip-boot();
+    // Se llama al cambiar de pestaña, para refrescar lo que dependa de otras.
+    callback tab-changed(int);
 
 
     hud := Hud {
@@ -78,6 +82,8 @@ export component AppWindow inherits Window {
     }
 
     Scanlines { }
+
+    changed current-module => { root.tab-changed(root.current-module); }
 
     // Cuando termina la carga, el HUD recibe el foco del teclado.
     changed booted => {

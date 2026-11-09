@@ -20,6 +20,10 @@ export global Theme {
     out property <color> amber: #ffb02e;
     out property <color> scanline: #00000059;
 
+    // Un color por tipo de bloque del horario: clase, trabajo, estudio, personal,
+    // otro y entrenamiento (mismo orden que storage::EventKind; el 5 es la rutina).
+    out property <[color]> schedule-kinds: [#ff2a3d, #ffb02e, #8fa8ff, #ff6470, #c2606a, #2ef2ff];
+
     // Tipografía
     out property <string> font-display: "Rajdhani";
     out property <string> font-mono: "Share Tech Mono";

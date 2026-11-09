@@ -72,6 +72,21 @@ def main(path: str, lang: str) -> None:
             "INSERT INTO workout_set (session_id, exercise_id, reps, weight_kg, set_type, completed_at) VALUES (1, ?, ?, ?, ?, ?)",
             (ex["bench_press"], reps, kg, kind, start + 300 * (i + 1)),
         )
+    # Horario de ejemplo: clases, turnos y la rutina de hoy con hora.
+    events = {
+        "es": [("Cloud Computing", 0, 510, 600, [0, 2]), ("Machine Learning", 0, 610, 700, [1, 3]),
+               ("Seguridad", 0, 840, 930, [0, 4]), ("Turno", 1, 960, 1200, [1, 3]), ("Estudiar", 2, 1140, 1230, [today])],
+        "en": [("Cloud Computing", 0, 510, 600, [0, 2]), ("Machine Learning", 0, 610, 700, [1, 3]),
+               ("Security", 0, 840, 930, [0, 4]), ("Work shift", 1, 960, 1200, [1, 3]), ("Study", 2, 1140, 1230, [today])],
+    }[lang]
+    for title, kind, start_min, end_min, days in events:
+        cur = db.execute(
+            "INSERT INTO event (title, kind, start_min, end_min, on_day, reminder_min, created_at) VALUES (?, ?, ?, ?, NULL, 10, ?)",
+            (title, kind, start_min, end_min, now),
+        )
+        for d in days:
+            db.execute("INSERT INTO event_day (event_id, weekday) VALUES (?, ?)", (cur.lastrowid, d))
+    db.execute("UPDATE routine SET start_min = 1170, duration_min = 75 WHERE id = 1")
     db.commit()
 
 

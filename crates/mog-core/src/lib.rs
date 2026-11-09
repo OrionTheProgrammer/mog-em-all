@@ -8,4 +8,5 @@ pub mod catalog;
 pub mod command;
 pub mod health;
 pub mod ranks;
+pub mod schedule;
 pub mod training;

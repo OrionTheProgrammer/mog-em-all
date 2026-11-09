@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 use chrono::{Datelike, Local, TimeZone};
 use mog_core::catalog::{self, Muscle};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
+use mog_core::schedule::{DayNumber, Minute, Recurrence};
 pub use mog_core::training::ExerciseKind;
 use mog_core::training::{SetType, Weekday};
 use rusqlite::{Connection, OptionalExtension, params};
@@ -134,6 +135,55 @@ pub struct Routine {
     pub name: String,
     pub weekdays: Vec<Weekday>,
     pub exercises: Vec<RoutineExercise>,
+    /// Hora a la que se suele hacer; `None` si no tiene hora fija.
+    pub start_min: Option<Minute>,
+    pub duration_min: u16,
+}
+
+pub type EventId = i64;
+
+/// Tipo de evento del horario. El número es el que guarda la base de datos.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum EventKind {
+    #[default]
+    Class,
+    Work,
+    Study,
+    Personal,
+    Other,
+}
+
+impl EventKind {
+    pub const ALL: [EventKind; 5] = [
+        EventKind::Class,
+        EventKind::Work,
+        EventKind::Study,
+        EventKind::Personal,
+        EventKind::Other,
+    ];
+
+    pub fn index(self) -> u8 {
+        Self::ALL.iter().position(|k| *k == self).unwrap_or(0) as u8
+    }
+
+    pub fn from_index(index: i64) -> EventKind {
+        usize::try_from(index)
+            .ok()
+            .and_then(|i| Self::ALL.get(i).copied())
+            .unwrap_or_default()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Event {
+    pub id: EventId,
+    pub title: String,
+    pub kind: EventKind,
+    pub start_min: Minute,
+    pub end_min: Minute,
+    pub recurrence: Recurrence,
+    /// Minutos antes para avisar; `None` sin aviso.
+    pub reminder_min: Option<u32>,
 }
 
 /// Un ejercicio dentro de una rutina, con su meta.
@@ -557,22 +607,29 @@ impl Store {
     // Rutinas
 
     pub fn routines(&self) -> Result<Vec<Routine>> {
-        let mut stmt = self
-            .conn
-            .prepare("SELECT id, name FROM routine ORDER BY position, id")?;
+        let mut stmt = self.conn.prepare(
+            "SELECT id, name, start_min, duration_min FROM routine ORDER BY position, id",
+        )?;
         let heads = stmt
             .query_map([], |row| {
-                Ok((row.get::<_, RoutineId>(0)?, row.get::<_, String>(1)?))
+                Ok((
+                    row.get::<_, RoutineId>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, Option<Minute>>(2)?,
+                    row.get::<_, u16>(3)?,
+                ))
             })?
             .collect::<rusqlite::Result<Vec<_>>>()?;
         heads
             .into_iter()
-            .map(|(id, name)| {
+            .map(|(id, name, start_min, duration_min)| {
                 Ok(Routine {
                     id,
                     name,
                     weekdays: self.routine_days(id)?,
                     exercises: self.routine_exercises(id)?,
+                    start_min,
+                    duration_min,
                 })
             })
             .collect()
@@ -765,6 +822,108 @@ impl Store {
                 },
             )
             .optional()?)
+    }
+
+    /// Hora fija de la rutina en el horario (`None` la deja sin hora).
+    pub fn set_routine_time(
+        &self,
+        id: RoutineId,
+        start_min: Option<Minute>,
+        duration_min: u16,
+    ) -> Result<()> {
+        let duration = duration_min.clamp(10, 600);
+        self.conn.execute(
+            "UPDATE routine SET start_min = ?1, duration_min = ?2 WHERE id = ?3",
+            params![start_min, duration, id],
+        )?;
+        Ok(())
+    }
+
+    // Horario
+
+    pub fn events(&self) -> Result<Vec<Event>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, title, kind, start_min, end_min, on_day, reminder_min FROM event ORDER BY start_min, id",
+        )?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((
+                    row.get::<_, EventId>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, i64>(2)?,
+                    row.get::<_, Minute>(3)?,
+                    row.get::<_, Minute>(4)?,
+                    row.get::<_, Option<DayNumber>>(5)?,
+                    row.get::<_, Option<u32>>(6)?,
+                ))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut days_stmt = self
+            .conn
+            .prepare("SELECT weekday FROM event_day WHERE event_id = ?1 ORDER BY weekday")?;
+        rows.into_iter()
+            .map(
+                |(id, title, kind, start_min, end_min, on_day, reminder_min)| {
+                    let recurrence = match on_day {
+                        Some(day) => Recurrence::Once(day),
+                        None => Recurrence::Weekly(
+                            days_stmt
+                                .query_map([id], |row| row.get::<_, Weekday>(0))?
+                                .collect::<rusqlite::Result<_>>()?,
+                        ),
+                    };
+                    Ok(Event {
+                        id,
+                        title,
+                        kind: EventKind::from_index(kind),
+                        start_min,
+                        end_min,
+                        recurrence,
+                        reminder_min,
+                    })
+                },
+            )
+            .collect()
+    }
+
+    /// Guarda un evento. Con `id` 0 lo crea; si no, lo reemplaza. Devuelve su id.
+    pub fn save_event(&mut self, event: &Event, now: Timestamp) -> Result<EventId> {
+        let on_day = match &event.recurrence {
+            Recurrence::Once(day) => Some(*day),
+            Recurrence::Weekly(_) => None,
+        };
+        let tx = self.conn.transaction()?;
+        let id = if event.id == 0 {
+            tx.execute(
+                "INSERT INTO event (title, kind, start_min, end_min, on_day, reminder_min, created_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                params![event.title.trim(), event.kind.index(), event.start_min, event.end_min, on_day, event.reminder_min, now],
+            )?;
+            tx.last_insert_rowid()
+        } else {
+            tx.execute(
+                "UPDATE event SET title = ?1, kind = ?2, start_min = ?3, end_min = ?4, on_day = ?5, reminder_min = ?6
+                 WHERE id = ?7",
+                params![event.title.trim(), event.kind.index(), event.start_min, event.end_min, on_day, event.reminder_min, event.id],
+            )?;
+            event.id
+        };
+        tx.execute("DELETE FROM event_day WHERE event_id = ?1", [id])?;
+        if let Recurrence::Weekly(days) = &event.recurrence {
+            for day in days.iter().filter(|d| **d <= 6) {
+                tx.execute(
+                    "INSERT OR IGNORE INTO event_day (event_id, weekday) VALUES (?1, ?2)",
+                    params![id, day],
+                )?;
+            }
+        }
+        tx.commit()?;
+        Ok(id)
+    }
+
+    pub fn delete_event(&self, id: EventId) -> Result<()> {
+        self.conn.execute("DELETE FROM event WHERE id = ?1", [id])?;
+        Ok(())
     }
 
     pub fn total_xp(&self) -> Result<u64> {
