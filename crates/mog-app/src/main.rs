@@ -5,7 +5,11 @@ mod boot;
 mod clock;
 mod commands;
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use mog_core::{health, ranks};
+use mog_storage::Store;
 use mog_ui::{AppWindow, BmiResult, OperatorInfo, WeekStats};
 use slint::ComponentHandle;
 
@@ -26,24 +30,52 @@ fn main() -> Result<(), slint::PlatformError> {
     ui.on_compute_bmi(|weight, height| compute_bmi(&weight, &height));
     commands::connect(&ui);
 
-    // Hasta que exista la base de datos, el perfil arranca vacío.
-    ui.set_operator(operator_info(0));
-    ui.set_user_name(user_name().into());
-    ui.set_week(WeekStats {
-        sessions: 0,
-        streak_weeks: 0,
-    });
+    // Se comparte con los módulos que vayan a escribir datos (entrenamientos, perfil).
+    let store = Rc::new(RefCell::new(open_store()));
+    refresh_progress(&ui, &store.borrow());
 
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);
     ui.run()
 }
 
-/// Nombre para el saludo de la pantalla de carga. Hasta que exista el perfil,
-/// se usa el nombre de la cuenta del sistema.
-fn user_name() -> String {
-    std::env::var("USER")
-        .or_else(|_| std::env::var("USERNAME"))
+/// Abre la base de datos del usuario. Si no se puede (disco lleno, permisos),
+/// la app sigue con una base en memoria para no quedar inutilizable.
+fn open_store() -> Store {
+    let path = dirs::data_dir().map(|dir| Store::default_path(&dir));
+    if let Some(path) = &path {
+        match Store::open(path) {
+            Ok(store) => return store,
+            Err(err) => eprintln!("no se pudo abrir {}: {err}", path.display()),
+        }
+    }
+    Store::open_in_memory().expect("SQLite en memoria siempre debería abrir")
+}
+
+pub fn now() -> mog_storage::Timestamp {
+    chrono::Utc::now().timestamp()
+}
+
+/// Lee nivel, racha y nombre desde la base de datos y los pasa a la interfaz.
+pub fn refresh_progress(ui: &AppWindow, store: &Store) {
+    let total_xp = store.total_xp().unwrap_or(0);
+    ui.set_operator(operator_info(total_xp));
+    let week = store.week_stats(now()).unwrap_or_default();
+    ui.set_week(WeekStats {
+        sessions: week.sessions as i32,
+        streak_weeks: week.streak_weeks as i32,
+    });
+    let profile_name = store.profile().ok().flatten().map(|p| p.name);
+    ui.set_user_name(user_name(profile_name).into());
+}
+
+/// Nombre para el saludo de la pantalla de carga: el del perfil o, si todavía
+/// no hay perfil, el de la cuenta del sistema.
+fn user_name(profile_name: Option<String>) -> String {
+    profile_name
+        .filter(|name| !name.trim().is_empty())
+        .or_else(|| std::env::var("USER").ok())
+        .or_else(|| std::env::var("USERNAME").ok())
         .unwrap_or_default()
         .to_uppercase()
 }
