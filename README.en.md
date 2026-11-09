@@ -93,7 +93,7 @@ There are two separate measures. Your level goes up with XP from training regula
 ## Roadmap
 
 - [x] Phase 0 · Project base: HUD interface, boot screen, animated logo, ranks, BMI, command line, Spanish and English.
-- [ ] Phase 1 · Local database (SQLite), workout logging, routines and settings.
+- [ ] Phase 1 · Local database (SQLite) ✓, workout logging ✓, level-up screen ✓, profile, routines, settings and rank animations.
 - [ ] Phase 2 · Tasks and weekly schedule.
 - [ ] Phase 3 · Finances: income, expenses, categories and budget.
 - [ ] Phase 4 · Share routines without a server, through a file or a QR code.

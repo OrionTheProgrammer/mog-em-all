@@ -129,11 +129,41 @@ pub struct PersonalRecord {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FinishedSession {
     pub duration_min: u32,
+    pub sets: u32,
+    /// Suma de repeticiones por peso en los ejercicios con carga externa.
+    pub volume_kg: f64,
     pub records: Vec<PersonalRecord>,
     pub streak_weeks: u32,
+    /// Detalle de la XP calculada. Si la sesión pasó el tope diario, `xp` es 0
+    /// aunque el detalle tenga valores.
+    pub breakdown: ranks::XpBreakdown,
+    pub over_daily_cap: bool,
     pub xp: u32,
     pub total_xp_before: u64,
     pub total_xp_after: u64,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActiveSession {
+    pub id: SessionId,
+    pub name: String,
+    pub started_at: Timestamp,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoggedSet {
+    pub exercise_id: ExerciseId,
+    pub set: SetEntry,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SessionRecord {
+    pub id: SessionId,
+    pub name: String,
+    pub started_at: Timestamp,
+    pub ended_at: Timestamp,
+    pub sets: u32,
+    pub xp: u32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -343,24 +373,26 @@ impl Store {
         let records = self.records_in(session, started_at, bodyweight)?;
         let sessions_today = self.finished_sessions_on_day(ended_at)?;
 
-        let tx = self.conn.transaction()?;
-        tx.execute(
+        let (sets, volume_kg) = self.conn.query_row(
+            "SELECT COUNT(*), COALESCE(SUM(CASE WHEN e.kind = 0 THEN s.reps * s.weight_kg END), 0)
+             FROM workout_set s JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1",
+            [session],
+            |row| Ok((row.get::<_, u32>(0)?, row.get::<_, f64>(1)?)),
+        )?;
+
+        self.conn.execute(
             "UPDATE session SET ended_at = ?1 WHERE id = ?2",
             params![ended_at, session],
         )?;
-        tx.commit()?;
-
         let streak_weeks = self.week_stats(ended_at)?.streak_weeks;
         let summary = SessionSummary {
             duration_min,
             personal_records: records.len() as u32,
         };
+        let breakdown = ranks::xp_breakdown(summary, streak_weeks);
         // Solo las primeras sesiones del día dan XP (ver ranks::MAX_SESSIONS_PER_DAY).
-        let xp = if sessions_today < ranks::MAX_SESSIONS_PER_DAY {
-            ranks::session_xp(summary, streak_weeks)
-        } else {
-            0
-        };
+        let over_daily_cap = sessions_today >= ranks::MAX_SESSIONS_PER_DAY;
+        let xp = if over_daily_cap { 0 } else { breakdown.total };
         self.conn.execute(
             "UPDATE session SET xp = ?1 WHERE id = ?2",
             params![xp, session],
@@ -368,12 +400,91 @@ impl Store {
 
         Ok(FinishedSession {
             duration_min,
+            sets,
+            volume_kg,
             records,
             streak_weeks,
+            breakdown,
+            over_daily_cap,
             xp,
             total_xp_before,
             total_xp_after: total_xp_before + u64::from(xp),
         })
+    }
+
+    /// Sesión empezada y no terminada, si la hay (por ejemplo, si la app se cerró
+    /// en medio de un entrenamiento).
+    pub fn active_session(&self) -> Result<Option<ActiveSession>> {
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT id, name, started_at FROM session WHERE ended_at IS NULL ORDER BY started_at DESC LIMIT 1",
+                [],
+                |row| {
+                    Ok(ActiveSession {
+                        id: row.get(0)?,
+                        name: row.get(1)?,
+                        started_at: row.get(2)?,
+                    })
+                },
+            )
+            .optional()?)
+    }
+
+    pub fn session_sets(&self, session: SessionId) -> Result<Vec<LoggedSet>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT exercise_id, reps, weight_kg, duration_s FROM workout_set WHERE session_id = ?1 ORDER BY id",
+        )?;
+        let rows = stmt.query_map([session], |row| {
+            Ok(LoggedSet {
+                exercise_id: row.get(0)?,
+                set: SetEntry {
+                    reps: row.get(1)?,
+                    weight_kg: row.get(2)?,
+                    duration_s: row.get(3)?,
+                },
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    /// Borra la última serie de la sesión (para corregir un error al anotar).
+    pub fn remove_last_set(&self, session: SessionId) -> Result<bool> {
+        let removed = self.conn.execute(
+            "DELETE FROM workout_set WHERE id = (SELECT MAX(id) FROM workout_set WHERE session_id = ?1)",
+            [session],
+        )?;
+        Ok(removed > 0)
+    }
+
+    /// Borra una sesión sin terminar junto con sus series.
+    pub fn discard_session(&self, session: SessionId) -> Result<()> {
+        self.conn.execute(
+            "DELETE FROM session WHERE id = ?1 AND ended_at IS NULL",
+            [session],
+        )?;
+        Ok(())
+    }
+
+    /// Últimas sesiones terminadas, de la más nueva a la más antigua.
+    pub fn recent_sessions(&self, limit: u32) -> Result<Vec<SessionRecord>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT x.id, x.name, x.started_at, x.ended_at, x.xp, COUNT(s.id)
+             FROM session x LEFT JOIN workout_set s ON s.session_id = x.id
+             WHERE x.ended_at IS NOT NULL
+             GROUP BY x.id ORDER BY x.ended_at DESC LIMIT ?1",
+        )?;
+        let rows = stmt.query_map([limit], |row| {
+            Ok(SessionRecord {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                started_at: row.get(2)?,
+                ended_at: row.get(3)?,
+                xp: row.get(4)?,
+                sets: row.get(5)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
     }
 
     pub fn total_xp(&self) -> Result<u64> {

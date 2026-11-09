@@ -15,6 +15,29 @@ export global Labels {
         @tr("Psycho Mogger")
     }
 
+    // Nombre de un ejercicio: los incluidos se traducen, los propios se muestran tal cual.
+    public pure function exercise(code: string, name: string) -> string {
+        code == "squat" ? @tr("Squat") :
+        code == "bench_press" ? @tr("Bench press") :
+        code == "deadlift" ? @tr("Deadlift") :
+        code == "overhead_press" ? @tr("Overhead press") :
+        code == "barbell_row" ? @tr("Barbell row") :
+        code == "pull_up" ? @tr("Pull-up") :
+        code == "dip" ? @tr("Dip") :
+        code == "push_up" ? @tr("Push-up") :
+        code == "plank" ? @tr("Plank") :
+        code == "run" ? @tr("Run") :
+        name
+    }
+
+    public pure function duration(seconds: int) -> string {
+        Labels.pad(Math.floor(seconds / 60)) + ":" + Labels.pad(Math.mod(seconds, 60))
+    }
+
+    public pure function kg(value: float) -> string {
+        (Math.round(value * 10) / 10) + " kg"
+    }
+
     public pure function roman(n: int) -> string {
         n == 1 ? "I" : n == 2 ? "II" : "III"
     }

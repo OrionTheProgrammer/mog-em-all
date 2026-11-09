@@ -13,6 +13,7 @@ pub fn start(ui: &AppWindow) -> Timer {
         move || {
             if let Some(ui) = weak.upgrade() {
                 let now = Local::now();
+                ui.set_now(now.timestamp() as i32);
                 ui.set_clock(Clock {
                     hour: now.hour() as i32,
                     minute: now.minute() as i32,

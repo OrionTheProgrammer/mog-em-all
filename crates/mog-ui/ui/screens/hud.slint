@@ -1,11 +1,12 @@
 import { Theme } from "../theme/theme.slint";
 import { Labels } from "../theme/labels.slint";
-import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback } from "../types.slint";
+import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, ExerciseItem, SetRow, SessionRow, ActiveSession } from "../types.slint";
 import { Logo } from "../components/logo.slint";
 import { TermButton } from "../components/button.slint";
 import { KeyHint, Tab } from "../components/hud.slint";
 import { Overview } from "overview.slint";
 import { Placeholder } from "placeholder.slint";
+import { Workouts } from "workouts.slint";
 
 component CommandLine inherits Rectangle {
     in property <CommandFeedback> feedback;
@@ -90,11 +91,21 @@ export component Hud inherits Rectangle {
     in property <Clock> clock;
     in property <CommandFeedback> feedback;
     in property <int> storage-status;
+    in property <[ExerciseItem]> exercises;
+    in property <[SetRow]> sets;
+    in property <[SessionRow]> recent;
+    in property <ActiveSession> session;
+    in property <int> now;
     in-out property <BmiResult> bmi;
     in-out property <int> current: 0;
     callback compute-bmi(string, string) -> BmiResult;
     callback select-language(string);
     callback run-command(string);
+    callback start-session(string);
+    callback add-set(int, string, string, string) -> bool;
+    callback undo-set();
+    callback discard-session();
+    callback finish-session();
 
     property <int> module-count: 7;
 
@@ -207,7 +218,21 @@ export component Hud inherits Rectangle {
                     bmi <=> root.bmi;
                     compute-bmi(w, h) => { return root.compute-bmi(w, h); }
                 }
-                if root.current != 0: Placeholder {
+                if root.current == 1: Workouts {
+                    width: 100%;
+                    height: 100%;
+                    exercises: root.exercises;
+                    sets: root.sets;
+                    recent: root.recent;
+                    session: root.session;
+                    now: root.now;
+                    start-session(name) => { root.start-session(name); }
+                    add-set(id, reps, weight, duration) => { return root.add-set(id, reps, weight, duration); }
+                    undo-set => { root.undo-set(); }
+                    discard-session => { root.discard-session(); }
+                    finish-session => { root.finish-session(); }
+                }
+                if root.current >= 2: Placeholder {
                     width: 100%;
                     height: 100%;
                     module: root.current;

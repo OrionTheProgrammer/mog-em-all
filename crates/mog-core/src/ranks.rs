@@ -24,16 +24,42 @@ pub struct SessionSummary {
     pub personal_records: u32,
 }
 
-/// XP de una sesión. `streak_weeks` son las semanas consecutivas en que el
-/// usuario cumplió su meta semanal (no días seguidos: descansar no se castiga).
-pub fn session_xp(session: SessionSummary, streak_weeks: u32) -> u32 {
+/// Cada parte de la XP de una sesión, para mostrarla línea por línea.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct XpBreakdown {
+    pub base: u32,
+    pub minutes: u32,
+    pub records: u32,
+    /// Multiplicador por racha, en porcentaje (100 = sin bonus).
+    pub streak_pct: u32,
+    pub total: u32,
+}
+
+/// XP de una sesión, separada en sus partes. `streak_weeks` son las semanas
+/// consecutivas en que el usuario cumplió su meta semanal.
+pub fn xp_breakdown(session: SessionSummary, streak_weeks: u32) -> XpBreakdown {
     if session.duration_min < MIN_SESSION_MINUTES {
-        return 0;
+        return XpBreakdown {
+            streak_pct: 100,
+            ..Default::default()
+        };
     }
-    let base = 50 + session.duration_min.min(MAX_COUNTED_MINUTES);
-    let prs = 25 * session.personal_records.min(MAX_PR_BONUSES);
-    let bonus_pct = 100 + 10 * streak_weeks.min(MAX_STREAK_WEEKS);
-    (base + prs) * bonus_pct / 100
+    let base = 50;
+    let minutes = session.duration_min.min(MAX_COUNTED_MINUTES);
+    let records = 25 * session.personal_records.min(MAX_PR_BONUSES);
+    let streak_pct = 100 + 10 * streak_weeks.min(MAX_STREAK_WEEKS);
+    XpBreakdown {
+        base,
+        minutes,
+        records,
+        streak_pct,
+        total: (base + minutes + records) * streak_pct / 100,
+    }
+}
+
+/// XP de una sesión. Descansar no corta la racha porque se cuenta por semanas.
+pub fn session_xp(session: SessionSummary, streak_weeks: u32) -> u32 {
+    xp_breakdown(session, streak_weeks).total
 }
 
 /// XP de un día completo, aplicando el tope de sesiones diarias.
@@ -318,6 +344,18 @@ mod tests {
         assert_eq!(session_xp(s(200, 0), 0), 110);
         assert_eq!(session_xp(s(60, 10), 0), 110 + 75);
         assert_eq!(session_xp(s(60, 0), 50), 165);
+    }
+
+    #[test]
+    fn breakdown_adds_up() {
+        let b = xp_breakdown(s(52, 1), 6);
+        assert_eq!(
+            (b.base, b.minutes, b.records, b.streak_pct),
+            (50, 52, 25, 150)
+        );
+        assert_eq!(b.total, (50 + 52 + 25) * 150 / 100);
+        assert_eq!(b.total, session_xp(s(52, 1), 6));
+        assert_eq!(xp_breakdown(s(5, 2), 3).total, 0);
     }
 
     #[test]
