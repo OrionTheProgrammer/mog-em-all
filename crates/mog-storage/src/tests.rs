@@ -1,4 +1,5 @@
 use super::*;
+use mog_core::finance::{EntryKind, IncomeType};
 use mog_core::tasks::{Priority, Repeat};
 
 const HOUR: Timestamp = 3600;
@@ -201,7 +202,7 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
 
 /// Migración de prueba que va después de la última real.
 const NEXT: migrations::Migration = migrations::Migration {
-    version: 6,
+    version: 7,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
@@ -802,4 +803,117 @@ fn editing_and_deleting_tasks() {
     );
     store.delete_task(id).unwrap();
     assert_eq!(store.task(id).unwrap(), None);
+}
+
+// Ajustes y finanzas
+
+#[test]
+fn settings_round_trip() {
+    let store = store_with_profile();
+    assert_eq!(store.setting("currency").unwrap(), None);
+    store.set_setting("currency", "CLP").unwrap();
+    store.set_setting("currency", "USD").unwrap();
+    assert_eq!(store.setting("currency").unwrap().as_deref(), Some("USD"));
+}
+
+#[test]
+fn default_categories_and_budgets() {
+    let store = store_with_profile();
+    let categories = store.categories().unwrap();
+    assert_eq!(
+        categories.len(),
+        mog_core::finance::DEFAULT_CATEGORIES.len()
+    );
+    let food = categories
+        .iter()
+        .find(|c| c.code.as_deref() == Some("food"))
+        .unwrap();
+    store.set_category_budget(food.id, Some(150_000)).unwrap();
+    let custom = store.add_category("Mascotas").unwrap();
+    let categories = store.categories().unwrap();
+    assert_eq!(
+        categories.iter().find(|c| c.id == food.id).unwrap().budget,
+        Some(150_000)
+    );
+    assert_eq!(categories.last().unwrap().id, custom);
+    store.set_category_budget(food.id, None).unwrap();
+    assert_eq!(store.categories().unwrap()[0].budget, None);
+}
+
+#[test]
+fn entries_by_month_and_recurring_income() {
+    let store = store_with_profile();
+    let food = store.categories().unwrap()[0].id;
+    let lunch = Entry {
+        kind: EntryKind::Expense,
+        amount: 12_500,
+        category_id: Some(food),
+        note: "almuerzo".into(),
+        day: 20_766,
+        ..Default::default()
+    };
+    store.add_entry(&lunch, MONDAY).unwrap();
+    // Un ingreso no guarda categoría aunque se la pasen.
+    let sale = Entry {
+        kind: EntryKind::Income,
+        amount: 20_000,
+        category_id: Some(food),
+        income_type: Some(IncomeType::Informal),
+        note: "venta".into(),
+        day: 20_770,
+        ..Default::default()
+    };
+    store.add_entry(&sale, MONDAY).unwrap();
+    store
+        .add_entry(
+            &Entry {
+                day: 20_700,
+                amount: 1,
+                ..lunch.clone()
+            },
+            MONDAY,
+        )
+        .unwrap();
+
+    let month = store.entries_between(20_758, 20_787).unwrap();
+    assert_eq!(month.len(), 2);
+    assert_eq!(month[0].note, "venta", "el más reciente primero");
+    assert_eq!(
+        (month[0].category_id, month[0].income_type),
+        (None, Some(IncomeType::Informal))
+    );
+
+    let salary = store
+        .save_recurring(
+            &Recurring {
+                kind: EntryKind::Income,
+                amount: 650_000,
+                note: "Sueldo".into(),
+                day_of_month: 30,
+                ..Default::default()
+            },
+            MONDAY,
+        )
+        .unwrap();
+    let entry = store
+        .register_recurring(salary, 20_787, MONDAY)
+        .unwrap()
+        .unwrap();
+    let registered = store.entries_between(20_787, 20_787).unwrap();
+    assert_eq!(
+        (
+            registered[0].id,
+            registered[0].recurring_id,
+            registered[0].income_type
+        ),
+        (entry, Some(salary), Some(IncomeType::Fixed))
+    );
+
+    store.delete_recurring(salary).unwrap();
+    assert!(store.recurring().unwrap().is_empty());
+    assert_eq!(
+        store.entries_between(20_787, 20_787).unwrap()[0].recurring_id,
+        None,
+        "el movimiento queda, sin el vínculo"
+    );
 }

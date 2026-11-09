@@ -51,6 +51,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "tasks",
         sql: include_str!("../migrations/0005_tasks.sql"),
     },
+    Migration {
+        version: 6,
+        name: "finances",
+        sql: include_str!("../migrations/0006_finances.sql"),
+    },
 ];
 
 /// Versión de esquema que entiende esta compilación de la app.

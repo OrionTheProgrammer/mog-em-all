@@ -173,6 +173,27 @@ export global Labels {
         r == 1 ? @tr("Every day") : r == 2 ? @tr("Every week") : r == 3 ? @tr("Every month") : @tr("Doesn't repeat")
     }
 
+    // Categorías de gasto incluidas (mismo código que finance::DEFAULT_CATEGORIES).
+    public pure function finance-category(code: string, name: string) -> string {
+        code == "food" ? @tr("Food") :
+        code == "transport" ? @tr("Transport") :
+        code == "home" ? @tr("Home") :
+        code == "bills" ? @tr("Bills") :
+        code == "health" ? @tr("Health") :
+        code == "fun" ? @tr("Going out") :
+        code == "education" ? @tr("Education") :
+        code == "subscriptions" ? @tr("Subscriptions") :
+        code == "gym" ? @tr("Gym") :
+        code == "other" ? @tr("Other expenses") :
+        name
+    }
+
+    public pure function month(m: int) -> string {
+        m == 1 ? @tr("JANUARY") : m == 2 ? @tr("FEBRUARY") : m == 3 ? @tr("MARCH") : m == 4 ? @tr("APRIL") :
+        m == 5 ? @tr("MAY") : m == 6 ? @tr("JUNE") : m == 7 ? @tr("JULY") : m == 8 ? @tr("AUGUST") :
+        m == 9 ? @tr("SEPTEMBER") : m == 10 ? @tr("OCTOBER") : m == 11 ? @tr("NOVEMBER") : @tr("DECEMBER")
+    }
+
     public pure function pad(n: int) -> string {
         n < 10 ? "0" + n : "" + n
     }

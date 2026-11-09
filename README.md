@@ -76,6 +76,13 @@ Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene 
 - **Repetición** diaria, semanal o mensual: al completar una, aparece la siguiente.
 - **Completar se siente:** el corte del logo atraviesa la fila. Si te equivocas, se deshace desde "hechas hoy".
 
+### Finanzas
+
+- **Anotar un gasto es escribir una línea:** "12.500 almuerzo" va a Comida solo; "+20.000 venta polera" es un ingreso informal.
+- **El mes de un vistazo:** ingresos fijos y otros, gastos, balance y cuánto del presupuesto llevas.
+- **Presupuesto por grupo,** con aviso al 80 % y en rojo al pasarte.
+- **Fijos de cada mes:** sueldo, arriendo y suscripciones aparecen pendientes y se registran con un clic.
+
 ### Horario
 
 - **La semana en una grilla** por horas, con tus clases, turnos y cualquier otra cosa, que se repiten cada semana o pasan una sola vez.
@@ -179,7 +186,7 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
   - [x] Horario semanal con eventos y días de entrenamiento
   - [x] Tareas con fecha de entrega, prioridad y repetición
   - [ ] Segundo plano en la bandeja del sistema y notificaciones
-- [ ] Fase 3 · Finanzas: gastos por grupo, ingresos fijos e informales, presupuestos.
+- [x] Fase 3 · Finanzas: gastos por grupo, ingresos fijos e informales, presupuestos.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.
 - [ ] Fase 5 · Cuentas, amigos y progreso comparado, con sincronización opcional.
 - [ ] Android, después de la primera versión de escritorio.

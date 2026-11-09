@@ -76,6 +76,13 @@ It works offline and without an account. You can use it with the mouse or the ke
 - **Daily, weekly or monthly repetition:** completing one brings up the next.
 - **Completing feels good:** the logo's cut slices through the row. If you clicked by mistake, undo it from "done today".
 
+### Finances
+
+- **Logging an expense is typing one line:** "12.50 lunch" goes to Food on its own; "+20 sold a shirt" is informal income.
+- **The month at a glance:** fixed and other income, spending, balance and how much of your budget you've used.
+- **A budget per group,** with a warning at 80% and red once you go over.
+- **Monthly fixed items:** salary, rent and subscriptions show up as pending and are logged with one click.
+
 ### Schedule
 
 - **Your week in an hourly grid,** with classes, work shifts or anything else, repeating every week or happening once.
@@ -179,7 +186,7 @@ The database schema is versioned. Before any update that changes it, the app sav
   - [x] Weekly schedule with events and training days
   - [x] Tasks with due dates, priority and repetition
   - [ ] Running in the system tray, with notifications
-- [ ] Phase 3 · Finances: spending by group, fixed and informal income, budgets.
+- [x] Phase 3 · Finances: spending by group, fixed and informal income, budgets.
 - [ ] Phase 4 · Share routines without a server, through a file or a QR code.
 - [ ] Phase 5 · Accounts, friends and compared progress, with optional sync.
 - [ ] Android, after the first desktop release.

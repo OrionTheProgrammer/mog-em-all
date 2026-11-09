@@ -17,6 +17,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pestaña FINANZAS:
+  - Entrada rápida de movimientos: "12.500 almuerzo" es un gasto en Comida (el grupo se deduce de las palabras), "+20.000 venta polera" es un ingreso informal; entiende "ayer", `#grupo` y montos como 15k.
+  - Resumen del mes: ingresos fijos y otros, gastos, balance y cuánto del presupuesto se usó.
+  - Grupos de gasto con presupuesto mensual; la barra se pone ámbar al 80 % y roja al pasarse. Se pueden crear grupos propios.
+  - Ingresos y gastos fijos de cada mes (sueldo, arriendo, suscripciones), que se registran con un clic y quedan marcados.
+  - Moneda por defecto: peso chileno; montos con los separadores del idioma.
+- Migración 6 de la base de datos (ajustes y finanzas).
 - Pestaña TAREAS:
   - Entrada rápida que entiende fecha, hora, prioridad, repetición y etiqueta en español o inglés ("Pagar arriendo mañana 18:00 !alta #casa"), con vista previa mientras se escribe.
   - Lista agrupada en vencidas, hoy, mañana, esta semana, más adelante y sin fecha; a igual fecha, primero la de más prioridad.
