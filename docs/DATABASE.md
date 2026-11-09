@@ -56,6 +56,7 @@ Un cambio de esquema compatible (tablas o columnas nuevas) puede ir en una versi
 | 4 | `0004_schedule`: eventos del horario (semanales o de una vez, con aviso) y hora opcional de las rutinas | 0.1.0 |
 | 5 | `0005_tasks`: tareas con fecha, hora, prioridad, repetición, aviso y etiqueta | 0.1.0 |
 | 6 | `0006_finances`: ajustes (clave y valor), grupos de gasto con presupuesto, movimientos y fijos mensuales | 0.1.0 |
+| 7 | `0007_notifications`: registro de avisos ya mostrados | 0.1.0 |
 
 ## Ejercicios incluidos
 

@@ -17,6 +17,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Segundo plano y avisos: al cerrar la ventana, la app puede quedar en la bandeja del sistema (en Linux, con StatusNotifierItem) y avisar antes de eventos, tareas con aviso y entrenamientos con hora. Clic en el aviso abre la app. Opción de abrir al iniciar sesión, oculta. Si el escritorio no tiene bandeja, cerrar la ventana cierra la app.
+- Migración 7 de la base de datos (avisos ya mostrados).
 - Pestaña AJUSTES: perfil (nombre, peso, altura, tablas de fuerza y meta semanal), idioma (ahora se recuerda), moneda, ubicación e historial del esquema de la base, copia de seguridad manual, abrir la carpeta de datos y créditos.
 - Registro inicial la primera vez que se abre la app, con el estilo de la animación de No-Name. Se puede dejar para después.
 - El IMC del panel se calcula solo con el peso y la altura del perfil.

@@ -25,6 +25,7 @@ Rust puro, sin dependencias de interfaz. Devuelve números, structs y enums, y d
 - `training`: tipos de serie y forma de medir un ejercicio.
 - `schedule`: horas, repetición semanal o de una vez, y cómo acomodar los bloques que se pisan.
 - `finance`: monedas, montos, grupos de gasto, presupuestos y el intérprete de la entrada rápida de movimientos.
+- `reminders`: qué aviso toca mostrar en cada momento, sin repetirlos ni acumular avisos viejos.
 - `tasks`: prioridad, repetición, grupos por fecha, calendario civil y el intérprete de la entrada rápida.
 
 Más adelante: `workouts`, `routines`, `tasks`, `schedule`, `finance`.
@@ -44,7 +45,7 @@ Todo el dibujo. Dentro de `ui/`:
 
 ## mog-app
 
-El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja las pestañas de entrenamiento (`training.rs`) horario (`schedule.rs`), tareas (`tasks.rs`), finanzas (`finance.rs`) y ajustes (`settings.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
+El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), maneja las pestañas de entrenamiento (`training.rs`) horario (`schedule.rs`), tareas (`tasks.rs`), finanzas (`finance.rs`) y ajustes (`settings.rs`), y el segundo plano (`background.rs`: ícono en la bandeja, cerrar sin salir, avisos del sistema y abrir al iniciar sesión), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
 
 ## mog-storage
 
