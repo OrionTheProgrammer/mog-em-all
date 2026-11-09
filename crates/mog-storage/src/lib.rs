@@ -368,6 +368,19 @@ impl Store {
         Ok(store)
     }
 
+    /// Copia completa de la base en `target` (sirve aunque la base esté en uso).
+    pub fn backup_to(&self, target: &Path) -> Result<()> {
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        self.conn.backup(
+            rusqlite::MAIN_DB,
+            target,
+            None::<fn(rusqlite::backup::Progress)>,
+        )?;
+        Ok(())
+    }
+
     /// Migraciones aplicadas a esta base, de la más antigua a la más nueva.
     pub fn migration_history(&self) -> Result<Vec<AppliedMigration>> {
         migrations::history(&self.conn)

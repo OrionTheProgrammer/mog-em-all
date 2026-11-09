@@ -917,3 +917,28 @@ fn entries_by_month_and_recurring_income() {
         "el movimiento queda, sin el vínculo"
     );
 }
+
+#[test]
+fn manual_backup_is_a_full_copy() {
+    let (dir, path) = temp_db("manual-backup");
+    let store = Store::open(&path).unwrap();
+    store
+        .save_profile(
+            &Profile {
+                name: "Orion".into(),
+                bodyweight_kg: Some(80.0),
+                height_cm: None,
+                body_profile: BodyProfile::Male,
+                weekly_goal: 4,
+            },
+            MONDAY,
+        )
+        .unwrap();
+    let copy = dir.join("copias").join("mog-copia.db");
+    store.backup_to(&copy).unwrap();
+    drop(store);
+    let restored = Store::open(&copy).unwrap();
+    assert_eq!(restored.profile().unwrap().unwrap().weekly_goal, 4);
+    drop(restored);
+    let _ = std::fs::remove_dir_all(dir);
+}
