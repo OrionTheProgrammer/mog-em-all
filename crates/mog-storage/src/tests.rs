@@ -51,6 +51,10 @@ fn workout(
 fn migrations_run_once_and_seed_exercises() {
     let store = Store::open_in_memory().unwrap();
     assert_eq!(store.schema_version().unwrap(), migrations::latest());
+    assert_eq!(
+        store.migration_history().unwrap().len(),
+        migrations::MIGRATIONS.len()
+    );
     let exercises = store.exercises().unwrap();
     assert_eq!(exercises.len(), BUILTIN_EXERCISES.len());
     let bench = exercises
@@ -177,4 +181,138 @@ fn streak_follows_weekly_goal() {
     // Una semana sin entrenar corta la racha.
     let later = store.week_stats(MONDAY + 4 * WEEK).unwrap();
     assert_eq!(later.streak_weeks, 0);
+}
+
+// Versionado del esquema
+
+fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
+    let dir = std::env::temp_dir().join(format!("mog-schema-{tag}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("mog.db");
+    (dir, path)
+}
+
+const V2: migrations::Migration = migrations::Migration {
+    version: 2,
+    name: "profile_nickname",
+    sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
+};
+
+#[test]
+fn upgrade_keeps_data_and_makes_a_backup() {
+    let (dir, path) = temp_db("upgrade");
+    {
+        let mut store = Store::open(&path).unwrap();
+        store
+            .save_profile(
+                &Profile {
+                    name: "Orion".into(),
+                    bodyweight_kg: Some(80.0),
+                    height_cm: None,
+                    body_profile: BodyProfile::Male,
+                    weekly_goal: 3,
+                },
+                MONDAY,
+            )
+            .unwrap();
+        let squat = store.exercise_by_code("squat").unwrap().unwrap();
+        workout(&mut store, MONDAY, 30, squat, &[(5, 100.0)]);
+    }
+    let both = [migrations::MIGRATIONS[0], V2];
+    let store = Store::open_with(&path, &both).unwrap();
+    assert_eq!(store.schema_version().unwrap(), 2);
+    assert_eq!(store.profile().unwrap().unwrap().name, "Orion");
+    assert!(store.total_xp().unwrap() > 0);
+    let history = store.migration_history().unwrap();
+    assert_eq!(
+        history.iter().map(|m| m.version).collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+    let backups: Vec<_> = std::fs::read_dir(&dir)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_name().to_string_lossy().contains(".v1-"))
+        .collect();
+    assert_eq!(backups.len(), 1, "debe quedar una copia de la versión 1");
+    // La copia es una base válida en la versión 1.
+    let old = Connection::open(backups[0].path()).unwrap();
+    assert_eq!(migrations::current_version(&old).unwrap(), 1);
+    drop((store, old));
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn no_backup_when_nothing_to_migrate() {
+    let (dir, path) = temp_db("nobackup");
+    drop(Store::open(&path).unwrap());
+    drop(Store::open(&path).unwrap());
+    let files = std::fs::read_dir(&dir).unwrap().count();
+    assert_eq!(files, 1);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn newer_schema_is_refused_and_left_untouched() {
+    let (dir, path) = temp_db("newer");
+    {
+        let both = [migrations::MIGRATIONS[0], V2];
+        drop(Store::open_with(&path, &both).unwrap());
+    }
+    let only_v1 = [migrations::MIGRATIONS[0]];
+    match Store::open_with(&path, &only_v1) {
+        Err(Error::NewerSchema {
+            found: 2,
+            supported: 1,
+        }) => {}
+        Err(other) => panic!("error inesperado: {other}"),
+        Ok(_) => panic!("debió rechazar la base"),
+    }
+    let conn = Connection::open(&path).unwrap();
+    assert_eq!(migrations::current_version(&conn).unwrap(), 2);
+    drop(conn);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn edited_migration_is_detected() {
+    let (dir, path) = temp_db("edited");
+    drop(Store::open(&path).unwrap());
+    {
+        let conn = Connection::open(&path).unwrap();
+        conn.execute(
+            "UPDATE schema_migrations SET checksum = 'otra' WHERE version = 1",
+            [],
+        )
+        .unwrap();
+    }
+    assert!(matches!(
+        Store::open(&path),
+        Err(Error::ModifiedMigration { version: 1 })
+    ));
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn databases_from_before_the_history_table_are_adopted() {
+    let (dir, path) = temp_db("legacy");
+    {
+        // Así quedaban las bases creadas antes de schema_migrations: solo user_version.
+        let conn = Connection::open(&path).unwrap();
+        conn.execute_batch(migrations::MIGRATIONS[0].sql).unwrap();
+        conn.pragma_update(None, "user_version", 1i64).unwrap();
+    }
+    let store = Store::open(&path).unwrap();
+    assert_eq!(store.schema_version().unwrap(), 1);
+    assert_eq!(store.migration_history().unwrap().len(), 1);
+    drop(store);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn migration_files_are_numbered_without_gaps() {
+    for (index, migration) in migrations::MIGRATIONS.iter().enumerate() {
+        assert_eq!(migration.version as usize, index + 1);
+        assert!(!migration.sql.trim().is_empty());
+    }
 }

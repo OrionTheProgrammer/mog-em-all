@@ -31,7 +31,9 @@ fn main() -> Result<(), slint::PlatformError> {
     commands::connect(&ui);
 
     // Se comparte con los módulos que vayan a escribir datos (entrenamientos, perfil).
-    let store = Rc::new(RefCell::new(open_store()));
+    let (store, storage_status) = open_store();
+    ui.set_storage_status(storage_status);
+    let store = Rc::new(RefCell::new(store));
     refresh_progress(&ui, &store.borrow());
 
     let _clock = clock::start(&ui);
@@ -39,17 +41,29 @@ fn main() -> Result<(), slint::PlatformError> {
     ui.run()
 }
 
-/// Abre la base de datos del usuario. Si no se puede (disco lleno, permisos),
-/// la app sigue con una base en memoria para no quedar inutilizable.
-fn open_store() -> Store {
-    let path = dirs::data_dir().map(|dir| Store::default_path(&dir));
-    if let Some(path) = &path {
-        match Store::open(path) {
-            Ok(store) => return store,
-            Err(err) => eprintln!("no se pudo abrir {}: {err}", path.display()),
-        }
-    }
-    Store::open_in_memory().expect("SQLite en memoria siempre debería abrir")
+/// Abre la base de datos del usuario. Si no se puede, la app sigue con una base
+/// en memoria para no quedar inutilizable, y la barra de estado avisa que no se
+/// está guardando nada. El archivo original no se toca.
+///
+/// Devuelve también el estado para la interfaz: 0 normal, 1 esquema más nuevo,
+/// 2 otro error.
+fn open_store() -> (Store, i32) {
+    let status = match dirs::data_dir().map(|dir| Store::default_path(&dir)) {
+        Some(path) => match Store::open(&path) {
+            Ok(store) => return (store, 0),
+            Err(err) => {
+                eprintln!("no se pudo abrir {}: {err}", path.display());
+                if matches!(err, mog_storage::Error::NewerSchema { .. }) {
+                    1
+                } else {
+                    2
+                }
+            }
+        },
+        None => 2,
+    };
+    let memory = Store::open_in_memory().expect("SQLite en memoria siempre debería abrir");
+    (memory, status)
 }
 
 pub fn now() -> mog_storage::Timestamp {

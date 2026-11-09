@@ -25,6 +25,8 @@ export component AppWindow inherits Window {
     in property <Clock> clock;
     in property <CommandFeedback> feedback;
     in property <string> language;
+    // 0 normal, 1 la base es de una versión más nueva, 2 no se pudo abrir la base
+    in property <int> storage-status;
     in-out property <BmiResult> bmi;
     in-out property <int> current-module: 0;
     callback compute-bmi(string, string) -> BmiResult;
@@ -43,6 +45,7 @@ export component AppWindow inherits Window {
         week: root.week;
         clock: root.clock;
         feedback: root.feedback;
+        storage-status: root.storage-status;
         bmi <=> root.bmi;
         current <=> root.current-module;
         compute-bmi(w, h) => { return root.compute-bmi(w, h); }

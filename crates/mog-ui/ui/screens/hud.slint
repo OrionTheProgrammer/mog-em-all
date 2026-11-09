@@ -89,6 +89,7 @@ export component Hud inherits Rectangle {
     in property <WeekStats> week;
     in property <Clock> clock;
     in property <CommandFeedback> feedback;
+    in property <int> storage-status;
     in-out property <BmiResult> bmi;
     in-out property <int> current: 0;
     callback compute-bmi(string, string) -> BmiResult;
@@ -230,8 +231,12 @@ export component Hud inherits Rectangle {
                 padding-bottom: 10px;
                 spacing: Theme.gap-lg;
                 Text {
-                    text: @tr("LOCAL MODE · DATA STORED ON THIS DEVICE");
-                    color: Theme.red-dim;
+                    text: root.storage-status == 1
+                        ? @tr("YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING SAVED")
+                        : root.storage-status == 2
+                            ? @tr("COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED")
+                            : @tr("LOCAL MODE · DATA STORED ON THIS DEVICE");
+                    color: root.storage-status == 0 ? Theme.red-dim : Theme.amber;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-xs;
                     letter-spacing: 1px;
