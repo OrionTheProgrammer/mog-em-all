@@ -102,6 +102,17 @@ pub fn connect(
             }
         }
     });
+    state.on_preview_rank({
+        let weak = ui.as_weak();
+        move |tier| {
+            if let Some(ui) = weak.upgrade() {
+                ui.set_rank_up_tier(tier.clamp(0, 6));
+                ui.set_rank_up_division(1);
+                ui.set_rank_up_full(true);
+                ui.set_rank_up_open(true);
+            }
+        }
+    });
     state.on_open_folder({
         let path = db_path.clone();
         move || {

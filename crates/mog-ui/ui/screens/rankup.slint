@@ -1,0 +1,453 @@
+import { Theme } from "../theme/theme.slint";
+import { Labels } from "../theme/labels.slint";
+import { Insignia } from "../components/logo.slint";
+
+// Animación al subir de rango: una distinta por rango, cada una más intensa que
+// la anterior. `full` es la versión completa (rango nuevo); si no, la corta (división).
+// Enter, Esc o un clic la cierran cuando terminó.
+export component RankUpScreen inherits Rectangle {
+    in property <int> tier;
+    in property <int> division: 1;
+    in property <bool> full: true;
+    callback dismiss();
+
+    background: #050101;
+    clip: true;
+
+    property <float> tick: animation-tick() / 1ms;
+    property <float> opened-at: -1;
+    init => {
+        root.opened-at = root.tick;
+        keys.focus();
+    }
+    // Milisegundos desde que se abrió, escalados: la versión corta corre 2,5 veces más rápido.
+    property <float> ms: root.opened-at < 0 ? 0 : (root.tick - root.opened-at) * (root.full ? 1 : 2.5);
+    property <bool> finished: root.ms > 5200;
+
+    pure function ramp(from: float, to: float) -> float {
+        Math.max(0, Math.min(1, (root.ms - from) / (to - from)))
+    }
+    pure function blink(period: float) -> bool {
+        Math.mod(root.ms, period) < period / 2
+    }
+
+    property <string> name: Labels.rank(root.tier, root.division);
+    property <length> name-size: root.tier >= 4 ? 150px : 112px;
+
+    keys := FocusScope {
+        key-pressed(event) => {
+            if (event.text == Key.Return || event.text == Key.Escape || event.text == " ") {
+                root.dismiss();
+                return accept;
+            }
+            reject
+        }
+    }
+    TouchArea {
+        clicked => { root.dismiss(); }
+    }
+
+    // ---------- 0 · NO-NAME: estática que se calma y nombre tecleado ----------
+    if root.tier == 0: Rectangle {
+        for i in 90: Rectangle {
+            y: i * (root.height / 90) + (root.blink(120) ? 2px : 0px);
+            height: 1px;
+            background: #ff8c92;
+            opacity: Math.max(0.04, 0.35 - root.ramp(0, 2500) * 0.3);
+        }
+    }
+
+    // ---------- 1 · PRINCIPIANTE: piso de cuadrícula, barrido y pulso ----------
+    if root.tier == 1: Rectangle {
+        for i in 12: Rectangle {
+            y: root.height - i * i * 3px - 4px;
+            height: 1px;
+            background: Theme.cyan;
+            opacity: 0.35 * root.ramp(300, 900) * (1 - i / 14);
+        }
+        for i in 3: Rectangle {
+            property <float> p: root.ramp(1800 + i * 250, 3200 + i * 250);
+            x: (root.width - self.width) / 2;
+            y: (root.height - self.height) / 2;
+            width: 120px + self.p * 900px;
+            height: self.width;
+            border-radius: self.width / 2;
+            border-width: 2px;
+            border-color: Theme.cyan;
+            opacity: self.p > 0 ? 1 - self.p : 0;
+        }
+        Rectangle {
+            y: root.height * (1 - root.ramp(400, 1900));
+            height: 3px;
+            background: Theme.cyan;
+            opacity: root.ms < 2100 ? 1 : 0;
+        }
+    }
+
+    // ---------- 2 · SELFHATER: excusas tachadas, grietas e inversión ----------
+    if root.tier == 2: Rectangle {
+        for line[i] in [@tr("I CAN'T"), @tr("I'LL START TOMORROW"), @tr("WHAT FOR"), @tr("I'M NOT GOOD ENOUGH")]: Rectangle {
+            property <float> show: root.ramp(200 + i * 150, 500 + i * 150);
+            property <float> cut: root.ramp(1100 + i * 150, 1500 + i * 150);
+            x: i == 0 ? root.width * 0.1 : i == 1 ? root.width * 0.62 : i == 2 ? root.width * 0.14 : root.width * 0.6;
+            y: i == 0 ? root.height * 0.15 : i == 1 ? root.height * 0.24 : i == 2 ? root.height * 0.74 : root.height * 0.8;
+            width: excuse.preferred-width;
+            height: excuse.preferred-height;
+            opacity: self.show * (1 - root.ramp(1900, 2400));
+            excuse := Text {
+                text: line;
+                color: Theme.red-dim;
+                font-family: Theme.font-display;
+                font-weight: 700;
+                font-size: 40px;
+            }
+            Rectangle {
+                x: 0;
+                y: parent.height / 2;
+                width: parent.width * parent.cut;
+                height: 4px;
+                background: Theme.cyan;
+            }
+        }
+        for i in 5: Rectangle {
+            x: root.width / 2 - 1px;
+            y: root.height / 2;
+            width: 2px;
+            height: root.ramp(2000, 2600) * (260px + i * 60px);
+            background: #ff8c92;
+            transform-rotation: (i * 72 + 18) * 1deg;
+            transform-origin: { x: 1px, y: 0px };
+            opacity: 1 - root.ramp(3600, 4300);
+        }
+    }
+
+    // ---------- 3 · INSANE: sirena, franjas de advertencia y medidores ----------
+    if root.tier == 3: Rectangle {
+        Rectangle {
+            background: root.blink(500) ? #ff2a3d30 : #ffb02e24;
+            opacity: root.ramp(100, 400);
+        }
+        for side in 2: Rectangle {
+            y: side == 0 ? 0px : root.height - 34px;
+            height: 34px;
+            background: root.blink(260) ? Theme.amber : #3a2400;
+        }
+        Rectangle {
+            y: 60px;
+            x: (root.width - self.width) / 2;
+            width: warning.preferred-width + 30px;
+            height: warning.preferred-height + 12px;
+            background: Theme.amber;
+            opacity: root.blink(400) ? 1 : 0;
+            warning := Text {
+                text: @tr("WARNING · WARNING · WARNING");
+                color: Theme.bg;
+                font-family: Theme.font-mono;
+                font-size: 24px;
+            }
+        }
+        for i in 4: Rectangle {
+            x: 60px + i * 30px;
+            y: root.height / 2 + 150px - self.height;
+            width: 22px;
+            height: 300px * Math.min(1, 0.08 + root.ramp(300, 1800));
+            background: root.ms > 1800 && root.blink(160) ? white : Theme.red;
+        }
+        Text {
+            x: 60px;
+            y: root.height / 2 + 170px;
+            text: @tr("OVERLOAD 147%");
+            color: Theme.amber;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 30px;
+            opacity: root.ramp(1800, 2000);
+        }
+    }
+
+    // ---------- 4 · CHAD: ondas expansivas y piso agrietado ----------
+    if root.tier == 4: Rectangle {
+        for i in 3: Rectangle {
+            property <float> p: root.ramp(1500 + i * 120, 2900 + i * 120);
+            x: (root.width - self.width) / 2;
+            y: (root.height - self.height) / 2;
+            width: 140px + self.p * 1100px;
+            height: self.width;
+            border-radius: self.width / 2;
+            border-width: i == 0 ? 6px : 3px;
+            border-color: i == 1 ? Theme.cyan : Theme.red;
+            opacity: self.p > 0 ? 1 - self.p : 0;
+        }
+        for i in 5: Rectangle {
+            x: root.width / 2;
+            y: root.height / 2 + 90px;
+            width: root.ramp(1550, 1900) * (380px + i * 70px);
+            height: 3px;
+            background: Theme.red;
+            transform-rotation: (i == 0 ? 160 : i == 1 ? 20 : i == 2 ? 95 : i == 3 ? 185 : -5) * 1deg;
+            transform-origin: { x: 0px, y: 1px };
+            opacity: 1 - root.ramp(4300, 5000);
+        }
+        Insignia {
+            size: 620px;
+            lit: 3;
+            x: (root.width - self.width) / 2;
+            y: (root.height - self.height) / 2;
+            opacity: root.ramp(1500, 1700) * 0.14;
+        }
+    }
+
+    // ---------- 5 · MOGGER: apagón, haz de luz y los rangos anteriores cayendo ----------
+    if root.tier == 5: Rectangle {
+        Rectangle {
+            x: (root.width - self.width) / 2;
+            width: root.ramp(500, 1500) * root.width * 0.55;
+            background: @linear-gradient(180deg, #ff8c924d 0%, #ff2a3d0d 80%, #ff2a3d00 100%);
+        }
+        Insignia {
+            size: 560px;
+            lit: 3;
+            x: (root.width - self.width) / 2;
+            y: (root.height - self.height) / 2 + (1 - root.ramp(600, 2600)) * 320px;
+            opacity: 0.2 * root.ramp(600, 1200);
+        }
+        for t[i] in 5: Text {
+            x: root.width * (0.12 + i * 0.17) - self.width / 2;
+            y: root.height - 140px + root.ramp(1800, 2900) * 110px;
+            text: Labels.tier(i).to-uppercase();
+            color: Theme.text-dim;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 30px;
+            opacity: root.ramp(300 + i * 100, 600 + i * 100) * (1 - root.ramp(1800, 2900) * 0.8);
+        }
+        Rectangle {
+            background: black;
+            opacity: 1 - root.ramp(200, 900);
+        }
+    }
+
+    // ---------- 6 · PSYCHO MOGGER: electrocardiograma, desgarro y obsesión ----------
+    if root.tier == 6: Rectangle {
+        // Pared de texto obsesivo
+        for i in 18: Text {
+            x: -200px - Math.mod(root.ms / 6 + i * 137, 400) * 1px;
+            y: i * 52px - 40px;
+            text: "MOG'EM ALL · MOG'EM ALL · " + @tr("ONE MORE SET") + " · MOG'EM ALL · MOG'EM ALL · " + @tr("NO SLEEP") + " · MOG'EM ALL · MOG'EM ALL · MOG'EM ALL";
+            color: #7a142090;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 36px;
+            opacity: root.ramp(1300, 1700);
+        }
+        // Viñeta que late
+        Rectangle {
+            background: @radial-gradient(circle, #00000000 40%, #96001280 100%);
+            opacity: 0.55 + 0.4 * (Math.mod(root.ms, 900) < 140 || (Math.mod(root.ms, 900) > 280 && Math.mod(root.ms, 900) < 400) ? 1 : 0);
+        }
+        // Chorreado
+        for i in 7: Rectangle {
+            x: root.width * (0.06 + i * 0.14);
+            y: 0;
+            width: 10px + Math.mod(i * 7, 12) * 1px;
+            height: root.ramp(1600, 3600) * (120px + Math.mod(i * 97, 220) * 1px);
+            border-radius: self.width / 2;
+            background: #a80014;
+        }
+        // Frases de un instante
+        for p[i] in [@tr("DON'T STOP"), @tr("ALL OF THEM"), @tr("ONE MORE SET"), @tr("NO MERCY")]: Text {
+            x: i == 0 ? root.width * 0.12 : i == 1 ? root.width * 0.62 : i == 2 ? root.width * 0.6 : root.width * 0.15;
+            y: i == 0 ? root.height * 0.18 : i == 1 ? root.height * 0.7 : i == 2 ? root.height * 0.12 : root.height * 0.66;
+            text: p;
+            color: white;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 64px;
+            property <float> at: 1900 + i * 650;
+            opacity: root.ms > self.at && root.ms < self.at + 70 ? 1 : 0;
+        }
+        // Terminal que se escribe sola
+        Text {
+            x: 40px;
+            y: root.height - 90px;
+            text: "> mog --all --force";
+            color: Theme.red-glow;
+            font-family: Theme.font-mono;
+            font-size: 16px;
+            opacity: root.ramp(1700, 1800);
+        }
+        Text {
+            x: 40px;
+            y: root.height - 66px;
+            text: @tr("Are you sure? [y/n]");
+            color: Theme.red-glow;
+            font-family: Theme.font-mono;
+            font-size: 16px;
+            opacity: root.ramp(2300, 2400);
+        }
+        Rectangle {
+            x: 250px;
+            y: root.height - 66px;
+            height: 22px;
+            width: 260px * root.ramp(2400, 4200);
+            clip: true;
+            Text {
+                x: 0;
+                text: @tr("y y y y y y y y y y y y y y y y");
+                color: Theme.cyan;
+                font-family: Theme.font-mono;
+                font-size: 16px;
+            }
+        }
+        // Electrocardiograma: latido, plano, pico
+        Rectangle {
+            y: root.height / 2 - 100px;
+            height: 200px;
+            width: root.width * root.ramp(0, 1100);
+            clip: true;
+            opacity: 1 - root.ramp(1300, 1600);
+            Path {
+                width: root.width;
+                height: 200px;
+                viewbox-width: 1000;
+                viewbox-height: 200;
+                stroke: Theme.red;
+                stroke-width: 4px;
+                commands: "M 0 100 L 180 100 L 215 60 L 230 140 L 245 100 L 540 100 L 555 10 L 570 190 L 585 100 L 1000 100";
+            }
+        }
+        // Corte final de lado a lado
+        Rectangle {
+            x: -root.width * 0.05;
+            y: root.height / 2;
+            width: root.width * 1.1 * root.ramp(4000, 4300);
+            height: 10px;
+            background: Theme.cyan;
+            transform-rotation: -14deg;
+            opacity: 1 - root.ramp(4900, 5200);
+        }
+    }
+
+    // ---------- El nombre del rango (todas las variantes) ----------
+    property <float> name-in:
+        root.tier == 0 ? root.ramp(700, 2600)
+        : root.tier == 1 ? root.ramp(500, 1900)
+        : root.tier == 2 ? root.ramp(2000, 2200)
+        : root.tier == 3 ? root.ramp(250, 450)
+        : root.tier == 4 ? root.ramp(800, 1500)
+        : root.tier == 5 ? root.ramp(1400, 3000)
+        : root.ramp(1500, 1800);
+    property <length> jitter:
+        root.tier == 3 && root.ms < 1500 ? (root.blink(70) ? 12px : -12px)
+        : root.tier == 6 && root.ms > 1500 ? (root.blink(110) ? 3px : -3px)
+        : root.tier == 4 && root.ms > 1500 && root.ms < 1800 ? (root.blink(60) ? 10px : -8px)
+        : 0px;
+    property <length> drop: root.tier == 4 ? (1 - root.name-in) * -600px : 0px;
+    property <float> beat: root.tier == 6 && root.ms > 1800 && (Math.mod(root.ms, 900) < 140 || (Math.mod(root.ms, 900) > 280 && Math.mod(root.ms, 900) < 400)) ? 1.06 : 1;
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 18px;
+
+        Text {
+            text: root.full ? @tr("NEW RANK") : @tr("NEW DIVISION");
+            horizontal-alignment: center;
+            color: Theme.amber;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: (12 - 6 * root.ramp(2400, 3000)) * 1px;
+            opacity: root.ramp(2400, 3000);
+        }
+
+        HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                width: name-text.preferred-width + 40px;
+                height: name-text.preferred-height;
+                // Tecleado (No-Name), barrido desde abajo (Principiante) o aparición.
+                clip: true;
+                Rectangle {
+                    x: 0;
+                    width: root.tier == 0 ? parent.width * root.name-in : parent.width;
+                    y: root.tier == 1 ? parent.height * (1 - root.name-in) : 0px;
+                    height: parent.height;
+                    clip: true;
+                    // Desfase de color
+                    Text {
+                        x: 20px + root.jitter - 7px;
+                        y: (root.tier == 1 ? -parent.y : 0px) + root.drop + 3px;
+                        text: root.name;
+                        color: Theme.cyan;
+                        opacity: root.tier >= 3 ? 0.7 * root.name-in : 0;
+                        font-family: Theme.font-display;
+                        font-weight: 700;
+                        font-size: root.name-size;
+                        letter-spacing: root.tier == 5 ? (1 - root.name-in) * 60px + 6px : 6px;
+                    }
+                    name-text := Text {
+                        x: 20px - root.jitter;
+                        y: (root.tier == 1 ? -parent.y : 0px) + root.drop;
+                        text: root.name;
+                        color: root.tier == 0 ? Theme.text : Theme.red;
+                        opacity: root.tier == 0 || root.tier == 1 ? 1 : root.name-in;
+                        font-family: Theme.font-display;
+                        font-weight: 700;
+                        font-size: root.name-size;
+                        letter-spacing: root.tier == 5 ? (1 - root.name-in) * 60px + 6px : 6px;
+                        transform-scale: root.beat;
+                    }
+                }
+            }
+        }
+
+        Text {
+            text: root.tier == 0 ? @tr("NOBODY KNOWS WHO YOU ARE YET")
+                : root.tier == 1 ? @tr("THE REAL WORK STARTS NOW")
+                : root.tier == 2 ? @tr("THE ONLY RIVAL WAS YOU")
+                : root.tier == 3 ? @tr("NOBODY TRAINS LIKE THIS")
+                : root.tier == 4 ? @tr("THE FLOOR FELT IT")
+                : root.tier == 5 ? @tr("EVERYONE ELSE STAYS BELOW")
+                : @tr("MOG 'EM ALL");
+            horizontal-alignment: center;
+            color: Theme.cyan;
+            font-family: Theme.font-mono;
+            font-size: 18px;
+            letter-spacing: 6px;
+            opacity: root.ramp(3000, 3600);
+        }
+    }
+
+    // Destellos invertidos (Selfhater y Psycho Mogger) y destello del impacto (Chad)
+    Rectangle {
+        background: white;
+        opacity: (root.tier == 2 && root.ms > 1900 && root.ms < 1960)
+            || (root.tier == 6 && ((root.ms > 1400 && root.ms < 1450) || (root.ms > 1520 && root.ms < 1570)))
+            ? 0.85 : 0;
+    }
+    Rectangle {
+        background: Theme.red;
+        opacity: root.tier == 4 ? 0.7 * (1 - root.ramp(1500, 1900)) * (root.ms > 1500 ? 1 : 0) : 0;
+    }
+    // Franjas que desgarran la pantalla (Psycho Mogger)
+    if root.tier == 6: Rectangle {
+        for i in 5: Rectangle {
+            y: root.height * (0.04 + i * 0.19);
+            height: root.height * 0.1;
+            x: root.ms > 1400 && root.ms < 1700 ? (Math.mod(i, 2) == 0 ? 1 : -1) * (root.blink(80) ? 180px : -120px) : 0px;
+            background: i == 1 ? Theme.cyan : i == 3 ? Theme.amber : Theme.red;
+            opacity: root.ms > 1400 && root.ms < 1700 ? 0.9 : 0;
+        }
+    }
+
+    Text {
+        x: (root.width - self.width) / 2;
+        y: root.height - 40px;
+        text: @tr("ENTER TO CONTINUE");
+        color: Theme.text-dim;
+        font-family: Theme.font-mono;
+        font-size: Theme.size-xs;
+        letter-spacing: 3px;
+        opacity: root.finished ? 1 : 0;
+    }
+}

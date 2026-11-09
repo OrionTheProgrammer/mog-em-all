@@ -10,6 +10,7 @@ import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
 import { Hud } from "screens/hud.slint";
 import { LevelUpScreen } from "screens/levelup.slint";
+import { RankUpScreen } from "screens/rankup.slint";
 
 export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp }
 export { ScheduleState, Block, DayColumn }
@@ -40,6 +41,11 @@ export component AppWindow inherits Window {
     // 0 normal, 1 la base es de una versión más nueva, 2 no se pudo abrir la base
     in property <int> storage-status;
     in-out property <LevelUp> level-up;
+    // Animación de rango (también la abre la galería de AJUSTES).
+    in-out property <bool> rank-up-open;
+    in-out property <int> rank-up-tier;
+    in-out property <int> rank-up-division: 1;
+    in-out property <bool> rank-up-full: true;
     in-out property <BmiResult> bmi;
     in-out property <int> current-module: 0;
     callback compute-bmi(string, string) -> BmiResult;
@@ -76,6 +82,24 @@ export component AppWindow inherits Window {
         data: root.level-up;
         dismiss => {
             root.level-up.visible = false;
+            // Si además cambió la división o el rango, sigue su animación.
+            if (root.level-up.rank-change >= 2) {
+                root.rank-up-tier = root.level-up.tier;
+                root.rank-up-division = root.level-up.division;
+                root.rank-up-full = root.level-up.rank-change == 3;
+                root.rank-up-open = true;
+            } else {
+                hud.take-focus();
+            }
+        }
+    }
+
+    if root.rank-up-open: RankUpScreen {
+        tier: root.rank-up-tier;
+        division: root.rank-up-division;
+        full: root.rank-up-full;
+        dismiss => {
+            root.rank-up-open = false;
             hud.take-focus();
         }
     }
