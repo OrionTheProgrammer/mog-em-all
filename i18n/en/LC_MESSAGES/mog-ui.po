@@ -71,17 +71,240 @@ msgctxt "BootScreen"
 msgid "WELCOME, {}"
 msgstr "WELCOME, {}"
 
-#: crates/mog-ui/ui/screens/hud.slint:67
+#: crates/mog-ui/ui/screens/finance.slint:136
+msgctxt "Finance"
+msgid "THIS MONTH"
+msgstr "THIS MONTH"
+
+#: crates/mog-ui/ui/screens/finance.slint:147
+msgctxt "Finance"
+msgid "INCOME"
+msgstr "INCOME"
+
+#: crates/mog-ui/ui/screens/finance.slint:149
+msgctxt "Finance"
+msgid "{} fixed · {} other"
+msgstr "{} fixed · {} other"
+
+#: crates/mog-ui/ui/screens/finance.slint:152
+msgctxt "Finance"
+msgid "SPENT"
+msgstr "SPENT"
+
+#: crates/mog-ui/ui/screens/finance.slint:154
+msgctxt "Finance"
+msgid "BALANCE"
+msgstr "BALANCE"
+
+#: crates/mog-ui/ui/screens/finance.slint:159
+msgctxt "Finance"
+msgid "BUDGET USED"
+msgstr "BUDGET USED"
+
+#: crates/mog-ui/ui/screens/finance.slint:161
+msgctxt "Finance"
+msgid "only groups with a budget"
+msgstr "only groups with a budget"
+
+#: crates/mog-ui/ui/screens/finance.slint:175
+msgctxt "Finance"
+msgid "NEW MOVEMENT · AMOUNT AND WHAT IT WAS, THEN ENTER"
+msgstr "NEW MOVEMENT · AMOUNT AND WHAT IT WAS, THEN ENTER"
+
+#: crates/mog-ui/ui/screens/finance.slint:184
+msgctxt "Finance"
+msgid ""
+"Try \"12.500 lunch\" or \"+20.000 sold a shirt\". The group is guessed from "
+"the words; # picks one."
+msgstr ""
+"Try \"12.500 lunch\" or \"+20.000 sold a shirt\". The group is guessed from "
+"the words; # picks one."
+
+#: crates/mog-ui/ui/screens/finance.slint:192
+msgctxt "Finance"
+msgid "Income"
+msgstr "Income"
+
+#: crates/mog-ui/ui/screens/finance.slint:192
+msgctxt "Finance"
+msgid "Expense"
+msgstr "Expense"
+
+#: crates/mog-ui/ui/screens/finance.slint:198
+msgctxt "Finance"
+msgid "No group"
+msgstr "No group"
+
+#: crates/mog-ui/ui/screens/finance.slint:206
+msgctxt "Finance"
+msgid "Write an amount, for example 12.500."
+msgstr "Write an amount, for example 12.500."
+
+#: crates/mog-ui/ui/screens/finance.slint:213
+msgctxt "Finance"
+msgid "MOVEMENTS"
+msgstr "MOVEMENTS"
+
+#: crates/mog-ui/ui/screens/finance.slint:220
+msgctxt "Finance"
+msgid "Nothing this month yet. Write your first expense or income above."
+msgstr "Nothing this month yet. Write your first expense or income above."
+
+#: crates/mog-ui/ui/screens/finance.slint:253
+msgctxt "Finance"
+msgid "fixed income"
+msgstr "fixed income"
+
+#: crates/mog-ui/ui/screens/finance.slint:253
+msgctxt "Finance"
+msgid "other income"
+msgstr "other income"
+
+#: crates/mog-ui/ui/screens/finance.slint:287
+msgctxt "Finance"
+msgid "SPENDING BY GROUP · CLICK TO SET A BUDGET"
+msgstr "SPENDING BY GROUP · CLICK TO SET A BUDGET"
+
+#: crates/mog-ui/ui/screens/finance.slint:305
+msgctxt "Finance"
+msgid "MONTHLY BUDGET · {}"
+msgstr "MONTHLY BUDGET · {}"
+
+#: crates/mog-ui/ui/screens/finance.slint:311
+msgctxt "Finance"
+msgid "SAVE"
+msgstr "SAVE"
+
+#: crates/mog-ui/ui/screens/finance.slint:315
+msgctxt "Finance"
+msgid "Write an amount, or leave it empty for no budget."
+msgstr "Write an amount, or leave it empty for no budget."
+
+#: crates/mog-ui/ui/screens/finance.slint:315
+msgctxt "Finance"
+msgid "Leave it empty to remove the budget. You'll see a warning at 80%."
+msgstr "Leave it empty to remove the budget. You'll see a warning at 80%."
+
+#: crates/mog-ui/ui/screens/finance.slint:321
+msgctxt "Finance"
+msgid "CLOSE"
+msgstr "CLOSE"
+
+#: crates/mog-ui/ui/screens/finance.slint:326
+msgctxt "Finance"
+msgid "NEW GROUP"
+msgstr "NEW GROUP"
+
+#: crates/mog-ui/ui/screens/finance.slint:336
+msgctxt "Finance"
+msgid "ADD"
+msgstr "ADD"
+
+#: crates/mog-ui/ui/screens/finance.slint:357
+msgctxt "Finance"
+msgid "FIXED EACH MONTH"
+msgstr "FIXED EACH MONTH"
+
+#: crates/mog-ui/ui/screens/finance.slint:359
+msgctxt "Finance"
+msgid ""
+"Add what comes in or goes out every month: your salary, rent, subscriptions. "
+"Each month they show up here to log with one click."
+msgstr ""
+"Add what comes in or goes out every month: your salary, rent, subscriptions. "
+"Each month they show up here to log with one click."
+
+#: crates/mog-ui/ui/screens/finance.slint:393
+msgctxt "Finance"
+msgid "day {}"
+msgstr "day {}"
+
+#: crates/mog-ui/ui/screens/finance.slint:408
+msgctxt "Finance"
+msgid "LOG"
+msgstr "LOG"
+
+#: crates/mog-ui/ui/screens/finance.slint:421
+msgctxt "Finance"
+msgid "+ FIXED INCOME"
+msgstr "+ FIXED INCOME"
+
+#: crates/mog-ui/ui/screens/finance.slint:422
+msgctxt "Finance"
+msgid "+ FIXED EXPENSE"
+msgstr "+ FIXED EXPENSE"
+
+#: crates/mog-ui/ui/screens/finance.slint:431
+msgctxt "Finance"
+msgid "NEW FIXED INCOME"
+msgstr "NEW FIXED INCOME"
+
+#: crates/mog-ui/ui/screens/finance.slint:431
+msgctxt "Finance"
+msgid "FIXED INCOME"
+msgstr "FIXED INCOME"
+
+#: crates/mog-ui/ui/screens/finance.slint:432
+msgctxt "Finance"
+msgid "NEW FIXED EXPENSE"
+msgstr "NEW FIXED EXPENSE"
+
+#: crates/mog-ui/ui/screens/finance.slint:432
+msgctxt "Finance"
+msgid "FIXED EXPENSE"
+msgstr "FIXED EXPENSE"
+
+#: crates/mog-ui/ui/screens/finance.slint:434
+msgctxt "Finance"
+msgid "WHAT"
+msgstr "WHAT"
+
+#: crates/mog-ui/ui/screens/finance.slint:437
+msgctxt "Finance"
+msgid "AMOUNT"
+msgstr "AMOUNT"
+
+#: crates/mog-ui/ui/screens/finance.slint:438
+msgctxt "Finance"
+msgid "DAY OF MONTH"
+msgstr "DAY OF MONTH"
+
+#: crates/mog-ui/ui/screens/finance.slint:442
+msgctxt "Finance"
+msgid "GROUP"
+msgstr "GROUP"
+
+#: crates/mog-ui/ui/screens/finance.slint:464
+msgctxt "Finance"
+msgid "Write what it is."
+msgstr "Write what it is."
+
+#: crates/mog-ui/ui/screens/finance.slint:465
+msgctxt "Finance"
+msgid "The day goes from 1 to 31. In shorter months it falls on the last day."
+msgstr "The day goes from 1 to 31. In shorter months it falls on the last day."
+
+#: crates/mog-ui/ui/screens/finance.slint:474
+msgctxt "Finance"
+msgid "CANCEL"
+msgstr "CANCEL"
+
+#: crates/mog-ui/ui/screens/finance.slint:477
+msgctxt "Finance"
+msgid "DELETE"
+msgstr "DELETE"
+
+#: crates/mog-ui/ui/screens/hud.slint:68
 msgctxt "CommandLine"
 msgid "type a command: help, go training, bmi 78 176"
 msgstr "type a command: help, go training, bmi 78 176"
 
-#: crates/mog-ui/ui/screens/hud.slint:75
+#: crates/mog-ui/ui/screens/hud.slint:76
 msgctxt "CommandLine"
 msgid "ENTER runs · / focuses · ESC leaves"
 msgstr "ENTER runs · / focuses · ESC leaves"
 
-#: crates/mog-ui/ui/screens/hud.slint:251
+#: crates/mog-ui/ui/screens/hud.slint:256
 msgctxt "Hud"
 msgid ""
 "YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
@@ -90,12 +313,12 @@ msgstr ""
 "YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
 "SAVED"
 
-#: crates/mog-ui/ui/screens/hud.slint:253
+#: crates/mog-ui/ui/screens/hud.slint:258
 msgctxt "Hud"
 msgid "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
 msgstr "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
 
-#: crates/mog-ui/ui/screens/hud.slint:254
+#: crates/mog-ui/ui/screens/hud.slint:259
 msgctxt "Hud"
 msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
 msgstr "LOCAL MODE · DATA STORED ON THIS DEVICE"
@@ -2232,52 +2455,162 @@ msgctxt "Labels"
 msgid "Doesn't repeat"
 msgstr "Doesn't repeat"
 
+#: crates/mog-ui/ui/theme/labels.slint:178
+msgctxt "Labels"
+msgid "Food"
+msgstr "Food"
+
+#: crates/mog-ui/ui/theme/labels.slint:179
+msgctxt "Labels"
+msgid "Transport"
+msgstr "Transport"
+
+#: crates/mog-ui/ui/theme/labels.slint:180
+msgctxt "Labels"
+msgid "Home"
+msgstr "Home"
+
+#: crates/mog-ui/ui/theme/labels.slint:181
+msgctxt "Labels"
+msgid "Bills"
+msgstr "Bills"
+
+#: crates/mog-ui/ui/theme/labels.slint:182
+msgctxt "Labels"
+msgid "Health"
+msgstr "Health"
+
+#: crates/mog-ui/ui/theme/labels.slint:183
+msgctxt "Labels"
+msgid "Going out"
+msgstr "Going out"
+
+#: crates/mog-ui/ui/theme/labels.slint:184
+msgctxt "Labels"
+msgid "Education"
+msgstr "Education"
+
 #: crates/mog-ui/ui/theme/labels.slint:185
+msgctxt "Labels"
+msgid "Subscriptions"
+msgstr "Subscriptions"
+
+#: crates/mog-ui/ui/theme/labels.slint:186
+msgctxt "Labels"
+msgid "Gym"
+msgstr "Gym"
+
+#: crates/mog-ui/ui/theme/labels.slint:187
+msgctxt "Labels"
+msgid "Other expenses"
+msgstr "Other expenses"
+
+#: crates/mog-ui/ui/theme/labels.slint:192
+msgctxt "Labels"
+msgid "JANUARY"
+msgstr "JANUARY"
+
+#: crates/mog-ui/ui/theme/labels.slint:192
+msgctxt "Labels"
+msgid "FEBRUARY"
+msgstr "FEBRUARY"
+
+#: crates/mog-ui/ui/theme/labels.slint:192
+msgctxt "Labels"
+msgid "MARCH"
+msgstr "MARCH"
+
+#: crates/mog-ui/ui/theme/labels.slint:192
+msgctxt "Labels"
+msgid "APRIL"
+msgstr "APRIL"
+
+#: crates/mog-ui/ui/theme/labels.slint:193
+msgctxt "Labels"
+msgid "MAY"
+msgstr "MAY"
+
+#: crates/mog-ui/ui/theme/labels.slint:193
+msgctxt "Labels"
+msgid "JUNE"
+msgstr "JUNE"
+
+#: crates/mog-ui/ui/theme/labels.slint:193
+msgctxt "Labels"
+msgid "JULY"
+msgstr "JULY"
+
+#: crates/mog-ui/ui/theme/labels.slint:193
+msgctxt "Labels"
+msgid "AUGUST"
+msgstr "AUGUST"
+
+#: crates/mog-ui/ui/theme/labels.slint:194
+msgctxt "Labels"
+msgid "SEPTEMBER"
+msgstr "SEPTEMBER"
+
+#: crates/mog-ui/ui/theme/labels.slint:194
+msgctxt "Labels"
+msgid "OCTOBER"
+msgstr "OCTOBER"
+
+#: crates/mog-ui/ui/theme/labels.slint:194
+msgctxt "Labels"
+msgid "NOVEMBER"
+msgstr "NOVEMBER"
+
+#: crates/mog-ui/ui/theme/labels.slint:194
+msgctxt "Labels"
+msgid "DECEMBER"
+msgstr "DECEMBER"
+
+#: crates/mog-ui/ui/theme/labels.slint:206
 msgctxt "Labels"
 msgid "Opened {}"
 msgstr "Opened {}"
 
-#: crates/mog-ui/ui/theme/labels.slint:186
+#: crates/mog-ui/ui/theme/labels.slint:207
 msgctxt "Labels"
 msgid "BMI {}: {}"
 msgstr "BMI {}: {}"
 
-#: crates/mog-ui/ui/theme/labels.slint:187
+#: crates/mog-ui/ui/theme/labels.slint:208
 msgctxt "Labels"
 msgid "Language changed"
 msgstr "Language changed"
 
-#: crates/mog-ui/ui/theme/labels.slint:188
+#: crates/mog-ui/ui/theme/labels.slint:209
 msgctxt "Labels"
 msgid "Commands: go <module> · bmi <kg> <cm> · lang es|en · help"
 msgstr "Commands: go <module> · bmi <kg> <cm> · lang es|en · help"
 
-#: crates/mog-ui/ui/theme/labels.slint:189
+#: crates/mog-ui/ui/theme/labels.slint:210
 msgctxt "Labels"
 msgid "Unknown command. Type help to see the list."
 msgstr "Unknown command. Type help to see the list."
 
-#: crates/mog-ui/ui/theme/labels.slint:190
+#: crates/mog-ui/ui/theme/labels.slint:211
 msgctxt "Labels"
 msgid "Usage: go <module>, for example: go training"
 msgstr "Usage: go <module>, for example: go training"
 
-#: crates/mog-ui/ui/theme/labels.slint:191
+#: crates/mog-ui/ui/theme/labels.slint:212
 msgctxt "Labels"
 msgid "Usage: bmi <weight kg> <height cm>, for example: bmi 78,5 176"
 msgstr "Usage: bmi <weight kg> <height cm>, for example: bmi 78,5 176"
 
-#: crates/mog-ui/ui/theme/labels.slint:192
+#: crates/mog-ui/ui/theme/labels.slint:213
 msgctxt "Labels"
 msgid "Usage: lang es or lang en"
 msgstr "Usage: lang es or lang en"
 
-#: crates/mog-ui/ui/theme/labels.slint:193
+#: crates/mog-ui/ui/theme/labels.slint:214
 msgctxt "Labels"
 msgid "Out of range: weight must be 20 to 400 kg and height 100 to 250 cm."
 msgstr "Out of range: weight must be 20 to 400 kg and height 100 to 250 cm."
 
-#: crates/mog-ui/ui/theme/labels.slint:194
+#: crates/mog-ui/ui/theme/labels.slint:215
 msgctxt "Labels"
 msgid "That language is not available yet."
 msgstr "That language is not available yet."
