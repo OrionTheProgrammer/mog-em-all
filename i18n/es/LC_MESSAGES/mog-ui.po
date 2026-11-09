@@ -71,17 +71,17 @@ msgctxt "BootScreen"
 msgid "WELCOME, {}"
 msgstr "BIENVENIDO, {}"
 
-#: crates/mog-ui/ui/screens/hud.slint:65
+#: crates/mog-ui/ui/screens/hud.slint:66
 msgctxt "CommandLine"
 msgid "type a command: help, go training, bmi 78 176"
 msgstr "escribe un comando: ayuda, ir entrenamiento, imc 78 176"
 
-#: crates/mog-ui/ui/screens/hud.slint:73
+#: crates/mog-ui/ui/screens/hud.slint:74
 msgctxt "CommandLine"
 msgid "ENTER runs · / focuses · ESC leaves"
 msgstr "ENTER ejecuta · / enfoca · ESC sale"
 
-#: crates/mog-ui/ui/screens/hud.slint:240
+#: crates/mog-ui/ui/screens/hud.slint:246
 msgctxt "Hud"
 msgid ""
 "YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
@@ -90,12 +90,12 @@ msgstr ""
 "TUS DATOS SON DE UNA VERSIÓN MÁS NUEVA · ACTUALIZA LA APP · NO SE ESTÁ "
 "GUARDANDO NADA"
 
-#: crates/mog-ui/ui/screens/hud.slint:242
+#: crates/mog-ui/ui/screens/hud.slint:248
 msgctxt "Hud"
 msgid "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
 msgstr "NO SE PUDIERON ABRIR TUS DATOS · NO SE ESTÁ GUARDANDO NADA"
 
-#: crates/mog-ui/ui/screens/hud.slint:243
+#: crates/mog-ui/ui/screens/hud.slint:249
 msgctxt "Hud"
 msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
 msgstr "MODO LOCAL · DATOS GUARDADOS EN ESTE EQUIPO"
@@ -211,55 +211,82 @@ msgctxt "LevelUpScreen"
 msgid "ENTER TO CONTINUE"
 msgstr "ENTER PARA CONTINUAR"
 
-#: crates/mog-ui/ui/screens/overview.slint:35
+#: crates/mog-ui/ui/screens/overview.slint:41
 msgctxt "Overview"
 msgid "TODAY'S MISSION"
 msgstr "MISIÓN DE HOY"
 
-#: crates/mog-ui/ui/screens/overview.slint:37
+#: crates/mog-ui/ui/screens/overview.slint:53
 msgctxt "Overview"
-msgid "NO ROUTINE YET"
-msgstr "SIN RUTINA TODAVÍA"
+msgid "SESSION IN PROGRESS · CONTINUE"
+msgstr "SESIÓN EN CURSO · CONTINUAR"
 
-#: crates/mog-ui/ui/screens/overview.slint:52
+#: crates/mog-ui/ui/screens/overview.slint:71
+msgctxt "Overview"
+msgid "START · {n} exercise"
+msgid_plural "START · {n} exercises"
+msgstr[0] "EMPEZAR · {n} ejercicio"
+msgstr[1] "EMPEZAR · {n} ejercicios"
+
+#: crates/mog-ui/ui/screens/overview.slint:82
+msgctxt "Overview"
+msgid "REST DAY"
+msgstr "DÍA DE DESCANSO"
+
+#: crates/mog-ui/ui/screens/overview.slint:91
 msgctxt "Overview"
 msgid ""
-"When you create a routine, today's session and its exercises will show up "
-"here."
+"Create your routines in TRAINING and assign them to days. Today's will show "
+"up here."
 msgstr ""
-"Cuando crees una rutina, aquí aparecerá la sesión de hoy con sus ejercicios."
+"Crea tus rutinas en ENTRENAMIENTO y asígnalas a días. La de hoy aparecerá "
+"aquí."
 
-#: crates/mog-ui/ui/screens/overview.slint:59
+#: crates/mog-ui/ui/screens/overview.slint:92
 msgctxt "Overview"
-msgid "Routines arrive in phase 1."
-msgstr "Las rutinas llegan en la fase 1."
+msgid ""
+"No routine is assigned to today. You can still start a free session in "
+"TRAINING."
+msgstr ""
+"Hoy no tiene rutina asignada. Igual puedes empezar una sesión libre en "
+"ENTRENAMIENTO."
 
-#: crates/mog-ui/ui/screens/overview.slint:103
+#: crates/mog-ui/ui/screens/overview.slint:102
+msgctxt "Overview"
+msgid "LEFT TODAY"
+msgstr "LO QUE QUEDA HOY"
+
+#: crates/mog-ui/ui/screens/overview.slint:104
+msgctxt "Overview"
+msgid "Nothing else on your schedule today."
+msgstr "No queda nada más en tu horario de hoy."
+
+#: crates/mog-ui/ui/screens/overview.slint:167
 msgctxt "Overview"
 msgid "LV {}"
 msgstr "NV {}"
 
-#: crates/mog-ui/ui/screens/overview.slint:122
+#: crates/mog-ui/ui/screens/overview.slint:186
 msgctxt "Overview"
 msgid "{} / {} XP"
 msgstr "{} / {} XP"
 
-#: crates/mog-ui/ui/screens/overview.slint:122
+#: crates/mog-ui/ui/screens/overview.slint:186
 msgctxt "Overview"
 msgid "Maximum level"
 msgstr "Nivel máximo"
 
-#: crates/mog-ui/ui/screens/overview.slint:130
+#: crates/mog-ui/ui/screens/overview.slint:194
 msgctxt "Overview"
 msgid "{} AT LV {}"
 msgstr "{} EN NV {}"
 
-#: crates/mog-ui/ui/screens/overview.slint:153
+#: crates/mog-ui/ui/screens/overview.slint:217
 msgctxt "Overview"
 msgid "SQUAD"
 msgstr "ESCUADRA"
 
-#: crates/mog-ui/ui/screens/overview.slint:155
+#: crates/mog-ui/ui/screens/overview.slint:219
 msgctxt "Overview"
 msgid ""
 "Sharing routines with friends and comparing progress comes in a later phase."
@@ -267,51 +294,51 @@ msgstr ""
 "Compartir rutinas con amigos y comparar el progreso llega en una fase "
 "posterior."
 
-#: crates/mog-ui/ui/screens/overview.slint:164
+#: crates/mog-ui/ui/screens/overview.slint:228
 msgctxt "Overview"
 msgid "STATUS"
 msgstr "ESTADO"
 
-#: crates/mog-ui/ui/screens/overview.slint:166
+#: crates/mog-ui/ui/screens/overview.slint:230
 msgctxt "Overview"
 msgid "Streak"
 msgstr "Racha"
 
-#: crates/mog-ui/ui/screens/overview.slint:167
+#: crates/mog-ui/ui/screens/overview.slint:231
 msgctxt "Overview"
 msgid "{n} week"
 msgid_plural "{n} weeks"
 msgstr[0] "{n} semana"
 msgstr[1] "{n} semanas"
 
-#: crates/mog-ui/ui/screens/overview.slint:170
+#: crates/mog-ui/ui/screens/overview.slint:234
 msgctxt "Overview"
 msgid "This week"
 msgstr "Esta semana"
 
-#: crates/mog-ui/ui/screens/overview.slint:171
+#: crates/mog-ui/ui/screens/overview.slint:235
 msgctxt "Overview"
 msgid "{n} session"
 msgid_plural "{n} sessions"
 msgstr[0] "{n} sesión"
 msgstr[1] "{n} sesiones"
 
-#: crates/mog-ui/ui/screens/overview.slint:174
+#: crates/mog-ui/ui/screens/overview.slint:238
 msgctxt "Overview"
 msgid "BMI"
 msgstr "IMC"
 
-#: crates/mog-ui/ui/screens/overview.slint:182
+#: crates/mog-ui/ui/screens/overview.slint:246
 msgctxt "Overview"
 msgid "WEIGHT"
 msgstr "PESO"
 
-#: crates/mog-ui/ui/screens/overview.slint:187
+#: crates/mog-ui/ui/screens/overview.slint:251
 msgctxt "Overview"
 msgid "HEIGHT"
 msgstr "ALTURA"
 
-#: crates/mog-ui/ui/screens/overview.slint:193
+#: crates/mog-ui/ui/screens/overview.slint:257
 msgctxt "Overview"
 msgid "Reference only: BMI does not tell muscle from fat."
 msgstr "Solo referencial: el IMC no distingue músculo de grasa."
@@ -325,6 +352,195 @@ msgstr "MÓDULO EN CONSTRUCCIÓN"
 msgctxt "Placeholder"
 msgid "Planned for phase {}"
 msgstr "Planificado para la fase {}"
+
+#: crates/mog-ui/ui/screens/schedule.slint:181
+msgctxt "EventForm"
+msgid "NEW EVENT"
+msgstr "NUEVO EVENTO"
+
+#: crates/mog-ui/ui/screens/schedule.slint:181
+msgctxt "EventForm"
+msgid "EDIT EVENT"
+msgstr "EDITAR EVENTO"
+
+#: crates/mog-ui/ui/screens/schedule.slint:183
+msgctxt "EventForm"
+msgid "WHAT"
+msgstr "QUÉ"
+
+#: crates/mog-ui/ui/screens/schedule.slint:186
+msgctxt "EventForm"
+msgid "TYPE"
+msgstr "TIPO"
+
+#: crates/mog-ui/ui/screens/schedule.slint:203
+msgctxt "EventForm"
+msgid "EVERY WEEK"
+msgstr "CADA SEMANA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:210
+msgctxt "EventForm"
+msgid "ONCE"
+msgstr "UNA VEZ"
+
+#: crates/mog-ui/ui/screens/schedule.slint:229
+msgctxt "EventForm"
+msgid "DATE (day/month)"
+msgstr "FECHA (día/mes)"
+
+#: crates/mog-ui/ui/screens/schedule.slint:235
+msgctxt "EventForm"
+msgid "FROM"
+msgstr "DESDE"
+
+#: crates/mog-ui/ui/screens/schedule.slint:239
+msgctxt "EventForm"
+msgid "TO"
+msgstr "HASTA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:243
+msgctxt "EventForm"
+msgid "REMIND ME"
+msgstr "AVISARME"
+
+#: crates/mog-ui/ui/screens/schedule.slint:247
+msgctxt "EventForm"
+msgid "No"
+msgstr "No"
+
+#: crates/mog-ui/ui/screens/schedule.slint:257
+msgctxt "EventForm"
+msgid "Write what it is."
+msgstr "Escribe qué es."
+
+#: crates/mog-ui/ui/screens/schedule.slint:258
+msgctxt "EventForm"
+msgid "Write the times as 18:30, and the end after the start."
+msgstr "Escribe las horas como 18:30, y el término después del inicio."
+
+#: crates/mog-ui/ui/screens/schedule.slint:259
+msgctxt "EventForm"
+msgid "Pick at least one day."
+msgstr "Elige al menos un día."
+
+#: crates/mog-ui/ui/screens/schedule.slint:260
+msgctxt "EventForm"
+msgid "Write the date as day/month, for example 24/11."
+msgstr "Escribe la fecha como día/mes, por ejemplo 24/11."
+
+#: crates/mog-ui/ui/screens/schedule.slint:270
+msgctxt "EventForm"
+msgid "SAVE"
+msgstr "GUARDAR"
+
+#: crates/mog-ui/ui/screens/schedule.slint:275
+msgctxt "EventForm"
+msgid "CANCEL"
+msgstr "CANCELAR"
+
+#: crates/mog-ui/ui/screens/schedule.slint:281
+msgctxt "EventForm"
+msgid "DELETE EVENT"
+msgstr "BORRAR EVENTO"
+
+#: crates/mog-ui/ui/screens/schedule.slint:293
+msgctxt "RoutineTimeForm"
+msgid "TRAINING"
+msgstr "ENTRENAMIENTO"
+
+#: crates/mog-ui/ui/screens/schedule.slint:303
+msgctxt "RoutineTimeForm"
+msgid ""
+"Its days are set in TRAINING. Here you can give it a time so it shows up as "
+"a block."
+msgstr ""
+"Sus días se eligen en ENTRENAMIENTO. Aquí puedes darle una hora para que "
+"aparezca como bloque."
+
+#: crates/mog-ui/ui/screens/schedule.slint:312
+msgctxt "RoutineTimeForm"
+msgid "TIME"
+msgstr "HORA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:316
+msgctxt "RoutineTimeForm"
+msgid "MINUTES"
+msgstr "MINUTOS"
+
+#: crates/mog-ui/ui/screens/schedule.slint:321
+msgctxt "RoutineTimeForm"
+msgid "Write the time as 19:00 and the length in minutes (10 to 600)."
+msgstr "Escribe la hora como 19:00 y la duración en minutos (de 10 a 600)."
+
+#: crates/mog-ui/ui/screens/schedule.slint:331
+msgctxt "RoutineTimeForm"
+msgid "SAVE TIME"
+msgstr "GUARDAR HORA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:336
+msgctxt "RoutineTimeForm"
+msgid "NO TIME"
+msgstr "SIN HORA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:342
+msgctxt "RoutineTimeForm"
+msgid "CLOSE"
+msgstr "CERRAR"
+
+#: crates/mog-ui/ui/screens/schedule.slint:376
+msgctxt "Schedule"
+msgid "WEEK OF {}/{} TO {}/{}"
+msgstr "SEMANA DEL {}/{} AL {}/{}"
+
+#: crates/mog-ui/ui/screens/schedule.slint:386
+msgctxt "Schedule"
+msgid "{n} clash"
+msgid_plural "{n} clashes"
+msgstr[0] "{n} choque"
+msgstr[1] "{n} choques"
+
+#: crates/mog-ui/ui/screens/schedule.slint:395
+msgctxt "Schedule"
+msgid "THIS WEEK"
+msgstr "ESTA SEMANA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:444
+msgctxt "Schedule"
+msgid "HOW IT WORKS"
+msgstr "CÓMO FUNCIONA"
+
+#: crates/mog-ui/ui/screens/schedule.slint:446
+msgctxt "Schedule"
+msgid ""
+"Click an empty slot in the grid to add a class, a work shift or anything "
+"else at that time. Click a block to edit it."
+msgstr ""
+"Haz clic en un espacio libre de la grilla para agregar una clase, un turno o "
+"lo que sea a esa hora. Haz clic en un bloque para editarlo."
+
+#: crates/mog-ui/ui/screens/schedule.slint:453
+msgctxt "Schedule"
+msgid ""
+"Your routines show up on their days by themselves. Give one a time and it "
+"becomes a block."
+msgstr ""
+"Tus rutinas aparecen solas en sus días. Si le das una hora, se vuelve un "
+"bloque."
+
+#: crates/mog-ui/ui/screens/schedule.slint:459
+msgctxt "Schedule"
+msgid "TYPES"
+msgstr "TIPOS"
+
+#: crates/mog-ui/ui/screens/schedule.slint:475
+msgctxt "Schedule"
+msgid "LEFT TODAY"
+msgstr "LO QUE QUEDA HOY"
+
+#: crates/mog-ui/ui/screens/schedule.slint:477
+msgctxt "Schedule"
+msgid "Nothing else today."
+msgstr "Nada más por hoy."
 
 #: crates/mog-ui/ui/screens/training.slint:150
 msgctxt "ExerciseCard"
@@ -1689,54 +1905,79 @@ msgctxt "Labels"
 msgid "AP"
 msgstr "AP"
 
+#: crates/mog-ui/ui/theme/labels.slint:150
+msgctxt "Labels"
+msgid "Class"
+msgstr "Clase"
+
+#: crates/mog-ui/ui/theme/labels.slint:151
+msgctxt "Labels"
+msgid "Work"
+msgstr "Trabajo"
+
 #: crates/mog-ui/ui/theme/labels.slint:152
+msgctxt "Labels"
+msgid "Study"
+msgstr "Estudio"
+
+#: crates/mog-ui/ui/theme/labels.slint:153
+msgctxt "Labels"
+msgid "Personal"
+msgstr "Personal"
+
+#: crates/mog-ui/ui/theme/labels.slint:155
+msgctxt "Labels"
+msgid "Training"
+msgstr "Entrenamiento"
+
+#: crates/mog-ui/ui/theme/labels.slint:167
 msgctxt "Labels"
 msgid "Opened {}"
 msgstr "Abriste {}"
 
-#: crates/mog-ui/ui/theme/labels.slint:153
+#: crates/mog-ui/ui/theme/labels.slint:168
 msgctxt "Labels"
 msgid "BMI {}: {}"
 msgstr "IMC {}: {}"
 
-#: crates/mog-ui/ui/theme/labels.slint:154
+#: crates/mog-ui/ui/theme/labels.slint:169
 msgctxt "Labels"
 msgid "Language changed"
 msgstr "Idioma cambiado"
 
-#: crates/mog-ui/ui/theme/labels.slint:155
+#: crates/mog-ui/ui/theme/labels.slint:170
 msgctxt "Labels"
 msgid "Commands: go <module> · bmi <kg> <cm> · lang es|en · help"
 msgstr "Comandos: ir <módulo> · imc <kg> <cm> · idioma es|en · ayuda"
 
-#: crates/mog-ui/ui/theme/labels.slint:156
+#: crates/mog-ui/ui/theme/labels.slint:171
 msgctxt "Labels"
 msgid "Unknown command. Type help to see the list."
 msgstr "Comando desconocido. Escribe ayuda para ver la lista."
 
-#: crates/mog-ui/ui/theme/labels.slint:157
+#: crates/mog-ui/ui/theme/labels.slint:172
 msgctxt "Labels"
 msgid "Usage: go <module>, for example: go training"
 msgstr "Uso: ir <módulo>, por ejemplo: ir entrenamiento"
 
-#: crates/mog-ui/ui/theme/labels.slint:158
+#: crates/mog-ui/ui/theme/labels.slint:173
 msgctxt "Labels"
 msgid "Usage: bmi <weight kg> <height cm>, for example: bmi 78,5 176"
 msgstr "Uso: imc <peso kg> <altura cm>, por ejemplo: imc 78,5 176"
 
-#: crates/mog-ui/ui/theme/labels.slint:159
+#: crates/mog-ui/ui/theme/labels.slint:174
 msgctxt "Labels"
 msgid "Usage: lang es or lang en"
 msgstr "Uso: idioma es o idioma en"
 
-#: crates/mog-ui/ui/theme/labels.slint:160
+#: crates/mog-ui/ui/theme/labels.slint:175
 msgctxt "Labels"
 msgid "Out of range: weight must be 20 to 400 kg and height 100 to 250 cm."
 msgstr ""
 "Fuera de rango: el peso debe estar entre 20 y 400 kg y la altura entre 100 y "
 "250 cm."
 
-#: crates/mog-ui/ui/theme/labels.slint:161
+#: crates/mog-ui/ui/theme/labels.slint:176
 msgctxt "Labels"
 msgid "That language is not available yet."
 msgstr "Ese idioma todavía no está disponible."
