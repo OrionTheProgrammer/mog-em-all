@@ -46,6 +46,19 @@ pub fn day_xp(sessions: &[SessionSummary], streak_weeks: u32) -> u32 {
     xp.iter().take(MAX_SESSIONS_PER_DAY).sum()
 }
 
+/// Semanas seguidas que cumplieron la meta, contando hacia atrás desde la semana pasada.
+///
+/// `sessions_per_week` va de la semana más antigua a la actual (la última). La semana
+/// actual suma solo si ya cumplió la meta; si todavía no, no corta la racha.
+pub fn streak_weeks(sessions_per_week: &[u32], weekly_goal: u32) -> u32 {
+    let goal = weekly_goal.max(1);
+    let Some((&current, past)) = sessions_per_week.split_last() else {
+        return 0;
+    };
+    let past_streak = past.iter().rev().take_while(|&&n| n >= goal).count() as u32;
+    past_streak + u32::from(current >= goal)
+}
+
 /// XP total necesaria para llegar a `level` (el nivel 1 empieza en 0).
 pub fn xp_to_reach(level: u32) -> u64 {
     let n = level.clamp(1, MAX_LEVEL) as f64 - 1.0;
@@ -311,6 +324,19 @@ mod tests {
     fn day_takes_best_two() {
         let day = [s(20, 0), s(60, 1), s(30, 0)];
         assert_eq!(day_xp(&day, 0), 135 + 80);
+    }
+
+    #[test]
+    fn streaks_count_weeks_not_days() {
+        assert_eq!(streak_weeks(&[], 3), 0);
+        // Semana actual a medias: no suma pero tampoco corta.
+        assert_eq!(streak_weeks(&[3, 4, 3, 1], 3), 3);
+        // Semana actual cumplida: suma.
+        assert_eq!(streak_weeks(&[3, 4, 3, 3], 3), 4);
+        // Una semana floja corta la racha.
+        assert_eq!(streak_weeks(&[5, 5, 2, 3, 0], 3), 1);
+        // Meta 0 se trata como 1.
+        assert_eq!(streak_weeks(&[1, 0], 0), 1);
     }
 
     #[test]
