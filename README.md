@@ -26,12 +26,12 @@
 
 ## Qué es
 
-mog 'em all junta en un solo lugar lo que normalmente anotas en cuatro apps distintas: pendientes, horario, gastos y entrenamiento. La parte de ejercicio es la más trabajada: cada sesión suma XP, subes de nivel con la constancia y cada levantamiento recibe una clase de fuerza de E a S según tu peso corporal. Más adelante vas a poder compartir rutinas con amigos y comparar cómo progresan.
+mog 'em all junta en un solo lugar lo que normalmente anotas en cuatro apps distintas: pendientes, horario, gastos y entrenamiento. La parte de entrenamiento es la más trabajada: armas rutinas por día (por ejemplo, lunes pecho), durante la sesión anotas cada serie con su tipo (normal, calentamiento, dropset, superserie o al fallo) y un cronómetro de descanso arranca solo. Cada sesión suma XP, subes de nivel con la constancia y cada levantamiento recibe una clase de fuerza de E a S según tu peso corporal. Más adelante vas a poder compartir rutinas con amigos y comparar cómo progresan.
 
-Todo se maneja con teclado o mouse. Hay una línea de comandos abajo de la pantalla para hacer las cosas rápido (`imc 78,5 176`, `ir rutinas`) y las pestañas se recorren con Q y E.
+Todo se maneja con teclado o mouse. Hay una línea de comandos abajo de la pantalla para hacer las cosas rápido (`imc 78,5 176`, `ir entrenamiento`) y las pestañas se recorren con Q y E.
 
 > [!NOTE]
-> El proyecto está en desarrollo temprano. La interfaz, el sistema de rangos y el IMC funcionan; los módulos de ejercicio, rutinas, tareas, horarios y finanzas llegan por fases. Revisa la [hoja de ruta](#hoja-de-ruta).
+> El proyecto está en desarrollo temprano. Funcionan la interfaz, los rangos, el IMC y el entrenamiento (rutinas, sesiones, series y descanso). Tareas, horarios y finanzas llegan por fases. Revisa la [hoja de ruta](#hoja-de-ruta).
 
 <table>
 <tr>
@@ -81,7 +81,7 @@ Se pueden escribir en español o en inglés. Las mayúsculas y las tildes no imp
 
 | Comando | Qué hace |
 |---|---|
-| `ir <módulo>` o solo `<módulo>` | Abre un módulo: `ir rutinas`, `finanzas` |
+| `ir <módulo>` o solo `<módulo>` | Abre un módulo: `ir entrenamiento`, `finanzas` |
 | `imc <peso kg> <altura cm>` | Calcula el IMC y lo deja en el panel: `imc 78,5 176` |
 | `idioma es` / `idioma en` | Cambia el idioma de la interfaz |
 | `ayuda` | Muestra la lista de comandos |
@@ -93,7 +93,7 @@ Hay dos medidas separadas. El nivel sube con XP por entrenar seguido, y como mid
 ## Hoja de ruta
 
 - [x] Fase 0 · Base del proyecto: interfaz HUD, pantalla de carga, logo animado, rangos, IMC, línea de comandos, español e inglés.
-- [ ] Fase 1 · Base de datos local (SQLite) ✓, registro de sesiones de ejercicio ✓, pantalla de subir de nivel ✓, perfil, rutinas, ajustes y animaciones de rango.
+- [ ] Fase 1 · Base de datos local (SQLite) ✓, registro de sesiones de ejercicio ✓, pantalla de subir de nivel ✓, rutinas por día ✓, descanso y tipos de serie ✓, perfil, ajustes y animaciones de rango.
 - [ ] Fase 2 · Tareas y horario semanal.
 - [ ] Fase 3 · Finanzas: ingresos, gastos, categorías y presupuesto.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.

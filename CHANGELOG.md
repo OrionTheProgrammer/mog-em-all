@@ -17,6 +17,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pestaña ENTRENAMIENTO, que junta rutinas y ejercicio:
+  - Rutinas asignadas a días de la semana, con ejercicios en orden y una meta por ejercicio (series, rango de reps, peso y descanso).
+  - La rutina del día aparece arriba para empezarla con un clic. La sesión trae el plan con las series hechas de cada ejercicio, y se elige qué ejercicio se hace ahora.
+  - Tipo de cada serie: normal, calentamiento, dropset, superserie o al fallo. El calentamiento no cuenta para récords ni volumen.
+  - Cronómetro de descanso al terminar una serie, con el tiempo de la rutina, ajustable ±15 s; avisa cuando toca la siguiente. Dropsets y superseries no inician descanso.
+  - Al cumplir la meta de un ejercicio, pasa solo al siguiente. Propone peso y reps según la serie anterior, la meta o la última vez.
+- Migración 2 de la base de datos (rutinas, tipo de serie, hora de cada serie). Las bases de la versión 1 se actualizan solas, con copia previa.
 - Módulo de ejercicio: empezar una sesión, anotar series (peso y repeticiones, peso corporal con lastre opcional, o tiempo), deshacer la última serie, descartar o terminar. Si la app se cierra en medio, la sesión se retoma al abrirla. Historial de sesiones recientes.
 - Pantalla al terminar un entrenamiento: duración, volumen, series, récords (1RM estimado contra tu mejor marca anterior), detalle de la XP y el nivel subiendo.
 - Versionado del esquema de la base de datos: migraciones en archivos SQL numerados, historial con huella de cada migración, copia de seguridad automática antes de migrar y rechazo de bases creadas por una versión más nueva (con aviso en la barra de estado).

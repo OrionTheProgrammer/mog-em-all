@@ -51,6 +51,7 @@ Un cambio de esquema compatible (tablas o columnas nuevas) puede ir en una versi
 | Esquema | Migración | Desde la app |
 |---|---|---|
 | 1 | `0001_initial`: perfil, ejercicios, sesiones y series | 0.1.0 |
+| 2 | `0002_routines`: rutinas por día de la semana con metas por ejercicio, tipo de serie y hora de cada serie | 0.1.0 |
 
 ## Recuperar datos
 
