@@ -40,9 +40,14 @@ Todo el dibujo. Dentro de `ui/`:
 
 El ejecutable. Crea la ventana, elige el idioma, conecta cada callback de la interfaz con una función de `mog-core`, ejecuta los comandos (`commands.rs`), mantiene el reloj (`clock.rs`) y maneja la secuencia de arranque (`boot.rs`).
 
-## Datos (próxima fase)
+## mog-storage
 
-Se agregará un crate `mog-storage` con SQLite (`rusqlite`) y migraciones versionadas. `mog-app` lo usará al arrancar, y cada paso real de carga avanzará la barra de la pantalla de inicio.
+La base de datos local, un archivo SQLite en la carpeta de datos del usuario (en Linux, `~/.local/share/mog-em-all/mog.db`). Guarda el perfil, los ejercicios y las sesiones con sus series.
+
+- `migrations.rs`: el esquema. Cada migración se aplica una vez y `PRAGMA user_version` guarda cuántas van. Una migración publicada no se edita; los cambios van en una nueva.
+- Los ejercicios incluidos se guardan con un código (`bench_press`) que la interfaz traduce. Los que crea el usuario se guardan con su nombre.
+- Al cerrar una sesión se calculan la duración, los récords (1RM estimado contra el mejor anterior), la racha y la XP, usando las funciones de `mog-core`.
+- Si el archivo no se puede abrir, la app sigue con una base en memoria.
 
 ## Social (fase posterior)
 
