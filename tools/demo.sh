@@ -5,6 +5,7 @@
 #   tools/demo.sh en
 #
 # Requiere Xvfb, xdotool, ffmpeg e ImageMagick. Deja los archivos en docs/assets/.
+# Usa una carpeta de datos temporal: nunca toca tu base de datos real.
 set -euo pipefail
 
 lang="${1:-es}"
@@ -32,7 +33,7 @@ export DISPLAY="$display"
 ffmpeg -loglevel error -y -f x11grab -draw_mouse 0 -framerate 30 -video_size 1440x900 -i "$display" -t 17 "$tmp/demo.mp4" &
 rec=$!
 sleep 0.3
-env -u WAYLAND_DISPLAY LANG="$locale" "$root/target/release/mog-em-all" >/dev/null 2>&1 &
+env -u WAYLAND_DISPLAY XDG_DATA_HOME="$tmp/data" LANG="$locale" "$root/target/release/mog-em-all" >/dev/null 2>&1 &
 app=$!
 
 window=""

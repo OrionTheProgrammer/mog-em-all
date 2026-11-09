@@ -93,7 +93,7 @@ Hay dos medidas separadas. El nivel sube con XP por entrenar seguido, y como mid
 ## Hoja de ruta
 
 - [x] Fase 0 · Base del proyecto: interfaz HUD, pantalla de carga, logo animado, rangos, IMC, línea de comandos, español e inglés.
-- [ ] Fase 1 · Base de datos local (SQLite), registro de sesiones de ejercicio, rutinas y ajustes.
+- [ ] Fase 1 · Base de datos local (SQLite) ✓, registro de sesiones de ejercicio ✓, pantalla de subir de nivel ✓, perfil, rutinas, ajustes y animaciones de rango.
 - [ ] Fase 2 · Tareas y horario semanal.
 - [ ] Fase 3 · Finanzas: ingresos, gastos, categorías y presupuesto.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.
