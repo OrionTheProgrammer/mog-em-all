@@ -5,6 +5,7 @@ mod boot;
 mod clock;
 mod commands;
 mod schedule;
+mod tasks;
 mod training;
 
 use std::cell::RefCell;
@@ -39,7 +40,21 @@ fn main() -> Result<(), slint::PlatformError> {
     refresh_progress(&ui, &store.borrow());
     training::connect(&ui, &store);
     let (_schedule_timer, refresh_schedule) = schedule::connect(&ui, &store);
-    ui.on_tab_changed(move |_| refresh_schedule());
+    let refresh_tasks = Rc::new(tasks::connect(&ui, &store));
+    ui.on_tab_changed({
+        let refresh_tasks = refresh_tasks.clone();
+        move |_| {
+            refresh_schedule();
+            refresh_tasks();
+        }
+    });
+    // Las tareas cambian de grupo con la hora (hoy → vencida): refrescar cada minuto.
+    let _tasks_timer = slint::Timer::default();
+    _tasks_timer.start(
+        slint::TimerMode::Repeated,
+        std::time::Duration::from_secs(60),
+        move || refresh_tasks(),
+    );
 
     let _clock = clock::start(&ui);
     let _boot = boot::start(&ui);

@@ -8,6 +8,7 @@ import { SectionLabel, Brackets, StatRow } from "../components/hud.slint";
 import { TermButton } from "../components/button.slint";
 import { TrainingState } from "../state/training.slint";
 import { ScheduleState } from "../state/schedule.slint";
+import { TasksState } from "../state/tasks.slint";
 
 // Pestaña PANEL del HUD: misión del día, rango al centro, escuadra y estado.
 export component Overview {
@@ -233,6 +234,13 @@ export component Overview {
             StatRow {
                 label: @tr("This week");
                 value: @tr("{n} session" | "{n} sessions" % root.week.sessions);
+            }
+            StatRow {
+                label: @tr("Tasks");
+                value: TasksState.overdue-count > 0
+                    ? @tr("{} pending · {} overdue", TasksState.pending-count, TasksState.overdue-count)
+                    : @tr("{} pending", TasksState.pending-count);
+                value-color: TasksState.overdue-count > 0 ? Theme.amber : Theme.red-glow;
             }
             StatRow {
                 label: @tr("BMI");

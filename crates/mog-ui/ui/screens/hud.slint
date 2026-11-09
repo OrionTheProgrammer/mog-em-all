@@ -8,6 +8,7 @@ import { Overview } from "overview.slint";
 import { Placeholder } from "placeholder.slint";
 import { Training } from "training.slint";
 import { Schedule } from "schedule.slint";
+import { Tasks } from "tasks.slint";
 
 component CommandLine inherits Rectangle {
     in property <CommandFeedback> feedback;
@@ -218,7 +219,11 @@ export component Hud inherits Rectangle {
                     width: 100%;
                     height: 100%;
                 }
-                if root.current == 2 || root.current >= 4: Placeholder {
+                if root.current == 2: Tasks {
+                    width: 100%;
+                    height: 100%;
+                }
+                if root.current >= 4: Placeholder {
                     width: 100%;
                     height: 100%;
                     module: root.current;

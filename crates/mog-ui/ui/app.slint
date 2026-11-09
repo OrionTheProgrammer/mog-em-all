@@ -1,6 +1,7 @@
 import { Theme } from "theme/theme.slint";
 import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp } from "types.slint";
 import { ScheduleState, Block, DayColumn } from "state/schedule.slint";
+import { TasksState, TaskRow, TaskGroup } from "state/tasks.slint";
 import { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession } from "state/training.slint";
 import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
@@ -9,6 +10,7 @@ import { LevelUpScreen } from "screens/levelup.slint";
 
 export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, LevelUp }
 export { ScheduleState, Block, DayColumn }
+export { TasksState, TaskRow, TaskGroup }
 export { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession }
 
 export component AppWindow inherits Window {

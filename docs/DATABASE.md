@@ -54,6 +54,7 @@ Un cambio de esquema compatible (tablas o columnas nuevas) puede ir en una versi
 | 2 | `0002_routines`: rutinas por día de la semana con metas por ejercicio, tipo de serie y hora de cada serie | 0.1.0 |
 | 3 | `0003_custom_exercise_muscle`: músculo principal de los ejercicios propios | 0.1.0 |
 | 4 | `0004_schedule`: eventos del horario (semanales o de una vez, con aviso) y hora opcional de las rutinas | 0.1.0 |
+| 5 | `0005_tasks`: tareas con fecha, hora, prioridad, repetición, aviso y etiqueta | 0.1.0 |
 
 ## Ejercicios incluidos
 
