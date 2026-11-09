@@ -1,4 +1,5 @@
 use super::*;
+use mog_core::tasks::{Priority, Repeat};
 
 const HOUR: Timestamp = 3600;
 const DAY: Timestamp = 24 * HOUR;
@@ -200,7 +201,7 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
 
 /// Migración de prueba que va después de la última real.
 const NEXT: migrations::Migration = migrations::Migration {
-    version: 5,
+    version: 6,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
@@ -705,4 +706,100 @@ fn routines_can_have_a_time() {
     store.set_routine_time(legs, Some(19 * 60), 75).unwrap();
     let r = store.routine(legs).unwrap().unwrap();
     assert_eq!((r.start_min, r.duration_min), (Some(1140), 75));
+}
+
+// Tareas
+
+fn task(title: &str, due_day: Option<DayNumber>, priority: Priority) -> Task {
+    Task {
+        title: title.into(),
+        due_day,
+        priority,
+        ..Default::default()
+    }
+}
+
+#[test]
+fn pending_tasks_are_ordered_by_date_then_priority() {
+    let store = store_with_profile();
+    let today = 20_766;
+    store
+        .save_task(&task("Sin fecha", None, Priority::High), MONDAY)
+        .unwrap();
+    store
+        .save_task(&task("Mañana", Some(today + 1), Priority::Normal), MONDAY)
+        .unwrap();
+    store
+        .save_task(&task("Hoy normal", Some(today), Priority::Normal), MONDAY)
+        .unwrap();
+    store
+        .save_task(&task("Hoy alta", Some(today), Priority::High), MONDAY)
+        .unwrap();
+    let titles: Vec<String> = store
+        .pending_tasks()
+        .unwrap()
+        .into_iter()
+        .map(|t| t.title)
+        .collect();
+    assert_eq!(
+        titles,
+        vec!["Hoy alta", "Hoy normal", "Mañana", "Sin fecha"]
+    );
+}
+
+#[test]
+fn completing_and_reopening() {
+    let mut store = store_with_profile();
+    let id = store
+        .save_task(&task("Informe", Some(20_766), Priority::Normal), MONDAY)
+        .unwrap();
+    assert_eq!(store.complete_task(id, MONDAY + 60, 20_766).unwrap(), None);
+    assert!(store.pending_tasks().unwrap().is_empty());
+    assert_eq!(store.done_tasks_since(MONDAY).unwrap().len(), 1);
+    store.reopen_task(id).unwrap();
+    assert_eq!(store.pending_tasks().unwrap().len(), 1);
+}
+
+#[test]
+fn repeating_tasks_create_the_next_one() {
+    let mut store = store_with_profile();
+    let today = 20_766;
+    let weekly = Task {
+        repeat: Repeat::Weekly,
+        due_min: Some(600),
+        ..task("Regar", Some(today - 15), Priority::Low)
+    };
+    let id = store.save_task(&weekly, MONDAY).unwrap();
+    let next = store.complete_task(id, MONDAY, today).unwrap().unwrap();
+    let next = store.task(next).unwrap().unwrap();
+    // Venía atrasada dos semanas: la siguiente cae desde hoy en adelante, no en el pasado.
+    assert!(next.due_day.unwrap() >= today);
+    assert_eq!((next.due_day.unwrap() - (today - 15)) % 7, 0);
+    assert_eq!(
+        (next.due_min, next.priority, next.repeat),
+        (Some(600), Priority::Low, Repeat::Weekly)
+    );
+}
+
+#[test]
+fn editing_and_deleting_tasks() {
+    let store = store_with_profile();
+    let id = store
+        .save_task(&task("Viejo", None, Priority::Normal), MONDAY)
+        .unwrap();
+    let edited = Task {
+        id,
+        title: "Nuevo".into(),
+        tag: Some("  ".into()),
+        ..task("", Some(20_770), Priority::High)
+    };
+    store.save_task(&edited, MONDAY).unwrap();
+    let t = store.task(id).unwrap().unwrap();
+    assert_eq!(
+        (t.title.as_str(), t.due_day, t.tag),
+        ("Nuevo", Some(20_770), None),
+        "una etiqueta vacía no se guarda"
+    );
+    store.delete_task(id).unwrap();
+    assert_eq!(store.task(id).unwrap(), None);
 }

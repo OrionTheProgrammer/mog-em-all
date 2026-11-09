@@ -13,6 +13,7 @@ use chrono::{Datelike, Local, TimeZone};
 use mog_core::catalog::{self, Muscle};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
 use mog_core::schedule::{DayNumber, Minute, Recurrence};
+use mog_core::tasks::{Priority, Repeat};
 pub use mog_core::training::ExerciseKind;
 use mog_core::training::{SetType, Weekday};
 use rusqlite::{Connection, OptionalExtension, params};
@@ -138,6 +139,22 @@ pub struct Routine {
     /// Hora a la que se suele hacer; `None` si no tiene hora fija.
     pub start_min: Option<Minute>,
     pub duration_min: u16,
+}
+
+pub type TaskId = i64;
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Task {
+    /// 0 al crearla.
+    pub id: TaskId,
+    pub title: String,
+    pub due_day: Option<DayNumber>,
+    pub due_min: Option<Minute>,
+    pub priority: Priority,
+    pub repeat: Repeat,
+    pub reminder_min: Option<u32>,
+    pub tag: Option<String>,
+    pub done_at: Option<Timestamp>,
 }
 
 pub type EventId = i64;
@@ -923,6 +940,111 @@ impl Store {
 
     pub fn delete_event(&self, id: EventId) -> Result<()> {
         self.conn.execute("DELETE FROM event WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    // Tareas
+
+    fn read_tasks(&self, filter: &str, param: i64) -> Result<Vec<Task>> {
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT id, title, due_day, due_min, priority, repeat, reminder_min, tag, done_at FROM task WHERE {filter}"
+        ))?;
+        let rows = stmt.query_map([param], |row| {
+            Ok(Task {
+                id: row.get(0)?,
+                title: row.get(1)?,
+                due_day: row.get(2)?,
+                due_min: row.get(3)?,
+                priority: Priority::from_index(row.get(4)?),
+                repeat: Repeat::from_index(row.get(5)?),
+                reminder_min: row.get(6)?,
+                tag: row.get(7)?,
+                done_at: row.get(8)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    /// Tareas pendientes: primero con fecha (más cercana), luego sin fecha; a igual
+    /// fecha, la de más prioridad.
+    pub fn pending_tasks(&self) -> Result<Vec<Task>> {
+        self.read_tasks(
+            "done_at IS NULL AND ?1 = ?1 ORDER BY due_day IS NULL, due_day, due_min IS NULL, due_min, priority DESC, id",
+            0,
+        )
+    }
+
+    /// Tareas completadas desde `since`, la más reciente primero.
+    pub fn done_tasks_since(&self, since: Timestamp) -> Result<Vec<Task>> {
+        self.read_tasks("done_at >= ?1 ORDER BY done_at DESC", since)
+    }
+
+    pub fn task(&self, id: TaskId) -> Result<Option<Task>> {
+        Ok(self.read_tasks("id = ?1", id)?.into_iter().next())
+    }
+
+    /// Guarda una tarea: con `id` 0 la crea, si no la reemplaza. Devuelve su id.
+    pub fn save_task(&self, task: &Task, now: Timestamp) -> Result<TaskId> {
+        let tag = task.tag.as_deref().map(str::trim).filter(|t| !t.is_empty());
+        if task.id == 0 {
+            self.conn.execute(
+                "INSERT INTO task (title, due_day, due_min, priority, repeat, reminder_min, tag, created_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                params![task.title.trim(), task.due_day, task.due_min, task.priority.index(), task.repeat.index(), task.reminder_min, tag, now],
+            )?;
+            Ok(self.conn.last_insert_rowid())
+        } else {
+            self.conn.execute(
+                "UPDATE task SET title = ?1, due_day = ?2, due_min = ?3, priority = ?4, repeat = ?5, reminder_min = ?6, tag = ?7
+                 WHERE id = ?8",
+                params![task.title.trim(), task.due_day, task.due_min, task.priority.index(), task.repeat.index(), task.reminder_min, tag, task.id],
+            )?;
+            Ok(task.id)
+        }
+    }
+
+    /// Marca la tarea como hecha. Si se repite, crea la siguiente y devuelve su id.
+    pub fn complete_task(
+        &mut self,
+        id: TaskId,
+        now: Timestamp,
+        today: DayNumber,
+    ) -> Result<Option<TaskId>> {
+        let Some(task) = self.task(id)? else {
+            return Ok(None);
+        };
+        let tx = self.conn.transaction()?;
+        tx.execute(
+            "UPDATE task SET done_at = ?1 WHERE id = ?2 AND done_at IS NULL",
+            params![now, id],
+        )?;
+        let mut next_id = None;
+        if let Some(next_day) = task.repeat.next(task.due_day.unwrap_or(today)) {
+            // Si estaba atrasada varias veces, la siguiente no queda en el pasado.
+            let mut day = next_day;
+            while day < today {
+                day = task.repeat.next(day).unwrap_or(today);
+            }
+            tx.execute(
+                "INSERT INTO task (title, due_day, due_min, priority, repeat, reminder_min, tag, created_at)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                params![task.title, day, task.due_min, task.priority.index(), task.repeat.index(), task.reminder_min, task.tag, now],
+            )?;
+            next_id = Some(tx.last_insert_rowid());
+        }
+        tx.commit()?;
+        Ok(next_id)
+    }
+
+    /// Vuelve a dejar pendiente una tarea hecha (deshacer).
+    pub fn reopen_task(&self, id: TaskId) -> Result<()> {
+        self.conn
+            .execute("UPDATE task SET done_at = NULL WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    pub fn delete_task(&self, id: TaskId) -> Result<()> {
+        self.conn.execute("DELETE FROM task WHERE id = ?1", [id])?;
         Ok(())
     }
 
