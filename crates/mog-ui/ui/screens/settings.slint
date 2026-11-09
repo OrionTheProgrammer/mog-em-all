@@ -1,0 +1,159 @@
+import { ScrollView, AboutSlint } from "std-widgets.slint";
+import { Theme } from "../theme/theme.slint";
+import { SettingsState } from "../state/settings.slint";
+import { TermButton } from "../components/button.slint";
+import { SectionLabel } from "../components/hud.slint";
+import { ProfileForm } from "../components/profile-form.slint";
+
+component Card inherits Rectangle {
+    in property <string> title;
+    background: Theme.panel;
+    Rectangle { y: 0; height: 3px; background: Theme.red; }
+    VerticalLayout {
+        padding: 16px;
+        spacing: Theme.gap-sm;
+        alignment: start;
+        Text {
+            text: root.title;
+            color: Theme.red;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: Theme.size-md;
+            letter-spacing: 3px;
+        }
+        @children
+    }
+}
+
+// Pestaña AJUSTES.
+export component Settings {
+    in property <string> language;
+    callback select-language(string);
+
+    property <float> shown: 0;
+    opacity: root.shown;
+    animate opacity { duration: Theme.normal; }
+    init => { root.shown = 1; }
+
+    HorizontalLayout {
+        padding-left: 32px;
+        padding-right: 32px;
+        padding-top: 20px;
+        padding-bottom: 12px;
+        spacing: 20px;
+
+        Card {
+            horizontal-stretch: 1;
+            title: @tr("PROFILE");
+            ProfileForm { }
+            HorizontalLayout {
+                spacing: Theme.gap-sm;
+                TermButton {
+                    text: @tr("SAVE PROFILE");
+                    active: true;
+                    clicked => { SettingsState.save-profile(); }
+                }
+                if SettingsState.profile-saved: Text {
+                    text: @tr("Saved.");
+                    vertical-alignment: center;
+                    color: Theme.cyan;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-sm;
+                }
+            }
+        }
+
+        VerticalLayout {
+            horizontal-stretch: 1;
+            spacing: 20px;
+            Card {
+                title: @tr("LANGUAGE");
+                HorizontalLayout {
+                    spacing: 3px;
+                    TermButton { horizontal-stretch: 1; text: "Español"; compact: true; active: root.language == "es"; clicked => { root.select-language("es"); } }
+                    TermButton { horizontal-stretch: 1; text: "English"; compact: true; active: root.language == "en"; clicked => { root.select-language("en"); } }
+                }
+            }
+            Card {
+                title: @tr("CURRENCY");
+                HorizontalLayout {
+                    spacing: 3px;
+                    for code in SettingsState.currencies: TermButton {
+                        horizontal-stretch: 1;
+                        min-width: 0px;
+                        tiny: true;
+                        compact: true;
+                        text: code;
+                        active: SettingsState.currency == code;
+                        clicked => { SettingsState.set-currency(code); }
+                    }
+                }
+                Text {
+                    text: @tr("Amounts you already logged keep their number; only the symbol changes.");
+                    wrap: word-wrap;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+            }
+            Card {
+                vertical-stretch: 1;
+                title: @tr("YOUR DATA");
+                Text {
+                    text: SettingsState.db-path;
+                    wrap: word-wrap;
+                    color: Theme.text;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+                Text {
+                    text: @tr("Database schema version {}", SettingsState.schema-version);
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+                for line in SettingsState.migrations: Text {
+                    text: line;
+                    color: Theme.red-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+                HorizontalLayout {
+                    spacing: Theme.gap-sm;
+                    TermButton { text: @tr("BACK UP NOW"); compact: true; clicked => { SettingsState.backup-now(); } }
+                    TermButton { text: @tr("OPEN FOLDER"); compact: true; clicked => { SettingsState.open-folder(); } }
+                }
+                if SettingsState.backup-message != "": Text {
+                    text: @tr("Backup saved: {}", SettingsState.backup-message);
+                    wrap: word-wrap;
+                    color: Theme.cyan;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+            }
+        }
+
+        Card {
+            width: 300px;
+            title: @tr("ABOUT");
+            Text {
+                text: "mog 'em all " + SettingsState.version;
+                color: Theme.text;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+            Text {
+                text: @tr("Source-available under the PolyForm Noncommercial 1.0.0 license. Your data never leaves this device.");
+                wrap: word-wrap;
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+            }
+            Rectangle {
+                height: 170px;
+                background: #f5f5f5;
+                AboutSlint { }
+            }
+        }
+    }
+}

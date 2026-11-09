@@ -95,6 +95,7 @@ It works offline and without an account. You can use it with the mouse or the ke
 
 ### Interface
 
+- **First run:** a short sign-up asks for your name, weight, height and weekly goal. You can change all of it later in SETTINGS, along with language, currency and backups.
 - **HUD-style interface** with an animated boot screen, tabs you move through with <kbd>Q</kbd> and <kbd>E</kbd>, and a command line in English or Spanish.
 - **English and Spanish,** with a switch in the top bar. The starting language follows your system.
 
@@ -180,7 +181,7 @@ The database schema is versioned. Before any update that changes it, the app sav
   - [x] Routines by weekday, sessions, set types and rest timer
   - [x] Exercise catalog and custom exercises
   - [x] End-of-session screen with level and records
-  - [ ] Profile (weight, height, weekly goal) and settings
+  - [x] Profile (weight, height, weekly goal) and settings
   - [ ] Rank-up animations
 - [ ] Phase 2 · Schedule, tasks and notifications
   - [x] Weekly schedule with events and training days

@@ -95,6 +95,7 @@ Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene 
 
 ### Interfaz
 
+- **Primera vez:** un registro corto pide nombre, peso, altura y meta semanal. Todo se cambia después en AJUSTES, junto con el idioma, la moneda y la copia de seguridad.
 - **Interfaz tipo HUD** con pantalla de carga animada, pestañas que se recorren con <kbd>Q</kbd> y <kbd>E</kbd>, y una línea de comandos en español o inglés.
 - **Español e inglés,** con selector en la barra superior. El idioma inicial se toma del sistema.
 
@@ -180,7 +181,7 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
   - [x] Rutinas por día, sesiones, tipos de serie y descanso
   - [x] Catálogo de ejercicios y ejercicios propios
   - [x] Pantalla de fin de sesión con nivel y récords
-  - [ ] Perfil (peso, altura, meta semanal) y ajustes
+  - [x] Perfil (peso, altura, meta semanal) y ajustes
   - [ ] Animaciones de subida de rango
 - [ ] Fase 2 · Horario, tareas y notificaciones
   - [x] Horario semanal con eventos y días de entrenamiento

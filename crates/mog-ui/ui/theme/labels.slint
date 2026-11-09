@@ -101,10 +101,6 @@ export global Labels {
         @tr("SETTINGS")
     }
 
-    // Fase del plan en la que llega cada módulo.
-    public pure function module-phase(m: int) -> int {
-        m == 2 || m == 3 ? 2 : m == 4 ? 3 : 1
-    }
 
     public pure function weekday(d: int) -> string {
         d == 0 ? @tr("MON") :
