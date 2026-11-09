@@ -55,10 +55,13 @@ Un cambio de esquema compatible (tablas o columnas nuevas) puede ir en una versi
 | 3 | `0003_custom_exercise_muscle`: músculo principal de los ejercicios propios | 0.1.0 |
 | 4 | `0004_schedule`: eventos del horario (semanales o de una vez, con aviso) y hora opcional de las rutinas | 0.1.0 |
 | 5 | `0005_tasks`: tareas con fecha, hora, prioridad, repetición, aviso y etiqueta | 0.1.0 |
+| 6 | `0006_finances`: ajustes (clave y valor), grupos de gasto con presupuesto, movimientos y fijos mensuales | 0.1.0 |
 
 ## Ejercicios incluidos
 
 Los ejercicios del catálogo no viven en una migración: salen de `crates/mog-core/data/exercises.csv` y se agregan al abrir la base (`INSERT OR IGNORE` por código). Así, una versión nueva con más ejercicios los suma a las bases existentes sin tocar el esquema. El código de un ejercicio nunca cambia, porque las series guardadas lo referencian.
+
+Los grupos de gasto incluidos se agregan igual que los ejercicios, por código, en cada apertura.
 
 ## Recuperar datos
 
