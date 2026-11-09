@@ -3,6 +3,8 @@ import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, 
 import { ScheduleState, Block, DayColumn } from "state/schedule.slint";
 import { TasksState, TaskRow, TaskGroup } from "state/tasks.slint";
 import { FinanceState, CategoryRow, EntryRow, FixedRow } from "state/finance.slint";
+import { SettingsState } from "state/settings.slint";
+import { Onboarding } from "screens/onboarding.slint";
 import { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession } from "state/training.slint";
 import { Scanlines } from "components/effects.slint";
 import { BootScreen } from "screens/boot.slint";
@@ -13,6 +15,7 @@ export { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback, RecordRow, 
 export { ScheduleState, Block, DayColumn }
 export { TasksState, TaskRow, TaskGroup }
 export { FinanceState, CategoryRow, EntryRow, FixedRow }
+export { SettingsState }
 export { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession }
 
 export component AppWindow inherits Window {
@@ -67,6 +70,8 @@ export component AppWindow inherits Window {
         run-command(text) => { root.run-command(text); }
     }
 
+    if root.booted && SettingsState.onboarding: Onboarding { }
+
     if root.level-up.visible: LevelUpScreen {
         data: root.level-up;
         dismiss => {
@@ -88,6 +93,14 @@ export component AppWindow inherits Window {
     Scanlines { }
 
     changed current-module => { root.tab-changed(root.current-module); }
+
+    // Al cerrarse el registro inicial, el teclado vuelve al HUD (Q, E y /).
+    property <bool> onboarding-open: SettingsState.onboarding;
+    changed onboarding-open => {
+        if (!root.onboarding-open) {
+            hud.take-focus();
+        }
+    }
 
     // Cuando termina la carga, el HUD recibe el foco del teclado.
     changed booted => {

@@ -1,0 +1,82 @@
+import { Theme } from "../theme/theme.slint";
+import { SettingsState } from "../state/settings.slint";
+import { TermButton } from "../components/button.slint";
+import { Cursor } from "../components/effects.slint";
+import { ProfileForm } from "../components/profile-form.slint";
+
+// Registro inicial: aparece la primera vez, antes de tener perfil.
+export component Onboarding inherits Rectangle {
+    background: Theme.bg;
+
+    property <float> t: animation-tick() / 1ms;
+    property <float> opened-at: 0;
+    init => { root.opened-at = root.t; }
+    property <float> elapsed: root.t - root.opened-at;
+    // El título se escribe letra por letra, como en la animación de No-Name.
+    property <string> title: @tr("NEW OPERATOR DETECTED");
+    property <int> typed: Math.min(root.title.character-count, Math.floor(root.elapsed / 45));
+
+    TouchArea { }
+
+    // Estática de fondo que se calma
+    Rectangle {
+        opacity: Math.max(0.05, 0.5 - root.elapsed / 3000);
+        for i in 60: Rectangle {
+            y: i * (root.height / 60);
+            height: 1px;
+            background: #ff8c9233;
+        }
+    }
+
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            width: 520px;
+            alignment: center;
+            spacing: Theme.gap-md;
+
+            HorizontalLayout {
+                spacing: Theme.gap-sm;
+                alignment: start;
+                Rectangle {
+                    width: title-text.preferred-width * (root.typed / Math.max(1, root.title.character-count));
+                    height: title-text.preferred-height;
+                    clip: true;
+                    title-text := Text {
+                        x: 0;
+                        width: self.preferred-width;
+                        text: root.title;
+                        color: Theme.red;
+                        font-family: Theme.font-display;
+                        font-weight: 700;
+                        font-size: 40px;
+                        letter-spacing: 4px;
+                    }
+                }
+                VerticalLayout { alignment: center; Cursor { } }
+            }
+            Text {
+                text: @tr("Tell us a little about yourself. Bodyweight sets your strength classes and the goal sets your streak. You can change all of it later in SETTINGS.");
+                wrap: word-wrap;
+                color: Theme.text;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+            ProfileForm { }
+            HorizontalLayout {
+                spacing: Theme.gap-sm;
+                TermButton {
+                    horizontal-stretch: 1;
+                    text: @tr("START AS NO-NAME I");
+                    active: true;
+                    clicked => { SettingsState.finish-onboarding(); }
+                }
+                TermButton {
+                    text: @tr("LATER");
+                    compact: true;
+                    clicked => { SettingsState.skip-onboarding(); }
+                }
+            }
+        }
+    }
+}

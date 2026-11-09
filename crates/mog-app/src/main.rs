@@ -6,6 +6,7 @@ mod clock;
 mod commands;
 mod finance;
 mod schedule;
+mod settings;
 mod tasks;
 mod training;
 
@@ -21,34 +22,45 @@ fn main() -> Result<(), slint::PlatformError> {
     let ui = AppWindow::new()?;
     ui.set_version(env!("CARGO_PKG_VERSION").into());
 
-    apply_language(&ui, system_language());
-    ui.on_select_language({
-        let weak = ui.as_weak();
-        move |lang| {
-            if let Some(ui) = weak.upgrade() {
-                apply_language(&ui, &lang);
-            }
-        }
-    });
+    // Se comparte con los módulos que escriben datos.
+    let (store, storage_status, db_path) = open_store();
+    ui.set_storage_status(storage_status);
+    let store = Rc::new(RefCell::new(store));
+
+    // El idioma elegido en la app manda; si nunca se eligió, el del sistema.
+    let saved_language = store.borrow().setting("language").ok().flatten();
+    apply_language(&ui, saved_language.as_deref().unwrap_or(system_language()));
 
     ui.on_compute_bmi(|weight, height| compute_bmi(&weight, &height));
     commands::connect(&ui);
-
-    // Se comparte con los módulos que vayan a escribir datos (entrenamientos, perfil).
-    let (store, storage_status) = open_store();
-    ui.set_storage_status(storage_status);
-    let store = Rc::new(RefCell::new(store));
     refresh_progress(&ui, &store.borrow());
     training::connect(&ui, &store);
     let (_schedule_timer, refresh_schedule) = schedule::connect(&ui, &store);
     let refresh_tasks = Rc::new(tasks::connect(&ui, &store));
     let refresh_finance = finance::connect(&ui, &store);
-    ui.on_tab_changed({
+    let refresh_all: Rc<dyn Fn()> = Rc::new({
         let refresh_tasks = refresh_tasks.clone();
-        move |_| {
+        move || {
             refresh_schedule();
             refresh_tasks();
             refresh_finance();
+        }
+    });
+    ui.on_tab_changed({
+        let refresh_all = refresh_all.clone();
+        move |_| refresh_all()
+    });
+    settings::connect(&ui, &store, db_path, refresh_all.clone());
+    ui.on_select_language({
+        let (weak, store, refresh_all) = (ui.as_weak(), store.clone(), refresh_all.clone());
+        move |lang| {
+            if let Some(ui) = weak.upgrade()
+                && apply_language(&ui, &lang)
+            {
+                let _ = store.borrow().set_setting("language", &lang);
+                // Los montos y fechas se escriben distinto en cada idioma.
+                refresh_all();
+            }
         }
     });
     // Las tareas cambian de grupo con la hora (hoy → vencida): refrescar cada minuto.
@@ -70,10 +82,11 @@ fn main() -> Result<(), slint::PlatformError> {
 ///
 /// Devuelve también el estado para la interfaz: 0 normal, 1 esquema más nuevo,
 /// 2 otro error.
-fn open_store() -> (Store, i32) {
-    let status = match dirs::data_dir().map(|dir| Store::default_path(&dir)) {
-        Some(path) => match Store::open(&path) {
-            Ok(store) => return (store, 0),
+fn open_store() -> (Store, i32, Option<std::path::PathBuf>) {
+    let path = dirs::data_dir().map(|dir| Store::default_path(&dir));
+    let status = match &path {
+        Some(path) => match Store::open(path) {
+            Ok(store) => return (store, 0, Some(path.clone())),
             Err(err) => {
                 eprintln!("no se pudo abrir {}: {err}", path.display());
                 if matches!(err, mog_storage::Error::NewerSchema { .. }) {
@@ -86,7 +99,7 @@ fn open_store() -> (Store, i32) {
         None => 2,
     };
     let memory = Store::open_in_memory().expect("SQLite en memoria siempre debería abrir");
-    (memory, status)
+    (memory, status, None)
 }
 
 pub fn now() -> mog_storage::Timestamp {
@@ -102,8 +115,15 @@ pub fn refresh_progress(ui: &AppWindow, store: &Store) {
         sessions: week.sessions as i32,
         streak_weeks: week.streak_weeks as i32,
     });
-    let profile_name = store.profile().ok().flatten().map(|p| p.name);
-    ui.set_user_name(user_name(profile_name).into());
+    let profile = store.profile().ok().flatten();
+    // Con peso y altura en el perfil, el IMC del panel se llena solo.
+    if let Some((w, h)) = profile
+        .as_ref()
+        .and_then(|p| p.bodyweight_kg.zip(p.height_cm))
+    {
+        ui.set_bmi(bmi_result(w, h));
+    }
+    ui.set_user_name(user_name(profile.map(|p| p.name)).into());
 }
 
 /// Nombre para el saludo de la pantalla de carga: el del perfil o, si todavía

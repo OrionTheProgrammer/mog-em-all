@@ -1,0 +1,69 @@
+import { Theme } from "../theme/theme.slint";
+import { SettingsState } from "../state/settings.slint";
+import { TermButton } from "button.slint";
+import { TermInput } from "input.slint";
+import { SectionLabel } from "hud.slint";
+
+// Campos del perfil. Se usa en AJUSTES y en el registro inicial.
+export component ProfileForm {
+    VerticalLayout {
+        spacing: Theme.gap-sm;
+        TermInput {
+            label: @tr("NAME");
+            text <=> SettingsState.name;
+        }
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            TermInput {
+                label: @tr("BODYWEIGHT");
+                suffix: "kg";
+                text <=> SettingsState.weight;
+            }
+            TermInput {
+                label: @tr("HEIGHT");
+                suffix: "cm";
+                text <=> SettingsState.height;
+            }
+        }
+        SectionLabel { text: @tr("STRENGTH TABLES FOR"); }
+        HorizontalLayout {
+            spacing: 3px;
+            for b in 3: TermButton {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                compact: true;
+                text: b == 0 ? @tr("Male") : b == 1 ? @tr("Female") : @tr("Don't say");
+                active: SettingsState.body == b;
+                clicked => { SettingsState.body = b; }
+            }
+        }
+        SectionLabel { text: @tr("WEEKLY GOAL · SESSIONS"); }
+        HorizontalLayout {
+            spacing: 3px;
+            for g in 7: TermButton {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                compact: true;
+                text: g + 1;
+                active: SettingsState.weekly-goal == g + 1;
+                clicked => { SettingsState.weekly-goal = g + 1; }
+            }
+        }
+        Text {
+            text: @tr("Your streak counts the weeks you hit this goal. Resting days don't break it.");
+            wrap: word-wrap;
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        if SettingsState.profile-error != 0: Text {
+            text: SettingsState.profile-error == 1 ? @tr("Write a name.")
+                : SettingsState.profile-error == 2 ? @tr("Bodyweight goes from 20 to 400 kg, or leave it empty.")
+                : @tr("Height goes from 100 to 250 cm, or leave it empty.");
+            wrap: word-wrap;
+            color: Theme.amber;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+    }
+}

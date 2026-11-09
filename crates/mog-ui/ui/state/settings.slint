@@ -1,0 +1,37 @@
+// Estado y acciones de AJUSTES y del registro inicial. Rust lo llena (crates/mog-app/src/settings.rs).
+
+export global SettingsState {
+    // Perfil
+    in-out property <string> name;
+    in-out property <string> weight;
+    in-out property <string> height;
+    // 0 masculino, 1 femenino, 2 sin especificar
+    in-out property <int> body: 2;
+    in-out property <int> weekly-goal: 3;
+    // 0 sin error, 1 nombre, 2 peso, 3 altura
+    in property <int> profile-error;
+    // se acaba de guardar (para mostrar la confirmación)
+    in property <bool> profile-saved;
+
+    // Moneda
+    in property <[string]> currencies;
+    in property <string> currency;
+
+    // Datos
+    in property <string> db-path;
+    in property <int> schema-version;
+    in property <[string]> migrations;
+    in property <string> backup-message;
+
+    in property <string> version;
+
+    // Registro inicial (primera vez que se abre la app)
+    in-out property <bool> onboarding;
+
+    callback save-profile();
+    callback set-currency(string);
+    callback backup-now();
+    callback open-folder();
+    callback finish-onboarding();
+    callback skip-onboarding();
+}
