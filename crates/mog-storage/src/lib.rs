@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 
 use chrono::{Datelike, Local, TimeZone};
 use mog_core::catalog::{self, Muscle};
+use mog_core::finance::{self, EntryKind, IncomeType};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
 use mog_core::schedule::{DayNumber, Minute, Recurrence};
 use mog_core::tasks::{Priority, Repeat};
@@ -155,6 +156,45 @@ pub struct Task {
     pub reminder_min: Option<u32>,
     pub tag: Option<String>,
     pub done_at: Option<Timestamp>,
+}
+
+pub type CategoryId = i64;
+pub type EntryId = i64;
+pub type RecurringId = i64;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Category {
+    pub id: CategoryId,
+    /// Código de las incluidas ("food"); la interfaz lo traduce.
+    pub code: Option<String>,
+    pub name: Option<String>,
+    /// Presupuesto mensual en unidades mínimas de la moneda.
+    pub budget: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Entry {
+    /// 0 al crearlo.
+    pub id: EntryId,
+    pub kind: EntryKind,
+    pub amount: i64,
+    pub category_id: Option<CategoryId>,
+    /// Solo en ingresos.
+    pub income_type: Option<IncomeType>,
+    pub note: String,
+    pub day: DayNumber,
+    pub recurring_id: Option<RecurringId>,
+}
+
+/// Ingreso o gasto fijo que se repite cada mes.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Recurring {
+    pub id: RecurringId,
+    pub kind: EntryKind,
+    pub amount: i64,
+    pub category_id: Option<CategoryId>,
+    pub note: String,
+    pub day_of_month: u32,
 }
 
 pub type EventId = i64;
@@ -324,6 +364,7 @@ impl Store {
         migrations::run(&mut conn, list, chrono::Utc::now().timestamp())?;
         let store = Self { conn };
         store.seed_exercises()?;
+        store.seed_categories()?;
         Ok(store)
     }
 
@@ -1048,6 +1089,191 @@ impl Store {
         Ok(())
     }
 
+    // Ajustes
+
+    pub fn setting(&self, key: &str) -> Result<Option<String>> {
+        Ok(self
+            .conn
+            .query_row("SELECT value FROM setting WHERE key = ?1", [key], |row| {
+                row.get(0)
+            })
+            .optional()?)
+    }
+
+    pub fn set_setting(&self, key: &str, value: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO setting (key, value) VALUES (?1, ?2) ON CONFLICT (key) DO UPDATE SET value = excluded.value",
+            params![key, value],
+        )?;
+        Ok(())
+    }
+
+    // Finanzas
+
+    fn seed_categories(&self) -> Result<()> {
+        // Una base abierta con migraciones parciales (en los tests) todavía no tiene la tabla.
+        let exists: bool = self.conn.query_row(
+            "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'finance_category')",
+            [],
+            |row| row.get(0),
+        )?;
+        if !exists {
+            return Ok(());
+        }
+        for (position, code) in finance::DEFAULT_CATEGORIES.iter().enumerate() {
+            self.conn.execute(
+                "INSERT OR IGNORE INTO finance_category (code, position) VALUES (?1, ?2)",
+                params![code, position as i64],
+            )?;
+        }
+        Ok(())
+    }
+
+    pub fn categories(&self) -> Result<Vec<Category>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, code, name, budget FROM finance_category ORDER BY position, id")?;
+        let rows = stmt.query_map([], |row| {
+            Ok(Category {
+                id: row.get(0)?,
+                code: row.get(1)?,
+                name: row.get(2)?,
+                budget: row.get(3)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    pub fn add_category(&self, name: &str) -> Result<CategoryId> {
+        self.conn.execute(
+            "INSERT INTO finance_category (name, position) VALUES (?1, (SELECT COALESCE(MAX(position), -1) + 1 FROM finance_category))",
+            [name.trim()],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    pub fn set_category_budget(&self, id: CategoryId, budget: Option<i64>) -> Result<()> {
+        self.conn.execute(
+            "UPDATE finance_category SET budget = ?1 WHERE id = ?2",
+            params![budget.filter(|b| *b > 0), id],
+        )?;
+        Ok(())
+    }
+
+    /// Movimientos entre dos días (inclusive), el más reciente primero.
+    pub fn entries_between(&self, from: DayNumber, to: DayNumber) -> Result<Vec<Entry>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, kind, amount, category_id, income_type, note, day, recurring_id FROM finance_entry
+             WHERE day BETWEEN ?1 AND ?2 ORDER BY day DESC, id DESC",
+        )?;
+        let rows = stmt.query_map(params![from, to], |row| {
+            Ok(Entry {
+                id: row.get(0)?,
+                kind: kind_from(row.get(1)?),
+                amount: row.get(2)?,
+                category_id: row.get(3)?,
+                income_type: row.get::<_, Option<i64>>(4)?.map(income_type_from),
+                note: row.get(5)?,
+                day: row.get(6)?,
+                recurring_id: row.get(7)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    pub fn add_entry(&self, entry: &Entry, now: Timestamp) -> Result<EntryId> {
+        let income_type = match entry.kind {
+            EntryKind::Income => Some(income_type_index(entry.income_type.unwrap_or_default())),
+            EntryKind::Expense => None,
+        };
+        let category = if entry.kind == EntryKind::Expense {
+            entry.category_id
+        } else {
+            None
+        };
+        self.conn.execute(
+            "INSERT INTO finance_entry (kind, amount, category_id, income_type, note, day, recurring_id, created_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            params![kind_index(entry.kind), entry.amount, category, income_type, entry.note.trim(), entry.day, entry.recurring_id, now],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    pub fn delete_entry(&self, id: EntryId) -> Result<()> {
+        self.conn
+            .execute("DELETE FROM finance_entry WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    pub fn recurring(&self) -> Result<Vec<Recurring>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, kind, amount, category_id, note, day_of_month FROM finance_recurring ORDER BY kind DESC, day_of_month, id",
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok(Recurring {
+                id: row.get(0)?,
+                kind: kind_from(row.get(1)?),
+                amount: row.get(2)?,
+                category_id: row.get(3)?,
+                note: row.get(4)?,
+                day_of_month: row.get(5)?,
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    /// Guarda un fijo: con `id` 0 lo crea, si no lo reemplaza.
+    pub fn save_recurring(&self, item: &Recurring, now: Timestamp) -> Result<RecurringId> {
+        let category = if item.kind == EntryKind::Expense {
+            item.category_id
+        } else {
+            None
+        };
+        let day = item.day_of_month.clamp(1, 31);
+        if item.id == 0 {
+            self.conn.execute(
+                "INSERT INTO finance_recurring (kind, amount, category_id, note, day_of_month, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                params![kind_index(item.kind), item.amount, category, item.note.trim(), day, now],
+            )?;
+            Ok(self.conn.last_insert_rowid())
+        } else {
+            self.conn.execute(
+                "UPDATE finance_recurring SET kind = ?1, amount = ?2, category_id = ?3, note = ?4, day_of_month = ?5 WHERE id = ?6",
+                params![kind_index(item.kind), item.amount, category, item.note.trim(), day, item.id],
+            )?;
+            Ok(item.id)
+        }
+    }
+
+    pub fn delete_recurring(&self, id: RecurringId) -> Result<()> {
+        self.conn
+            .execute("DELETE FROM finance_recurring WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    /// Registra un fijo como movimiento del día `day` (por ejemplo, el sueldo de este mes).
+    pub fn register_recurring(
+        &self,
+        id: RecurringId,
+        day: DayNumber,
+        now: Timestamp,
+    ) -> Result<Option<EntryId>> {
+        let Some(item) = self.recurring()?.into_iter().find(|r| r.id == id) else {
+            return Ok(None);
+        };
+        let entry = Entry {
+            kind: item.kind,
+            amount: item.amount,
+            category_id: item.category_id,
+            income_type: (item.kind == EntryKind::Income).then_some(IncomeType::Fixed),
+            note: item.note,
+            day,
+            recurring_id: Some(item.id),
+            ..Default::default()
+        };
+        Ok(Some(self.add_entry(&entry, now)?))
+    }
+
     pub fn total_xp(&self) -> Result<u64> {
         let total: i64 =
             self.conn
@@ -1201,6 +1427,36 @@ fn local_date(at: Timestamp) -> chrono::NaiveDate {
         .single()
         .map(|dt| dt.date_naive())
         .unwrap_or_default()
+}
+
+fn kind_index(kind: EntryKind) -> i64 {
+    match kind {
+        EntryKind::Expense => 0,
+        EntryKind::Income => 1,
+    }
+}
+
+fn kind_from(value: i64) -> EntryKind {
+    if value == 1 {
+        EntryKind::Income
+    } else {
+        EntryKind::Expense
+    }
+}
+
+fn income_type_index(kind: IncomeType) -> i64 {
+    match kind {
+        IncomeType::Fixed => 0,
+        IncomeType::Informal => 1,
+    }
+}
+
+fn income_type_from(value: i64) -> IncomeType {
+    if value == 0 {
+        IncomeType::Fixed
+    } else {
+        IncomeType::Informal
+    }
 }
 
 fn kind_to_i64(kind: ExerciseKind) -> i64 {
