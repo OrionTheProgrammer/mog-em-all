@@ -54,7 +54,19 @@ Solo terminar entrenamientos da XP de nivel; las tareas tienen su propia animaci
 
 - Subir de nivel: pantalla propia al terminar la sesión, con el detalle de la XP ganada.
 - Pasar de división: versión corta de la animación del rango.
-- Llegar a un rango nuevo: animación completa, distinta para cada rango.
+- Llegar a un rango nuevo: animación completa, distinta para cada rango. Cada una es más intensa que la anterior:
+
+| Rango | Animación |
+|---|---|
+| No-Name | El nombre aparece de a poco sobre la pantalla en negro. |
+| Principiante | Cuadrícula, un barrido y anillos que se abren. |
+| Selfhater | Excusas ("no puedo", "mañana empiezo") que se tachan; el nombre se agrieta. |
+| Insane | Sirena, franjas de alerta, medidores al máximo y "sobrecarga 147 %". |
+| Chad | Anillos, grietas que salen del nombre, insignia y destello. |
+| Mogger | Haz de luz, la insignia sube y los rangos anteriores caen; termina en apagón. |
+| Psycho Mogger | Muro de texto, viñeta, chorreado, frases subliminales, una terminal que se responde sola, ECG y un corte final. |
+
+En AJUSTES → Acerca de hay una galería para ver cada animación.
 
 ## Clase de fuerza
 
@@ -83,4 +95,3 @@ Por debajo de D es E. El perfil corporal es opcional y solo escala estas tablas:
 
 - Clases para ejercicios por tiempo o distancia (cardio, planchas).
 - Ejercicios personalizados: se asociarán a un patrón de movimiento para heredar una tabla.
-- Ajuste de la meta semanal desde Ajustes.

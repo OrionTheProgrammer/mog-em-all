@@ -183,7 +183,7 @@ The database schema is versioned. Before any update that changes it, the app sav
   - [x] Exercise catalog and custom exercises
   - [x] End-of-session screen with level and records
   - [x] Profile (weight, height, weekly goal) and settings
-  - [ ] Rank-up animations
+  - [x] Rank-up animations
 - [ ] Phase 2 · Schedule, tasks and notifications
   - [x] Weekly schedule with events and training days
   - [x] Tasks with due dates, priority and repetition

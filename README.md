@@ -183,7 +183,7 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
   - [x] Catálogo de ejercicios y ejercicios propios
   - [x] Pantalla de fin de sesión con nivel y récords
   - [x] Perfil (peso, altura, meta semanal) y ajustes
-  - [ ] Animaciones de subida de rango
+  - [x] Animaciones de subida de rango
 - [ ] Fase 2 · Horario, tareas y notificaciones
   - [x] Horario semanal con eventos y días de entrenamiento
   - [x] Tareas con fecha de entrega, prioridad y repetición
