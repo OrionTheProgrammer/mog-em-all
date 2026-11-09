@@ -17,6 +17,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Pestaña TAREAS:
+  - Entrada rápida que entiende fecha, hora, prioridad, repetición y etiqueta en español o inglés ("Pagar arriendo mañana 18:00 !alta #casa"), con vista previa mientras se escribe.
+  - Lista agrupada en vencidas, hoy, mañana, esta semana, más adelante y sin fecha; a igual fecha, primero la de más prioridad.
+  - Al completar una tarea, el corte del logo cruza la fila y las dos mitades se separan. Las tareas que se repiten crean la siguiente sola (sin quedar en el pasado si venían atrasadas).
+  - Hechas hoy, con opción de deshacer, y un editor con fecha, hora, prioridad, repetición, aviso y etiqueta.
+  - El panel principal muestra cuántas hay pendientes y vencidas.
+- Migración 5 de la base de datos (tareas).
 - Pestaña HORARIOS:
   - La semana en una grilla por horas, con navegación entre semanas y una línea que marca la hora actual.
   - Eventos que se repiten cada semana o que ocurren una vez, con tipo (clase, trabajo, estudio, personal, otro) y un aviso previo guardado para las notificaciones.

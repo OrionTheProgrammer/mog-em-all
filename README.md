@@ -69,6 +69,13 @@ Funciona sin conexión y sin cuenta. Se maneja con mouse o con teclado, y tiene 
 - **Clase de fuerza.** De E a S en los básicos (sentadilla, banca, peso muerto, press militar, remo y dominadas), según cuánto levantas en relación con tu peso. Las fórmulas están en [docs/RANKS.md](docs/RANKS.md).
 - **Pantalla de fin de sesión.** Resumen, récords nuevos y el detalle de la XP línea por línea mientras sube el nivel.
 
+### Tareas
+
+- **Se escriben como se piensan:** "Pagar arriendo mañana 18:00 !alta #casa" crea la tarea con fecha, hora, prioridad y etiqueta. Mientras escribes, ves cómo se entendió.
+- **Agrupadas por cuándo vencen:** vencidas, hoy, mañana, esta semana, más adelante y sin fecha.
+- **Repetición** diaria, semanal o mensual: al completar una, aparece la siguiente.
+- **Completar se siente:** el corte del logo atraviesa la fila. Si te equivocas, se deshace desde "hechas hoy".
+
 ### Horario
 
 - **La semana en una grilla** por horas, con tus clases, turnos y cualquier otra cosa, que se repiten cada semana o pasan una sola vez.
@@ -170,7 +177,7 @@ El esquema de la base está versionado. Antes de cada actualización que lo camb
   - [ ] Animaciones de subida de rango
 - [ ] Fase 2 · Horario, tareas y notificaciones
   - [x] Horario semanal con eventos y días de entrenamiento
-  - [ ] Tareas con fecha de entrega, prioridad y repetición
+  - [x] Tareas con fecha de entrega, prioridad y repetición
   - [ ] Segundo plano en la bandeja del sistema y notificaciones
 - [ ] Fase 3 · Finanzas: gastos por grupo, ingresos fijos e informales, presupuestos.
 - [ ] Fase 4 · Compartir rutinas sin servidor, con un archivo o un código QR.

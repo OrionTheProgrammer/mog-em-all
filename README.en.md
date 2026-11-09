@@ -69,6 +69,13 @@ It works offline and without an account. You can use it with the mouse or the ke
 - **Strength class.** From E to S on the main lifts (squat, bench, deadlift, overhead press, row and pull-up), based on how much you lift relative to your bodyweight. Formulas are in [docs/RANKS.md](docs/RANKS.md) (in Spanish).
 - **End-of-session screen.** Summary, new records and the XP breakdown line by line while the level goes up.
 
+### Tasks
+
+- **Write them the way you think them:** "Pay rent tomorrow 18:00 !high #home" creates the task with date, time, priority and tag. As you type, you see how it was read.
+- **Grouped by when they're due:** overdue, today, tomorrow, this week, later and no date.
+- **Daily, weekly or monthly repetition:** completing one brings up the next.
+- **Completing feels good:** the logo's cut slices through the row. If you clicked by mistake, undo it from "done today".
+
 ### Schedule
 
 - **Your week in an hourly grid,** with classes, work shifts or anything else, repeating every week or happening once.
@@ -170,7 +177,7 @@ The database schema is versioned. Before any update that changes it, the app sav
   - [ ] Rank-up animations
 - [ ] Phase 2 · Schedule, tasks and notifications
   - [x] Weekly schedule with events and training days
-  - [ ] Tasks with due dates, priority and repetition
+  - [x] Tasks with due dates, priority and repetition
   - [ ] Running in the system tray, with notifications
 - [ ] Phase 3 · Finances: spending by group, fixed and informal income, budgets.
 - [ ] Phase 4 · Share routines without a server, through a file or a QR code.
