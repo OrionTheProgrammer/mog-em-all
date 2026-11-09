@@ -9,6 +9,8 @@ import { TermButton } from "../components/button.slint";
 import { TrainingState } from "../state/training.slint";
 import { ScheduleState } from "../state/schedule.slint";
 import { TasksState } from "../state/tasks.slint";
+import { SettingsState } from "../state/settings.slint";
+import { FinanceState } from "../state/finance.slint";
 
 // Pestaña PANEL del HUD: misión del día, rango al centro, escuadra y estado.
 export component Overview {
@@ -17,6 +19,8 @@ export component Overview {
     in-out property <BmiResult> bmi;
     callback compute-bmi(string, string) -> BmiResult;
     callback go-training();
+    callback go-settings();
+    callback go-finance();
 
     property <bool> has-routine-today: TrainingState.today-count > 0;
 
@@ -51,7 +55,7 @@ export component Overview {
                     letter-spacing: 2px;
                 }
                 TermButton {
-                    text: @tr("SESSION IN PROGRESS · CONTINUE");
+                    text: @tr("CONTINUE SESSION");
                     active: true;
                     clicked => { root.go-training(); }
                 }
@@ -243,22 +247,33 @@ export component Overview {
                 value-color: TasksState.overdue-count > 0 ? Theme.amber : Theme.red-glow;
             }
             StatRow {
+                label: @tr("Month balance");
+                value: FinanceState.month-offset == 0 ? FinanceState.balance-text : "--";
+                value-color: FinanceState.balance-negative ? Theme.red-glow : Theme.cyan;
+            }
+
+            Rectangle { height: 1px; background: Theme.red-dim; }
+
+            SectionLabel { text: @tr("BODY"); }
+            StatRow {
+                label: @tr("Weight");
+                value: SettingsState.weight != "" ? SettingsState.weight + " kg" : "--";
+            }
+            StatRow {
+                label: @tr("Height");
+                value: SettingsState.height != "" ? SettingsState.height + " cm" : "--";
+            }
+            StatRow {
                 label: @tr("BMI");
                 value: root.bmi.valid ? (Math.round(root.bmi.value * 10) / 10) + " · " + Labels.bmi-category(root.bmi.category) : "--";
                 value-color: root.bmi.valid ? Theme.cyan : Theme.text-dim;
             }
-
             HorizontalLayout {
-                spacing: Theme.gap-sm;
-                weight := TermInput {
-                    label: @tr("WEIGHT");
-                    suffix: "kg";
-                    edited => { root.bmi = root.compute-bmi(weight.text, height.text); }
-                }
-                height := TermInput {
-                    label: @tr("HEIGHT");
-                    suffix: "cm";
-                    edited => { root.bmi = root.compute-bmi(weight.text, height.text); }
+                alignment: start;
+                TermButton {
+                    text: root.bmi.valid ? @tr("UPDATE WEIGHT") : @tr("ADD WEIGHT AND HEIGHT");
+                    compact: true;
+                    clicked => { root.go-settings(); }
                 }
             }
             Text {

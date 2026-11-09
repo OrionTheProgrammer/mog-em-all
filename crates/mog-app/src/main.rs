@@ -61,6 +61,7 @@ fn main() -> Result<(), slint::PlatformError> {
                 let _ = store.borrow().set_setting("language", &lang);
                 // Los montos y fechas se escriben distinto en cada idioma.
                 refresh_all();
+                settings::load(&ui, &store.borrow());
             }
         }
     });
