@@ -107,6 +107,7 @@ The code is split into three crates, and each responsibility lives in one place:
 ```
 crates/
   mog-core/   rules and calculations: ranks, BMI, command parser. No UI dependency.
+  mog-storage/ local database (SQLite): profile, exercises and sessions.
   mog-ui/     everything you see, in Slint: theme, components and screens.
   mog-app/    the executable: wires the other two together.
 i18n/         translations (.po), embedded in the binary at build time.

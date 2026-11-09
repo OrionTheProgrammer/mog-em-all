@@ -107,6 +107,7 @@ El código está separado en tres crates, y cada responsabilidad vive en un solo
 ```
 crates/
   mog-core/   reglas y cálculos: rangos, IMC, intérprete de comandos. No depende de la interfaz.
+  mog-storage/ base de datos local (SQLite): perfil, ejercicios y sesiones.
   mog-ui/     todo lo que se ve, en Slint: tema, componentes y pantallas.
   mog-app/    el ejecutable: conecta los dos anteriores.
 i18n/         traducciones (.po), incrustadas en el binario al compilar.

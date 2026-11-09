@@ -15,3 +15,5 @@ mog-core.workspace = true
 mog-ui.workspace = true
 slint.workspace = true
 chrono.workspace = true
+mog-storage.workspace = true
+dirs.workspace = true
