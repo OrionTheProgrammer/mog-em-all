@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/mog-core", "crates/mog-ui", "crates/mog-app"]
+members = ["crates/mog-core", "crates/mog-storage", "crates/mog-ui", "crates/mog-app"]
 
 [workspace.package]
 version = "0.1.0-dev"
@@ -11,10 +11,13 @@ repository = "https://github.com/OrionTheProgrammer/mog-em-all"
 
 [workspace.dependencies]
 mog-core = { path = "crates/mog-core" }
+mog-storage = { path = "crates/mog-storage" }
 mog-ui = { path = "crates/mog-ui" }
 slint = "1.18"
 slint-build = "1.18"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
+dirs = "7"
 
 [profile.release]
 lto = "thin"

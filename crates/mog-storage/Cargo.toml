@@ -1,0 +1,12 @@
+[package]
+name = "mog-storage"
+description = "Base de datos local de mog 'em all (SQLite): perfil, ejercicios y sesiones."
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+authors.workspace = true
+
+[dependencies]
+mog-core.workspace = true
+rusqlite.workspace = true
+chrono.workspace = true
