@@ -52,6 +52,11 @@ Un cambio de esquema compatible (tablas o columnas nuevas) puede ir en una versi
 |---|---|---|
 | 1 | `0001_initial`: perfil, ejercicios, sesiones y series | 0.1.0 |
 | 2 | `0002_routines`: rutinas por día de la semana con metas por ejercicio, tipo de serie y hora de cada serie | 0.1.0 |
+| 3 | `0003_custom_exercise_muscle`: músculo principal de los ejercicios propios | 0.1.0 |
+
+## Ejercicios incluidos
+
+Los ejercicios del catálogo no viven en una migración: salen de `crates/mog-core/data/exercises.csv` y se agregan al abrir la base (`INSERT OR IGNORE` por código). Así, una versión nueva con más ejercicios los suma a las bases existentes sin tocar el esquema. El código de un ejercicio nunca cambia, porque las series guardadas lo referencian.
 
 ## Recuperar datos
 

@@ -17,6 +17,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
 - Línea de comandos en español o inglés: `ir <módulo>`, `imc <kg> <cm>`, `idioma es|en`, `ayuda`. La tecla `/` la enfoca.
 - Reloj con fecha en la barra superior e ícono de ventana.
 - Rangos nuevos (No-Name, Principiante, Selfhater, Insane, Chad, Mogger y Psycho Mogger), cada uno con divisiones I, II y III. Los galones de la insignia muestran la división.
+- Catálogo de 104 ejercicios. Cada uno tiene músculo principal y secundarios, equipo, forma de medirse, patrón de movimiento, si cuenta para la clase de fuerza, y la meta y el descanso con que entra a una rutina. Se puede buscar en español o inglés y filtrar por músculo. También se pueden crear ejercicios propios.
+- Serie de aproximación, para las series que suben hacia la serie fuerte (por ejemplo, antes de una al fallo). No cuenta como serie de trabajo.
+- Guía en la pestaña de entrenamiento: primeros pasos que se marcan solos, una barra de indicaciones con lo que toca hacer, explicación de cada tipo de serie, y el próximo ejercicio del plan durante la sesión.
 - Pestaña ENTRENAMIENTO, que junta rutinas y ejercicio:
   - Rutinas asignadas a días de la semana, con ejercicios en orden y una meta por ejercicio (series, rango de reps, peso y descanso).
   - La rutina del día aparece arriba para empezarla con un clic. La sesión trae el plan con las series hechas de cada ejercicio, y se elige qué ejercicio se hace ahora.
