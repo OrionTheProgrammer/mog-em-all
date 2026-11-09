@@ -1,0 +1,465 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme } from "../theme/theme.slint";
+import { Labels } from "../theme/labels.slint";
+import { TasksState, TaskRow, TaskGroup } from "../state/tasks.slint";
+import { TermButton } from "../components/button.slint";
+import { TermInput } from "../components/input.slint";
+import { SectionLabel } from "../components/hud.slint";
+
+// Cuándo vence, en pocas palabras: "hoy 18:00", "vie 13/11", "sin fecha".
+component DueText inherits Text {
+    in property <TaskRow> task;
+    text: !root.task.has-date ? ""
+        : (root.task.bucket == 1 ? @tr("today")
+            : root.task.bucket == 2 ? @tr("tomorrow")
+            : Labels.weekday(root.task.weekday).to-lowercase() + " " + Labels.pad(root.task.day) + "/" + Labels.pad(root.task.month))
+          + (root.task.due-min >= 0 ? " " + Labels.time(root.task.due-min) : "");
+    color: root.task.bucket == 0 ? Theme.amber : Theme.text-dim;
+    font-family: Theme.font-mono;
+    font-size: Theme.size-xs;
+}
+
+// Contenido de una fila (se dibuja dos veces para la animación del corte).
+component TaskLine {
+    in property <TaskRow> task;
+    in property <bool> checked;
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: Theme.gap-md;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 16px;
+                height: 16px;
+                border-width: 1px;
+                border-color: root.checked ? Theme.cyan : (root.task.priority == 2 ? Theme.red : Theme.red-dim);
+                background: root.checked ? Theme.cyan : transparent;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            horizontal-stretch: 1;
+            Text {
+                text: root.task.title;
+                overflow: elide;
+                color: Theme.text;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+        }
+        if root.task.tag != "": VerticalLayout {
+            alignment: center;
+            Text {
+                text: "#" + root.task.tag;
+                color: Theme.cyan;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+            }
+        }
+        if root.task.repeat > 0: VerticalLayout {
+            alignment: center;
+            Text {
+                text: "↻";
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            DueText { task: root.task; }
+        }
+    }
+}
+
+// Fila de tarea con la animación del corte al completarla.
+component TaskItem inherits Rectangle {
+    in property <TaskRow> task;
+    in property <bool> selected;
+    property <bool> completing;
+
+    height: 44px;
+    background: root.selected ? Theme.red-faint : (touch.has-hover ? #ff2a3d0c : transparent);
+    border-width: 1px;
+    border-color: root.selected ? Theme.red : (root.task.bucket == 0 ? #ffb02e66 : Theme.red-dim);
+
+    // Franja de prioridad
+    Rectangle {
+        x: 0;
+        width: 3px;
+        background: root.task.priority == 2 ? Theme.red : root.task.priority == 1 ? Theme.red-dim : transparent;
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            // Clic en la casilla: completar. En el resto: editar.
+            if (self.mouse-x < 40px) {
+                root.completing = true;
+            } else {
+                TasksState.open-task(root.task.id);
+            }
+        }
+    }
+
+    // Mitad de arriba y mitad de abajo: al completarse, se separan hacia los lados.
+    Rectangle {
+        y: 0;
+        height: root.height / 2;
+        clip: true;
+        TaskLine {
+            y: 0;
+            width: root.width;
+            height: root.height;
+            task: root.task;
+            checked: root.completing;
+            x: root.completing ? -70px : 0px;
+            opacity: root.completing ? 0 : 1;
+            animate x, opacity { duration: 280ms; delay: 160ms; easing: ease-in; }
+        }
+    }
+    Rectangle {
+        y: root.height / 2;
+        height: root.height / 2;
+        clip: true;
+        TaskLine {
+            y: -root.height / 2;
+            width: root.width;
+            height: root.height;
+            task: root.task;
+            checked: root.completing;
+            x: root.completing ? 70px : 0px;
+            opacity: root.completing ? 0 : 1;
+            animate x, opacity { duration: 280ms; delay: 160ms; easing: ease-in; }
+        }
+    }
+    // El corte
+    Rectangle {
+        y: root.height / 2 - 1px;
+        height: 3px;
+        width: root.completing ? root.width : 0px;
+        background: Theme.cyan;
+        opacity: root.completing ? 1 : 0;
+        animate width { duration: 170ms; easing: ease-out; }
+    }
+
+    Timer {
+        interval: 460ms;
+        running: root.completing;
+        triggered => {
+            root.completing = false;
+            TasksState.complete(root.task.id);
+        }
+    }
+}
+
+component Chip inherits Rectangle {
+    in property <string> text;
+    in property <color> tint: Theme.cyan;
+    height: 24px;
+    width: label.preferred-width + 16px;
+    border-width: 1px;
+    border-color: root.tint;
+    label := Text {
+        text: root.text;
+        color: root.tint;
+        font-family: Theme.font-mono;
+        font-size: Theme.size-xs;
+    }
+}
+
+component TaskEditor {
+    VerticalLayout {
+        spacing: Theme.gap-sm;
+        alignment: start;
+        SectionLabel { text: @tr("EDIT TASK"); }
+        TermInput { label: @tr("WHAT"); text <=> TasksState.edit-title; }
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            TermInput { label: @tr("DATE (day/month)"); text <=> TasksState.edit-date; }
+            TermInput { label: @tr("TIME"); text <=> TasksState.edit-time; }
+        }
+        Text {
+            text: @tr("Leave the date empty for no date, and the time empty for all day.");
+            wrap: word-wrap;
+            color: Theme.text-dim;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        SectionLabel { text: @tr("PRIORITY"); }
+        HorizontalLayout {
+            spacing: 3px;
+            for p in [2, 1, 0]: TermButton {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                text: Labels.priority(p);
+                compact: true;
+                tiny: true;
+                active: TasksState.edit-priority == p;
+                clicked => { TasksState.edit-priority = p; }
+            }
+        }
+        SectionLabel { text: @tr("REPEAT"); }
+        HorizontalLayout {
+            spacing: 3px;
+            for r in 4: TermButton {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                text: r == 0 ? @tr("No") : r == 1 ? @tr("Daily") : r == 2 ? @tr("Weekly") : @tr("Monthly");
+                compact: true;
+                tiny: true;
+                active: TasksState.edit-repeat == r;
+                clicked => { TasksState.edit-repeat = r; }
+            }
+        }
+        SectionLabel { text: @tr("REMIND ME"); }
+        HorizontalLayout {
+            spacing: 3px;
+            for label[i] in ["—", "5'", "15'", "30'", "1h", "1d"]: TermButton {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                text: label;
+                compact: true;
+                tiny: true;
+                active: TasksState.edit-reminder == i;
+                clicked => { TasksState.edit-reminder = i; }
+            }
+        }
+        TermInput { label: @tr("TAG"); text <=> TasksState.edit-tag; }
+        if TasksState.edit-error != 0: Text {
+            text: TasksState.edit-error == 1 ? @tr("Write what it is.")
+                : TasksState.edit-error == 2 ? @tr("Write the date as day/month, for example 24/11.")
+                : @tr("Write the time as 18:30.");
+            wrap: word-wrap;
+            color: Theme.amber;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+        HorizontalLayout {
+            spacing: Theme.gap-sm;
+            TermButton {
+                horizontal-stretch: 1;
+                text: @tr("SAVE");
+                active: true;
+                clicked => { TasksState.save-task(); }
+            }
+            TermButton {
+                text: @tr("CLOSE");
+                compact: true;
+                clicked => { TasksState.close-edit(); }
+            }
+        }
+        TermButton {
+            text: @tr("DELETE TASK");
+            compact: true;
+            clicked => { TasksState.delete-task(); }
+        }
+    }
+}
+
+// Pestaña TAREAS.
+export component Tasks {
+    property <float> shown: 0;
+    opacity: root.shown;
+    animate opacity { duration: Theme.normal; }
+    init => { root.shown = 1; }
+
+    property <bool> show-done;
+
+    HorizontalLayout {
+        padding-left: 32px;
+        padding-right: 32px;
+        padding-top: 20px;
+        padding-bottom: 12px;
+        spacing: 24px;
+
+        VerticalLayout {
+            horizontal-stretch: 1;
+            spacing: Theme.gap-sm;
+
+            TermInput {
+                label: @tr("NEW TASK · WRITE IT AND PRESS ENTER");
+                text <=> TasksState.quick-text;
+                edited => { TasksState.quick-changed(); }
+                accepted => { TasksState.quick-add(); }
+            }
+            HorizontalLayout {
+                spacing: Theme.gap-sm;
+                height: 24px;
+                if TasksState.quick-text == "": Text {
+                    text: @tr("Try: \"Pay rent tomorrow 18:00 !high #home\". Dates, times, priority, repetition and tags are picked up as you type.");
+                    vertical-alignment: center;
+                    overflow: elide;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+                if TasksState.quick-text != "" && TasksState.preview-valid: Chip {
+                    text: TasksState.preview.has-date
+                        ? @tr("Due: {}", (TasksState.preview.bucket == 1 ? @tr("today") : TasksState.preview.bucket == 2 ? @tr("tomorrow")
+                            : Labels.weekday(TasksState.preview.weekday).to-lowercase() + " " + Labels.pad(TasksState.preview.day) + "/" + Labels.pad(TasksState.preview.month))
+                            + (TasksState.preview.due-min >= 0 ? " " + Labels.time(TasksState.preview.due-min) : ""))
+                        : @tr("No date");
+                    tint: TasksState.preview.has-date ? Theme.cyan : Theme.text-dim;
+                }
+                if TasksState.quick-text != "" && TasksState.preview-valid && TasksState.preview.priority != 1: Chip {
+                    text: Labels.priority(TasksState.preview.priority);
+                    tint: TasksState.preview.priority == 2 ? Theme.red : Theme.text-dim;
+                }
+                if TasksState.quick-text != "" && TasksState.preview-valid && TasksState.preview.repeat > 0: Chip {
+                    text: "↻ " + Labels.repeat(TasksState.preview.repeat);
+                }
+                if TasksState.quick-text != "" && TasksState.preview-valid && TasksState.preview.tag != "": Chip {
+                    text: "#" + TasksState.preview.tag;
+                }
+                if TasksState.quick-text != "" && !TasksState.preview-valid: Text {
+                    text: @tr("Add a few words for the task itself.");
+                    vertical-alignment: center;
+                    color: Theme.amber;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
+            }
+
+            ScrollView {
+                vertical-stretch: 1;
+                VerticalLayout {
+                    alignment: start;
+                    spacing: Theme.gap-sm;
+                    if TasksState.groups.length == 0: Text {
+                        text: @tr("Nothing pending. Write a task above and press ENTER.");
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    for group in TasksState.groups: VerticalLayout {
+                        spacing: 4px;
+                        padding-top: Theme.gap-sm;
+                        HorizontalLayout {
+                            spacing: Theme.gap-sm;
+                            alignment: start;
+                            Text {
+                                text: Labels.task-bucket(group.bucket);
+                                color: group.bucket == 0 ? Theme.amber : Theme.red;
+                                font-family: Theme.font-display;
+                                font-weight: 700;
+                                font-size: Theme.size-md;
+                                letter-spacing: 3px;
+                            }
+                            Text {
+                                text: group.tasks.length;
+                                vertical-alignment: center;
+                                color: Theme.text-dim;
+                                font-family: Theme.font-mono;
+                                font-size: Theme.size-xs;
+                            }
+                        }
+                        for task in group.tasks: TaskItem {
+                            task: task;
+                            selected: TasksState.edit-id == task.id;
+                        }
+                    }
+
+                    if TasksState.done-today.length > 0: VerticalLayout {
+                        spacing: 4px;
+                        padding-top: Theme.gap-md;
+                        TermButton {
+                            text: (root.show-done ? "▾ " : "▸ ") + @tr("{n} DONE TODAY" | "{n} DONE TODAY" % TasksState.done-today.length);
+                            compact: true;
+                            clicked => { root.show-done = !root.show-done; }
+                        }
+                        if root.show-done: VerticalLayout {
+                            spacing: 2px;
+                            for task in TasksState.done-today: HorizontalLayout {
+                                height: 32px;
+                                spacing: Theme.gap-md;
+                                padding-left: 12px;
+                                Text {
+                                    text: "✓";
+                                    vertical-alignment: center;
+                                    color: Theme.cyan;
+                                    font-family: Theme.font-mono;
+                                    font-size: Theme.size-sm;
+                                }
+                                Text {
+                                    horizontal-stretch: 1;
+                                    text: task.title;
+                                    overflow: elide;
+                                    vertical-alignment: center;
+                                    color: Theme.text-dim;
+                                    font-family: Theme.font-mono;
+                                    font-size: Theme.size-sm;
+                                }
+                                TermButton {
+                                    text: @tr("UNDO");
+                                    compact: true;
+                                    tiny: true;
+                                    clicked => { TasksState.reopen(task.id); }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            width: 330px;
+            background: Theme.panel;
+            VerticalLayout {
+                padding: 16px;
+                if TasksState.edit-id != 0: TaskEditor { }
+                if TasksState.edit-id == 0: VerticalLayout {
+                    spacing: Theme.gap-md;
+                    alignment: start;
+                    SectionLabel { text: @tr("SUMMARY"); }
+                    HorizontalLayout {
+                        spacing: Theme.gap-lg;
+                        VerticalLayout {
+                            Text { text: TasksState.pending-count; color: Theme.red; font-family: Theme.font-display; font-weight: 700; font-size: 44px; }
+                            Text { text: @tr("pending"); color: Theme.text-dim; font-family: Theme.font-mono; font-size: Theme.size-xs; }
+                        }
+                        VerticalLayout {
+                            Text { text: TasksState.overdue-count; color: TasksState.overdue-count > 0 ? Theme.amber : Theme.red-dim; font-family: Theme.font-display; font-weight: 700; font-size: 44px; }
+                            Text { text: @tr("overdue"); color: Theme.text-dim; font-family: Theme.font-mono; font-size: Theme.size-xs; }
+                        }
+                        VerticalLayout {
+                            Text { text: TasksState.done-today.length; color: Theme.cyan; font-family: Theme.font-display; font-weight: 700; font-size: 44px; }
+                            Text { text: @tr("done today"); color: Theme.text-dim; font-family: Theme.font-mono; font-size: Theme.size-xs; }
+                        }
+                    }
+                    SectionLabel { text: @tr("HOW IT WORKS"); }
+                    Text {
+                        text: @tr("Click the box to complete a task. Click the rest of the row to edit it.");
+                        wrap: word-wrap;
+                        color: Theme.text;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-sm;
+                    }
+                    SectionLabel { text: @tr("WORDS THE BOX UNDERSTANDS"); }
+                    for line in [
+                        @tr("today · tomorrow · friday · 24/11"),
+                        @tr("18:30 · 9am · 7pm"),
+                        @tr("!high · !low"),
+                        @tr("daily · weekly · monthly"),
+                        @tr("#tag"),
+                    ]: Text {
+                        text: line;
+                        color: Theme.cyan;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                    Text {
+                        text: @tr("Spanish words work too: mañana, viernes, !alta, cada semana.");
+                        wrap: word-wrap;
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+// Estado y acciones de la pestaña TAREAS. Rust lo llena (crates/mog-app/src/tasks.rs).
+
+export struct TaskRow {
+    id: int,
+    title: string,
+    // fecha: día, mes y día de la semana; has-date false si no tiene
+    has-date: bool,
+    day: int,
+    month: int,
+    weekday: int,
+    // minutos desde la medianoche, -1 sin hora
+    due-min: int,
+    // 0 baja, 1 normal, 2 alta
+    priority: int,
+    // 0 nunca, 1 diaria, 2 semanal, 3 mensual
+    repeat: int,
+    tag: string,
+    // 0 vencida, 1 hoy, 2 mañana, 3 esta semana, 4 más adelante, 5 sin fecha
+    bucket: int,
+}
+
+export struct TaskGroup {
+    bucket: int,
+    tasks: [TaskRow],
+}
+
+export global TasksState {
+    in property <[TaskGroup]> groups;
+    in property <[TaskRow]> done-today;
+    in property <int> pending-count;
+    in property <int> overdue-count;
+    in property <int> today-count;
+
+    // Entrada rápida y lo que se entendió de ella
+    in-out property <string> quick-text;
+    in property <TaskRow> preview;
+    in property <bool> preview-valid;
+
+    // Editor (edit-id 0 = cerrado)
+    in property <int> edit-id;
+    in-out property <string> edit-title;
+    in-out property <string> edit-date;
+    in-out property <string> edit-time;
+    in-out property <int> edit-priority;
+    in-out property <int> edit-repeat;
+    // índice en [sin aviso, 5, 15, 30, 60 min, 1 día]
+    in-out property <int> edit-reminder;
+    in-out property <string> edit-tag;
+    // 0 sin error, 1 título, 2 fecha, 3 hora
+    in property <int> edit-error;
+
+    callback quick-changed();
+    callback quick-add() -> bool;
+    callback complete(int);
+    callback reopen(int);
+    callback open-task(int);
+    callback save-task();
+    callback delete-task();
+    callback close-edit();
+}

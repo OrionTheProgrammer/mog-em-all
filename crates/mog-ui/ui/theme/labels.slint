@@ -155,6 +155,24 @@ export global Labels {
         @tr("Training")
     }
 
+    // Mismo orden que tasks::Bucket.
+    public pure function task-bucket(b: int) -> string {
+        b == 0 ? @tr("OVERDUE") :
+        b == 1 ? @tr("TODAY") :
+        b == 2 ? @tr("TOMORROW") :
+        b == 3 ? @tr("THIS WEEK") :
+        b == 4 ? @tr("LATER") :
+        @tr("NO DATE")
+    }
+
+    public pure function priority(p: int) -> string {
+        p == 0 ? @tr("Low") : p == 2 ? @tr("High") : @tr("Normal priority")
+    }
+
+    public pure function repeat(r: int) -> string {
+        r == 1 ? @tr("Every day") : r == 2 ? @tr("Every week") : r == 3 ? @tr("Every month") : @tr("Doesn't repeat")
+    }
+
     public pure function pad(n: int) -> string {
         n < 10 ? "0" + n : "" + n
     }
