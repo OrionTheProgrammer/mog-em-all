@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 
 use chrono::{Datelike, Local, TimeZone};
 use mog_core::ranks::{self, BodyProfile, Lift, SessionSummary};
+use mog_core::training::{SetType, Weekday};
 use rusqlite::{Connection, OptionalExtension, params};
 
 pub use migrations::AppliedMigration;
@@ -117,6 +118,50 @@ pub struct SetEntry {
     /// En ejercicios de peso corporal es el lastre.
     pub weight_kg: Option<f64>,
     pub duration_s: Option<u32>,
+    pub set_type: SetType,
+    /// Momento en que se anotó la serie.
+    pub completed_at: Option<Timestamp>,
+}
+
+pub type RoutineId = i64;
+pub type RoutineExerciseId = i64;
+
+/// Una rutina: un día de entrenamiento con sus ejercicios en orden.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Routine {
+    pub id: RoutineId,
+    pub name: String,
+    pub weekdays: Vec<Weekday>,
+    pub exercises: Vec<RoutineExercise>,
+}
+
+/// Un ejercicio dentro de una rutina, con su meta.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RoutineExercise {
+    pub id: RoutineExerciseId,
+    pub exercise_id: ExerciseId,
+    pub target: Target,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Target {
+    pub sets: u32,
+    pub reps_min: u32,
+    pub reps_max: u32,
+    pub weight_kg: Option<f64>,
+    pub rest_s: u32,
+}
+
+impl Default for Target {
+    fn default() -> Self {
+        Self {
+            sets: 3,
+            reps_min: 8,
+            reps_max: 12,
+            weight_kg: None,
+            rest_s: 90,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -148,6 +193,7 @@ pub struct ActiveSession {
     pub id: SessionId,
     pub name: String,
     pub started_at: Timestamp,
+    pub routine_id: Option<RoutineId>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -349,8 +395,17 @@ impl Store {
 
     pub fn add_set(&self, session: SessionId, exercise: ExerciseId, set: SetEntry) -> Result<()> {
         self.conn.execute(
-            "INSERT INTO workout_set (session_id, exercise_id, reps, weight_kg, duration_s) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![session, exercise, set.reps, set.weight_kg, set.duration_s],
+            "INSERT INTO workout_set (session_id, exercise_id, reps, weight_kg, duration_s, set_type, completed_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            params![
+                session,
+                exercise,
+                set.reps,
+                set.weight_kg,
+                set.duration_s,
+                set.set_type.index(),
+                set.completed_at
+            ],
         )?;
         Ok(())
     }
@@ -374,7 +429,7 @@ impl Store {
         let sessions_today = self.finished_sessions_on_day(ended_at)?;
 
         let (sets, volume_kg) = self.conn.query_row(
-            "SELECT COUNT(*), COALESCE(SUM(CASE WHEN e.kind = 0 THEN s.reps * s.weight_kg END), 0)
+            "SELECT COUNT(*), COALESCE(SUM(CASE WHEN e.kind = 0 AND s.set_type != 1 THEN s.reps * s.weight_kg END), 0)
              FROM workout_set s JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1",
             [session],
             |row| Ok((row.get::<_, u32>(0)?, row.get::<_, f64>(1)?)),
@@ -418,13 +473,14 @@ impl Store {
         Ok(self
             .conn
             .query_row(
-                "SELECT id, name, started_at FROM session WHERE ended_at IS NULL ORDER BY started_at DESC LIMIT 1",
+                "SELECT id, name, started_at, routine_id FROM session WHERE ended_at IS NULL ORDER BY started_at DESC LIMIT 1",
                 [],
                 |row| {
                     Ok(ActiveSession {
                         id: row.get(0)?,
                         name: row.get(1)?,
                         started_at: row.get(2)?,
+                        routine_id: row.get(3)?,
                     })
                 },
             )
@@ -433,7 +489,7 @@ impl Store {
 
     pub fn session_sets(&self, session: SessionId) -> Result<Vec<LoggedSet>> {
         let mut stmt = self.conn.prepare(
-            "SELECT exercise_id, reps, weight_kg, duration_s FROM workout_set WHERE session_id = ?1 ORDER BY id",
+            "SELECT exercise_id, reps, weight_kg, duration_s, set_type, completed_at FROM workout_set WHERE session_id = ?1 ORDER BY id",
         )?;
         let rows = stmt.query_map([session], |row| {
             Ok(LoggedSet {
@@ -442,6 +498,8 @@ impl Store {
                     reps: row.get(1)?,
                     weight_kg: row.get(2)?,
                     duration_s: row.get(3)?,
+                    set_type: SetType::from_index(row.get(4)?),
+                    completed_at: row.get(5)?,
                 },
             })
         })?;
@@ -485,6 +543,204 @@ impl Store {
             })
         })?;
         Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    // Rutinas
+
+    pub fn routines(&self) -> Result<Vec<Routine>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, name FROM routine ORDER BY position, id")?;
+        let heads = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, RoutineId>(0)?, row.get::<_, String>(1)?))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        heads
+            .into_iter()
+            .map(|(id, name)| {
+                Ok(Routine {
+                    id,
+                    name,
+                    weekdays: self.routine_days(id)?,
+                    exercises: self.routine_exercises(id)?,
+                })
+            })
+            .collect()
+    }
+
+    pub fn routine(&self, id: RoutineId) -> Result<Option<Routine>> {
+        Ok(self.routines()?.into_iter().find(|r| r.id == id))
+    }
+
+    /// Rutinas asignadas a un día de la semana (0 lunes ... 6 domingo).
+    pub fn routines_for(&self, weekday: Weekday) -> Result<Vec<Routine>> {
+        Ok(self
+            .routines()?
+            .into_iter()
+            .filter(|r| r.weekdays.contains(&weekday))
+            .collect())
+    }
+
+    fn routine_days(&self, id: RoutineId) -> Result<Vec<Weekday>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT weekday FROM routine_day WHERE routine_id = ?1 ORDER BY weekday")?;
+        let days = stmt.query_map([id], |row| row.get::<_, Weekday>(0))?;
+        Ok(days.collect::<rusqlite::Result<_>>()?)
+    }
+
+    fn routine_exercises(&self, id: RoutineId) -> Result<Vec<RoutineExercise>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, exercise_id, target_sets, reps_min, reps_max, weight_kg, rest_s
+             FROM routine_exercise WHERE routine_id = ?1 ORDER BY position, id",
+        )?;
+        let rows = stmt.query_map([id], |row| {
+            Ok(RoutineExercise {
+                id: row.get(0)?,
+                exercise_id: row.get(1)?,
+                target: Target {
+                    sets: row.get(2)?,
+                    reps_min: row.get(3)?,
+                    reps_max: row.get(4)?,
+                    weight_kg: row.get(5)?,
+                    rest_s: row.get(6)?,
+                },
+            })
+        })?;
+        Ok(rows.collect::<rusqlite::Result<_>>()?)
+    }
+
+    pub fn create_routine(&self, name: &str, now: Timestamp) -> Result<RoutineId> {
+        self.conn.execute(
+            "INSERT INTO routine (name, position, created_at)
+             VALUES (?1, (SELECT COALESCE(MAX(position), -1) + 1 FROM routine), ?2)",
+            params![name.trim(), now],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    pub fn rename_routine(&self, id: RoutineId, name: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE routine SET name = ?1 WHERE id = ?2",
+            params![name.trim(), id],
+        )?;
+        Ok(())
+    }
+
+    /// Borra la rutina. Las sesiones hechas con ella se conservan.
+    pub fn delete_routine(&self, id: RoutineId) -> Result<()> {
+        self.conn
+            .execute("DELETE FROM routine WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    pub fn set_routine_days(&mut self, id: RoutineId, weekdays: &[Weekday]) -> Result<()> {
+        let tx = self.conn.transaction()?;
+        tx.execute("DELETE FROM routine_day WHERE routine_id = ?1", [id])?;
+        for day in weekdays.iter().filter(|d| **d <= 6) {
+            tx.execute(
+                "INSERT OR IGNORE INTO routine_day (routine_id, weekday) VALUES (?1, ?2)",
+                params![id, day],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    pub fn add_routine_exercise(
+        &self,
+        routine: RoutineId,
+        exercise: ExerciseId,
+    ) -> Result<RoutineExerciseId> {
+        let t = Target::default();
+        self.conn.execute(
+            "INSERT INTO routine_exercise (routine_id, exercise_id, position, target_sets, reps_min, reps_max, weight_kg, rest_s)
+             VALUES (?1, ?2, (SELECT COALESCE(MAX(position), -1) + 1 FROM routine_exercise WHERE routine_id = ?1),
+                     ?3, ?4, ?5, ?6, ?7)",
+            params![routine, exercise, t.sets, t.reps_min, t.reps_max, t.weight_kg, t.rest_s],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    pub fn update_routine_exercise(&self, id: RoutineExerciseId, target: Target) -> Result<()> {
+        self.conn.execute(
+            "UPDATE routine_exercise SET target_sets = ?1, reps_min = ?2, reps_max = ?3, weight_kg = ?4, rest_s = ?5
+             WHERE id = ?6",
+            params![target.sets, target.reps_min, target.reps_max, target.weight_kg, target.rest_s, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn remove_routine_exercise(&self, id: RoutineExerciseId) -> Result<()> {
+        self.conn
+            .execute("DELETE FROM routine_exercise WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    /// Mueve un ejercicio un lugar arriba (`-1`) o abajo (`1`) dentro de su rutina.
+    pub fn move_routine_exercise(&mut self, id: RoutineExerciseId, step: i32) -> Result<()> {
+        let routine: RoutineId = self.conn.query_row(
+            "SELECT routine_id FROM routine_exercise WHERE id = ?1",
+            [id],
+            |row| row.get(0),
+        )?;
+        let mut order: Vec<RoutineExerciseId> = self
+            .routine_exercises(routine)?
+            .iter()
+            .map(|e| e.id)
+            .collect();
+        let Some(from) = order.iter().position(|e| *e == id) else {
+            return Ok(());
+        };
+        let to = from as i64 + i64::from(step);
+        if !(0..order.len() as i64).contains(&to) {
+            return Ok(());
+        }
+        order.swap(from, to as usize);
+        let tx = self.conn.transaction()?;
+        for (position, exercise) in order.iter().enumerate() {
+            tx.execute(
+                "UPDATE routine_exercise SET position = ?1 WHERE id = ?2",
+                params![position as i64, exercise],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// Empieza una sesión a partir de una rutina; toma su nombre.
+    pub fn start_routine_session(
+        &self,
+        routine: RoutineId,
+        started_at: Timestamp,
+    ) -> Result<SessionId> {
+        self.conn.execute(
+            "INSERT INTO session (name, started_at, routine_id) SELECT name, ?1, id FROM routine WHERE id = ?2",
+            params![started_at, routine],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    /// Última serie de trabajo hecha en un ejercicio (para proponer el peso de la siguiente).
+    pub fn last_work_set(&self, exercise: ExerciseId) -> Result<Option<SetEntry>> {
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT reps, weight_kg, duration_s, set_type, completed_at FROM workout_set
+                 WHERE exercise_id = ?1 AND set_type != 1 ORDER BY id DESC LIMIT 1",
+                [exercise],
+                |row| {
+                    Ok(SetEntry {
+                        reps: row.get(0)?,
+                        weight_kg: row.get(1)?,
+                        duration_s: row.get(2)?,
+                        set_type: SetType::from_index(row.get(3)?),
+                        completed_at: row.get(4)?,
+                    })
+                },
+            )
+            .optional()?)
     }
 
     pub fn total_xp(&self) -> Result<u64> {
@@ -542,7 +798,7 @@ impl Store {
     ) -> Result<Vec<PersonalRecord>> {
         let best_now = self.best_e1rm(
             "SELECT s.exercise_id, s.reps, s.weight_kg, e.kind FROM workout_set s
-             JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1",
+             JOIN exercise e ON e.id = s.exercise_id WHERE s.session_id = ?1 AND s.set_type != 1",
             session,
             bodyweight,
         )?;
@@ -550,7 +806,7 @@ impl Store {
             "SELECT s.exercise_id, s.reps, s.weight_kg, e.kind FROM workout_set s
              JOIN exercise e ON e.id = s.exercise_id
              JOIN session x ON x.id = s.session_id
-             WHERE x.ended_at IS NOT NULL AND x.ended_at <= ?1",
+             WHERE x.ended_at IS NOT NULL AND x.ended_at <= ?1 AND s.set_type != 1",
             started_at,
             bodyweight,
         )?;
