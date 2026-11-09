@@ -36,6 +36,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "routines",
         sql: include_str!("../migrations/0002_routines.sql"),
     },
+    Migration {
+        version: 3,
+        name: "custom_exercise_muscle",
+        sql: include_str!("../migrations/0003_custom_exercise_muscle.sql"),
+    },
 ];
 
 /// Versión de esquema que entiende esta compilación de la app.

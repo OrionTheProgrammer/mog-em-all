@@ -57,7 +57,7 @@ fn migrations_run_once_and_seed_exercises() {
         migrations::MIGRATIONS.len()
     );
     let exercises = store.exercises().unwrap();
-    assert_eq!(exercises.len(), BUILTIN_EXERCISES.len());
+    assert_eq!(exercises.len(), catalog::all().len());
     let bench = exercises
         .iter()
         .find(|e| e.code.as_deref() == Some("bench_press"))
@@ -65,7 +65,7 @@ fn migrations_run_once_and_seed_exercises() {
     assert_eq!(bench.lift, Some(Lift::BenchPress));
     // Volver a sembrar no duplica.
     store.seed_exercises().unwrap();
-    assert_eq!(store.exercises().unwrap().len(), BUILTIN_EXERCISES.len());
+    assert_eq!(store.exercises().unwrap().len(), catalog::all().len());
 }
 
 #[test]
@@ -75,7 +75,11 @@ fn reopening_a_file_keeps_data() {
     {
         let store = Store::open(&path).unwrap();
         store
-            .add_custom_exercise("Curl martillo", ExerciseKind::Weighted)
+            .add_custom_exercise(
+                "Curl martillo",
+                ExerciseKind::Weighted,
+                Some(Muscle::Biceps),
+            )
             .unwrap();
     }
     let store = Store::open(&path).unwrap();
@@ -196,7 +200,7 @@ fn temp_db(tag: &str) -> (std::path::PathBuf, std::path::PathBuf) {
 
 /// Migración de prueba que va después de la última real.
 const NEXT: migrations::Migration = migrations::Migration {
-    version: 3,
+    version: 4,
     name: "profile_nickname",
     sql: "ALTER TABLE profile ADD COLUMN nickname TEXT;",
 };
@@ -424,7 +428,7 @@ fn version_1_databases_upgrade_to_routines_keeping_sessions() {
             .unwrap();
     }
     let store = Store::open(&path).unwrap();
-    assert_eq!(store.schema_version().unwrap(), 2);
+    assert_eq!(store.schema_version().unwrap(), migrations::latest());
     assert_eq!(store.total_xp().unwrap(), 90);
     let recent = store.recent_sessions(5).unwrap();
     assert_eq!((recent.len(), recent[0].sets), (1, 1));
@@ -552,4 +556,74 @@ fn warm_ups_do_not_count_for_records_or_volume() {
         (last.set_type, last.completed_at),
         (SetType::Drop, Some(MONDAY + DAY + 60))
     );
+}
+
+#[test]
+fn catalog_exercises_bring_their_muscle_and_default_target() {
+    let store = store_with_profile();
+    let exercises = store.exercises().unwrap();
+    let curl = exercises
+        .iter()
+        .find(|e| e.code.as_deref() == Some("hammer_curl"))
+        .unwrap();
+    assert_eq!(curl.muscle, Some(Muscle::Biceps));
+    let custom = store
+        .add_custom_exercise("Curl araña", ExerciseKind::Weighted, Some(Muscle::Biceps))
+        .unwrap();
+    let custom = store
+        .exercises()
+        .unwrap()
+        .into_iter()
+        .find(|e| e.id == custom)
+        .unwrap();
+    assert_eq!(
+        (custom.muscle, custom.code.clone()),
+        (Some(Muscle::Biceps), None)
+    );
+
+    let routine = store.create_routine("Brazos", MONDAY).unwrap();
+    let deadlift = store.exercise_by_code("deadlift").unwrap().unwrap();
+    let lateral = store.exercise_by_code("lateral_raise").unwrap().unwrap();
+    store.add_routine_exercise(routine, deadlift).unwrap();
+    store.add_routine_exercise(routine, lateral).unwrap();
+    let r = store.routine(routine).unwrap().unwrap();
+    assert_eq!(
+        (r.exercises[0].target.reps_min, r.exercises[0].target.rest_s),
+        (3, 180)
+    );
+    assert_eq!(
+        (r.exercises[1].target.reps_max, r.exercises[1].target.rest_s),
+        (15, 60)
+    );
+}
+
+#[test]
+fn approach_sets_are_not_work_sets() {
+    let mut store = store_with_profile();
+    let bench = store.exercise_by_code("bench_press").unwrap().unwrap();
+    workout(&mut store, MONDAY, 40, bench, &[(5, 70.0)]);
+    let session = store.start_session("Empuje", MONDAY + DAY).unwrap();
+    let approach = SetEntry {
+        reps: Some(3),
+        weight_kg: Some(90.0),
+        set_type: SetType::Approach,
+        ..Default::default()
+    };
+    store.add_set(session, bench, approach).unwrap();
+    let done = store
+        .finish_session(session, MONDAY + DAY + 30 * 60)
+        .unwrap();
+    assert!(done.records.is_empty(), "la aproximación no es récord");
+    assert_eq!(done.volume_kg, 0.0);
+}
+
+#[test]
+fn sql_work_set_filter_matches_set_types() {
+    // Las consultas filtran "set_type NOT IN (1, 5)"; si cambia SetType, hay que cambiarlas.
+    let not_work: Vec<u8> = SetType::ALL
+        .iter()
+        .filter(|t| !t.counts_as_work())
+        .map(|t| t.index())
+        .collect();
+    assert_eq!(not_work, vec![1, 5]);
 }
