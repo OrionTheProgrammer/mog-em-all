@@ -6,6 +6,8 @@ mod boot;
 mod clock;
 mod commands;
 mod finance;
+mod overview;
+mod quick;
 mod schedule;
 mod settings;
 mod tasks;
@@ -47,9 +49,16 @@ fn main() -> Result<(), slint::PlatformError> {
             refresh_finance();
         }
     });
+    quick::connect(&ui, &store, refresh_all.clone());
     ui.on_tab_changed({
         let refresh_all = refresh_all.clone();
-        move |_| refresh_all()
+        let (weak, store) = (ui.as_weak(), store.clone());
+        move |_| {
+            refresh_all();
+            if let Some(ui) = weak.upgrade() {
+                overview::refresh(&ui, &store.borrow());
+            }
+        }
     });
     settings::connect(&ui, &store, db_path, refresh_all.clone());
     ui.on_select_language({
@@ -131,6 +140,7 @@ pub fn refresh_progress(ui: &AppWindow, store: &Store) {
         ui.set_bmi(bmi_result(w, h));
     }
     ui.set_user_name(user_name(profile.map(|p| p.name)).into());
+    overview::refresh(ui, store);
 }
 
 /// Nombre para el saludo de la pantalla de carga: el del perfil o, si todavía

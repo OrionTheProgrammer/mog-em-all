@@ -35,6 +35,9 @@ pub fn connect(
             .into(),
     );
     load(ui, &store.borrow());
+    let terminal = store.borrow().setting("layout").ok().flatten().as_deref() == Some("terminal");
+    ui.global::<mog_ui::ShellState>()
+        .set_layout(i32::from(terminal));
     {
         let store = store.borrow();
         let skipped = store.setting("onboarding_skipped").ok().flatten().is_some();
@@ -110,6 +113,19 @@ pub fn connect(
                 ui.set_rank_up_division(1);
                 ui.set_rank_up_full(true);
                 ui.set_rank_up_open(true);
+            }
+        }
+    });
+    state.on_set_layout({
+        let (weak, store) = (ui.as_weak(), store.clone());
+        move |layout| {
+            if let Some(ui) = weak.upgrade() {
+                let layout = layout.clamp(0, 1);
+                ui.global::<mog_ui::ShellState>().set_layout(layout);
+                let value = if layout == 1 { "terminal" } else { "console" };
+                if let Err(err) = store.borrow().set_setting("layout", value) {
+                    eprintln!("base de datos: {err}");
+                }
             }
         }
     });

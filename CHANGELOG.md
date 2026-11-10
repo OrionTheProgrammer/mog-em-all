@@ -28,6 +28,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). E
   - Grupos de gasto con presupuesto mensual; la barra se pone ámbar al 80 % y roja al pasarse. Se pueden crear grupos propios.
   - Ingresos y gastos fijos de cada mes (sueldo, arriendo, suscripciones), que se registran con un clic y quedan marcados.
   - Moneda por defecto: peso chileno; montos con los separadores del idioma.
+- Nuevo aspecto por defecto, "consola": menú lateral con los módulos numerados (teclas 1 a 6) y contadores, rango y XP siempre visibles abajo del menú, y un panel en tarjetas: entrenamiento de hoy con lo que hiciste la vez anterior, la semana contra tu meta, lo que queda hoy, tareas con casilla y el resumen del mes con los presupuestos.
+- Entrada rápida única arriba (Ctrl+K o /): entiende tareas ("pagar luz mañana"), gastos e ingresos ("12.500 almuerzo", "+20.000 venta") y comandos ("ir finanzas"), y muestra lo que va a crear antes de guardar.
+- Aviso con deshacer (botón o tecla Z) al agregar una tarea, completarla o anotar un movimiento.
+- Aspecto "terminal" opcional en AJUSTES → Aspecto: todo en texto monoespaciado, paneles con borde y un prompt abajo.
 - Animaciones de subida de rango: una distinta para cada rango, cada vez más intensa. Pasar de división muestra una versión corta. Se pueden ver todas desde la galería de AJUSTES → Acerca de.
 - Migración 6 de la base de datos (ajustes y finanzas).
 - Pestaña TAREAS:

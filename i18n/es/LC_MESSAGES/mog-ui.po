@@ -364,17 +364,22 @@ msgctxt "Finance"
 msgid "DELETE"
 msgstr "BORRAR"
 
-#: crates/mog-ui/ui/screens/hud.slint:68
-msgctxt "CommandLine"
-msgid "type a command: help, go training, bmi 78 176"
-msgstr "escribe un comando: ayuda, ir entrenamiento, imc 78 176"
+#: crates/mog-ui/ui/screens/hud.slint:231
+msgctxt "Hud"
+msgid "LV {}"
+msgstr "NV {}"
 
-#: crates/mog-ui/ui/screens/hud.slint:76
-msgctxt "CommandLine"
-msgid "ENTER runs · / focuses · ESC leaves"
-msgstr "ENTER ejecuta · / enfoca · ESC sale"
+#: crates/mog-ui/ui/screens/hud.slint:231
+msgctxt "Hud"
+msgid "{} / {} XP"
+msgstr "{} / {} XP"
 
-#: crates/mog-ui/ui/screens/hud.slint:259
+#: crates/mog-ui/ui/screens/hud.slint:245
+msgctxt "Hud"
+msgid "{} AT LV {}"
+msgstr "{} EN NV {}"
+
+#: crates/mog-ui/ui/screens/hud.slint:331
 msgctxt "Hud"
 msgid ""
 "YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
@@ -383,15 +388,20 @@ msgstr ""
 "TUS DATOS SON DE UNA VERSIÓN MÁS NUEVA · ACTUALIZA LA APP · NO SE ESTÁ "
 "GUARDANDO NADA"
 
-#: crates/mog-ui/ui/screens/hud.slint:261
+#: crates/mog-ui/ui/screens/hud.slint:333
 msgctxt "Hud"
 msgid "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
 msgstr "NO SE PUDIERON ABRIR TUS DATOS · NO SE ESTÁ GUARDANDO NADA"
 
-#: crates/mog-ui/ui/screens/hud.slint:262
+#: crates/mog-ui/ui/screens/hud.slint:334
 msgctxt "Hud"
 msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
 msgstr "MODO LOCAL · DATOS GUARDADOS EN ESTE EQUIPO"
+
+#: crates/mog-ui/ui/screens/hud.slint:342
+msgctxt "Hud"
+msgid "1–6 modules · CTRL K add · / commands"
+msgstr "1–6 módulos · CTRL K agregar · / comandos"
 
 #: crates/mog-ui/ui/screens/levelup.slint:101
 msgctxt "LevelUpScreen"
@@ -529,29 +539,39 @@ msgctxt "Onboarding"
 msgid "LATER"
 msgstr "DESPUÉS"
 
-#: crates/mog-ui/ui/screens/overview.slint:46
+#: crates/mog-ui/ui/screens/overview.slint:86
 msgctxt "Overview"
-msgid "TODAY'S MISSION"
-msgstr "MISIÓN DE HOY"
-
-#: crates/mog-ui/ui/screens/overview.slint:58
-msgctxt "Overview"
-msgid "CONTINUE SESSION"
-msgstr "CONTINUAR SESIÓN"
-
-#: crates/mog-ui/ui/screens/overview.slint:76
-msgctxt "Overview"
-msgid "START · {n} exercise"
-msgid_plural "START · {n} exercises"
-msgstr[0] "EMPEZAR · {n} ejercicio"
-msgstr[1] "EMPEZAR · {n} ejercicios"
+msgid "SESSION IN PROGRESS"
+msgstr "SESIÓN EN CURSO"
 
 #: crates/mog-ui/ui/screens/overview.slint:87
+msgctxt "Overview"
+msgid "TODAY'S TRAINING"
+msgstr "ENTRENAMIENTO DE HOY"
+
+#: crates/mog-ui/ui/screens/overview.slint:88
+msgctxt "Overview"
+msgid "TODAY'S TRAINING · {}"
+msgstr "ENTRENAMIENTO DE HOY · {}"
+
+#: crates/mog-ui/ui/screens/overview.slint:94
 msgctxt "Overview"
 msgid "REST DAY"
 msgstr "DÍA DE DESCANSO"
 
-#: crates/mog-ui/ui/screens/overview.slint:96
+#: crates/mog-ui/ui/screens/overview.slint:103
+msgctxt "Overview"
+msgid "You left it open. Pick up where you were."
+msgstr "La dejaste abierta. Sigue donde ibas."
+
+#: crates/mog-ui/ui/screens/overview.slint:105
+msgctxt "Overview"
+msgid "{n} exercise"
+msgid_plural "{n} exercises"
+msgstr[0] "{n} ejercicio"
+msgstr[1] "{n} ejercicios"
+
+#: crates/mog-ui/ui/screens/overview.slint:107
 msgctxt "Overview"
 msgid ""
 "Create your routines in TRAINING and assign them to days. Today's will show "
@@ -560,7 +580,7 @@ msgstr ""
 "Crea tus rutinas en ENTRENAMIENTO y asígnalas a días. La de hoy aparecerá "
 "aquí."
 
-#: crates/mog-ui/ui/screens/overview.slint:97
+#: crates/mog-ui/ui/screens/overview.slint:108
 msgctxt "Overview"
 msgid ""
 "No routine is assigned to today. You can still start a free session in "
@@ -569,132 +589,141 @@ msgstr ""
 "Hoy no tiene rutina asignada. Igual puedes empezar una sesión libre en "
 "ENTRENAMIENTO."
 
-#: crates/mog-ui/ui/screens/overview.slint:107
+#: crates/mog-ui/ui/screens/overview.slint:118
 msgctxt "Overview"
-msgid "LEFT TODAY"
-msgstr "LO QUE QUEDA HOY"
+msgid "CONTINUE SESSION"
+msgstr "CONTINUAR SESIÓN"
 
-#: crates/mog-ui/ui/screens/overview.slint:109
+#: crates/mog-ui/ui/screens/overview.slint:123
 msgctxt "Overview"
-msgid "Nothing else on your schedule today."
-msgstr "No queda nada más en tu horario de hoy."
+msgid "START"
+msgstr "EMPEZAR"
 
-#: crates/mog-ui/ui/screens/overview.slint:172
+#: crates/mog-ui/ui/screens/overview.slint:131
 msgctxt "Overview"
-msgid "LV {}"
-msgstr "NV {}"
+msgid "SEE ROUTINE"
+msgstr "VER RUTINA"
+
+#: crates/mog-ui/ui/screens/overview.slint:131
+msgctxt "Overview"
+msgid "GO TO TRAINING"
+msgstr "IR A ENTRENAMIENTO"
+
+#: crates/mog-ui/ui/screens/overview.slint:140
+msgctxt "Overview"
+msgid "LAST TIME"
+msgstr "LA VEZ ANTERIOR"
+
+#: crates/mog-ui/ui/screens/overview.slint:168
+msgctxt "Overview"
+msgid "WEEK · GOAL {}"
+msgstr "SEMANA · META {}"
 
 #: crates/mog-ui/ui/screens/overview.slint:191
 msgctxt "Overview"
-msgid "{} / {} XP"
-msgstr "{} / {} XP"
+msgid "Solid: done · faint: planned · outline: today"
+msgstr "Lleno: hecho · tenue: planificado · borde: hoy"
 
-#: crates/mog-ui/ui/screens/overview.slint:191
-msgctxt "Overview"
-msgid "Maximum level"
-msgstr "Nivel máximo"
-
-#: crates/mog-ui/ui/screens/overview.slint:199
-msgctxt "Overview"
-msgid "{} AT LV {}"
-msgstr "{} EN NV {}"
-
-#: crates/mog-ui/ui/screens/overview.slint:222
-msgctxt "Overview"
-msgid "SQUAD"
-msgstr "ESCUADRA"
-
-#: crates/mog-ui/ui/screens/overview.slint:224
-msgctxt "Overview"
-msgid ""
-"Sharing routines with friends and comparing progress comes in a later phase."
-msgstr ""
-"Compartir rutinas con amigos y comparar el progreso llega en una fase "
-"posterior."
-
-#: crates/mog-ui/ui/screens/overview.slint:233
-msgctxt "Overview"
-msgid "STATUS"
-msgstr "ESTADO"
-
-#: crates/mog-ui/ui/screens/overview.slint:235
+#: crates/mog-ui/ui/screens/overview.slint:198
 msgctxt "Overview"
 msgid "Streak"
 msgstr "Racha"
 
-#: crates/mog-ui/ui/screens/overview.slint:236
+#: crates/mog-ui/ui/screens/overview.slint:199
 msgctxt "Overview"
 msgid "{n} week"
 msgid_plural "{n} weeks"
 msgstr[0] "{n} semana"
 msgstr[1] "{n} semanas"
 
-#: crates/mog-ui/ui/screens/overview.slint:239
+#: crates/mog-ui/ui/screens/overview.slint:203
 msgctxt "Overview"
 msgid "This week"
 msgstr "Esta semana"
 
-#: crates/mog-ui/ui/screens/overview.slint:240
+#: crates/mog-ui/ui/screens/overview.slint:204
 msgctxt "Overview"
-msgid "{n} session"
-msgid_plural "{n} sessions"
-msgstr[0] "{n} sesión"
-msgstr[1] "{n} sesiones"
+msgid "{} of {}"
+msgstr "{} de {}"
 
-#: crates/mog-ui/ui/screens/overview.slint:243
-msgctxt "Overview"
-msgid "Tasks"
-msgstr "Tareas"
-
-#: crates/mog-ui/ui/screens/overview.slint:245
-msgctxt "Overview"
-msgid "{} pending · {} overdue"
-msgstr "{} pendientes · {} vencidas"
-
-#: crates/mog-ui/ui/screens/overview.slint:246
-msgctxt "Overview"
-msgid "{} pending"
-msgstr "{} pendientes"
-
-#: crates/mog-ui/ui/screens/overview.slint:250
-msgctxt "Overview"
-msgid "Month balance"
-msgstr "Balance del mes"
-
-#: crates/mog-ui/ui/screens/overview.slint:257
-msgctxt "Overview"
-msgid "BODY"
-msgstr "CUERPO"
-
-#: crates/mog-ui/ui/screens/overview.slint:259
-msgctxt "Overview"
-msgid "Weight"
-msgstr "Peso"
-
-#: crates/mog-ui/ui/screens/overview.slint:263
-msgctxt "Overview"
-msgid "Height"
-msgstr "Altura"
-
-#: crates/mog-ui/ui/screens/overview.slint:267
+#: crates/mog-ui/ui/screens/overview.slint:208
 msgctxt "Overview"
 msgid "BMI"
 msgstr "IMC"
 
-#: crates/mog-ui/ui/screens/overview.slint:274
+#: crates/mog-ui/ui/screens/overview.slint:227
 msgctxt "Overview"
-msgid "UPDATE WEIGHT"
-msgstr "ACTUALIZAR PESO"
+msgid "LEFT TODAY"
+msgstr "LO QUE QUEDA HOY"
 
-#: crates/mog-ui/ui/screens/overview.slint:274
+#: crates/mog-ui/ui/screens/overview.slint:236
 msgctxt "Overview"
-msgid "ADD WEIGHT AND HEIGHT"
-msgstr "AGREGAR PESO Y ALTURA"
+msgid "Nothing else on your schedule today."
+msgstr "No queda nada más en tu horario de hoy."
 
-#: crates/mog-ui/ui/screens/overview.slint:280
+#: crates/mog-ui/ui/screens/overview.slint:270
 msgctxt "Overview"
-msgid "Reference only: BMI does not tell muscle from fat."
-msgstr "Solo referencial: el IMC no distingue músculo de grasa."
+msgid "SEE WEEK →"
+msgstr "VER SEMANA →"
+
+#: crates/mog-ui/ui/screens/overview.slint:283
+msgctxt "Overview"
+msgid "TASKS"
+msgstr "TAREAS"
+
+#: crates/mog-ui/ui/screens/overview.slint:285
+msgctxt "Overview"
+msgid "{n} overdue"
+msgid_plural "{n} overdue"
+msgstr[0] "{n} vencida"
+msgstr[1] "{n} vencidas"
+
+#: crates/mog-ui/ui/screens/overview.slint:292
+msgctxt "Overview"
+msgid "Nothing pending. Write one in the bar above."
+msgstr "Nada pendiente. Escribe una en la barra de arriba."
+
+#: crates/mog-ui/ui/screens/overview.slint:325
+msgctxt "Overview"
+msgid "overdue"
+msgstr "vencida"
+
+#: crates/mog-ui/ui/screens/overview.slint:328
+msgctxt "Overview"
+msgid "today"
+msgstr "hoy"
+
+#: crates/mog-ui/ui/screens/overview.slint:338
+msgctxt "Overview"
+msgid "{n} PENDING →"
+msgid_plural "{n} PENDING →"
+msgstr[0] "{n} PENDIENTE →"
+msgstr[1] "{n} PENDIENTES →"
+
+#: crates/mog-ui/ui/screens/overview.slint:350
+msgctxt "Overview"
+msgid "THIS MONTH"
+msgstr "ESTE MES"
+
+#: crates/mog-ui/ui/screens/overview.slint:359
+msgctxt "Overview"
+msgid "balance · {} spent"
+msgstr "balance · {} gastado"
+
+#: crates/mog-ui/ui/screens/overview.slint:395
+msgctxt "Overview"
+msgid "Give your groups a budget in FINANCES to see them here."
+msgstr "Dale presupuesto a tus grupos en FINANZAS para verlos aquí."
+
+#: crates/mog-ui/ui/screens/overview.slint:403
+msgctxt "Overview"
+msgid "{} is due on the {}"
+msgstr "{} vence el {}"
+
+#: crates/mog-ui/ui/screens/overview.slint:410
+msgctxt "Overview"
+msgid "SEE FINANCES →"
+msgstr "VER FINANZAS →"
 
 #: crates/mog-ui/ui/screens/rankup.slint:89
 msgctxt "RankUpScreen"
@@ -1004,68 +1033,93 @@ msgctxt "Schedule"
 msgid "Nothing else today."
 msgstr "Nada más por hoy."
 
-#: crates/mog-ui/ui/screens/settings.slint:49
+#: crates/mog-ui/ui/screens/settings.slint:52
 msgctxt "Settings"
 msgid "PROFILE"
 msgstr "PERFIL"
 
-#: crates/mog-ui/ui/screens/settings.slint:54
+#: crates/mog-ui/ui/screens/settings.slint:57
 msgctxt "Settings"
 msgid "SAVE PROFILE"
 msgstr "GUARDAR PERFIL"
 
-#: crates/mog-ui/ui/screens/settings.slint:59
+#: crates/mog-ui/ui/screens/settings.slint:62
 msgctxt "Settings"
 msgid "Saved."
 msgstr "Guardado."
 
-#: crates/mog-ui/ui/screens/settings.slint:72
+#: crates/mog-ui/ui/screens/settings.slint:71
+msgctxt "Settings"
+msgid "APPEARANCE"
+msgstr "ASPECTO"
+
+#: crates/mog-ui/ui/screens/settings.slint:74
+msgctxt "Settings"
+msgid "Console"
+msgstr "Consola"
+
+#: crates/mog-ui/ui/screens/settings.slint:75
+msgctxt "Settings"
+msgid "Terminal"
+msgstr "Terminal"
+
+#: crates/mog-ui/ui/screens/settings.slint:79
+msgctxt "Settings"
+msgid "Side menu, quick bar and cards. The default look."
+msgstr "Menú lateral, barra rápida y tarjetas. El aspecto por defecto."
+
+#: crates/mog-ui/ui/screens/settings.slint:80
+msgctxt "Settings"
+msgid "Plain text and panes, made for the keyboard."
+msgstr "Texto y paneles, pensado para el teclado."
+
+#: crates/mog-ui/ui/screens/settings.slint:93
 msgctxt "Settings"
 msgid "LANGUAGE"
 msgstr "IDIOMA"
 
-#: crates/mog-ui/ui/screens/settings.slint:80
+#: crates/mog-ui/ui/screens/settings.slint:101
 msgctxt "Settings"
 msgid "CURRENCY"
 msgstr "MONEDA"
 
-#: crates/mog-ui/ui/screens/settings.slint:94
+#: crates/mog-ui/ui/screens/settings.slint:115
 msgctxt "Settings"
 msgid "Amounts you already logged keep their number; only the symbol changes."
 msgstr ""
 "Los montos que ya anotaste conservan su número; solo cambia el símbolo."
 
-#: crates/mog-ui/ui/screens/settings.slint:102
+#: crates/mog-ui/ui/screens/settings.slint:123
 msgctxt "Settings"
 msgid "BACKGROUND AND REMINDERS"
 msgstr "SEGUNDO PLANO Y AVISOS"
 
-#: crates/mog-ui/ui/screens/settings.slint:104
+#: crates/mog-ui/ui/screens/settings.slint:125
 msgctxt "Settings"
 msgid "Remind me before events, tasks and workouts"
 msgstr "Avisarme antes de eventos, tareas y entrenamientos"
 
-#: crates/mog-ui/ui/screens/settings.slint:105
+#: crates/mog-ui/ui/screens/settings.slint:126
 msgctxt "Settings"
 msgid "Keep running in the tray when I close the window"
 msgstr "Seguir en la bandeja al cerrar la ventana"
 
-#: crates/mog-ui/ui/screens/settings.slint:106
+#: crates/mog-ui/ui/screens/settings.slint:127
 msgctxt "Settings"
 msgid "Start when I log in (hidden in the tray)"
 msgstr "Abrir al iniciar sesión (oculta en la bandeja)"
 
-#: crates/mog-ui/ui/screens/settings.slint:110
+#: crates/mog-ui/ui/screens/settings.slint:131
 msgctxt "Settings"
 msgid "ON"
 msgstr "SÍ"
 
-#: crates/mog-ui/ui/screens/settings.slint:110
+#: crates/mog-ui/ui/screens/settings.slint:131
 msgctxt "Settings"
 msgid "OFF"
 msgstr "NO"
 
-#: crates/mog-ui/ui/screens/settings.slint:132
+#: crates/mog-ui/ui/screens/settings.slint:153
 msgctxt "Settings"
 msgid ""
 "No system tray found on this desktop, so closing the window quits the app."
@@ -1073,52 +1127,52 @@ msgstr ""
 "Este escritorio no tiene bandeja del sistema, así que cerrar la ventana "
 "cierra la app."
 
-#: crates/mog-ui/ui/screens/settings.slint:139
+#: crates/mog-ui/ui/screens/settings.slint:160
 msgctxt "Settings"
 msgid "SEND A TEST REMINDER"
 msgstr "PROBAR UN AVISO"
 
-#: crates/mog-ui/ui/screens/settings.slint:146
+#: crates/mog-ui/ui/screens/settings.slint:167
 msgctxt "Settings"
 msgid "YOUR DATA"
 msgstr "TUS DATOS"
 
-#: crates/mog-ui/ui/screens/settings.slint:155
+#: crates/mog-ui/ui/screens/settings.slint:176
 msgctxt "Settings"
 msgid "Database schema version {}"
 msgstr "Versión del esquema de la base: {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:171
+#: crates/mog-ui/ui/screens/settings.slint:192
 msgctxt "Settings"
 msgid "HIDE HISTORY"
 msgstr "OCULTAR HISTORIAL"
 
-#: crates/mog-ui/ui/screens/settings.slint:171
+#: crates/mog-ui/ui/screens/settings.slint:192
 msgctxt "Settings"
 msgid "HISTORY"
 msgstr "HISTORIAL"
 
-#: crates/mog-ui/ui/screens/settings.slint:175
+#: crates/mog-ui/ui/screens/settings.slint:196
 msgctxt "Settings"
 msgid "BACK UP NOW"
 msgstr "COPIA DE SEGURIDAD AHORA"
 
-#: crates/mog-ui/ui/screens/settings.slint:176
+#: crates/mog-ui/ui/screens/settings.slint:197
 msgctxt "Settings"
 msgid "OPEN FOLDER"
 msgstr "ABRIR CARPETA"
 
-#: crates/mog-ui/ui/screens/settings.slint:179
+#: crates/mog-ui/ui/screens/settings.slint:200
 msgctxt "Settings"
 msgid "Backup saved: {}"
 msgstr "Copia guardada: {}"
 
-#: crates/mog-ui/ui/screens/settings.slint:190
+#: crates/mog-ui/ui/screens/settings.slint:211
 msgctxt "Settings"
 msgid "ABOUT"
 msgstr "ACERCA DE"
 
-#: crates/mog-ui/ui/screens/settings.slint:198
+#: crates/mog-ui/ui/screens/settings.slint:219
 msgctxt "Settings"
 msgid ""
 "Source-available under the PolyForm Noncommercial 1.0.0 license. Your data "
@@ -1127,10 +1181,94 @@ msgstr ""
 "Código disponible bajo la licencia PolyForm Noncommercial 1.0.0. Tus datos "
 "nunca salen de este equipo."
 
-#: crates/mog-ui/ui/screens/settings.slint:205
+#: crates/mog-ui/ui/screens/settings.slint:226
 msgctxt "Settings"
 msgid "RANK ANIMATIONS"
 msgstr "ANIMACIONES DE RANGO"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:17
+msgctxt "QuickLabels"
+msgid "COMMAND"
+msgstr "COMANDO"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:18
+msgctxt "QuickLabels"
+msgid "TASK"
+msgstr "TAREA"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:19
+msgctxt "QuickLabels"
+msgid "today"
+msgstr "hoy"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:19
+msgctxt "QuickLabels"
+msgid "tomorrow"
+msgstr "mañana"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:22
+msgctxt "QuickLabels"
+msgid "no date"
+msgstr "sin fecha"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:23
+msgctxt "QuickLabels"
+msgid "INCOME"
+msgstr "INGRESO"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:23
+msgctxt "QuickLabels"
+msgid "EXPENSE"
+msgstr "GASTO"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:25
+msgctxt "QuickLabels"
+msgid "no group"
+msgstr "sin grupo"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:82
+msgctxt "QuickBar"
+msgid ""
+"Add anything: \"pay rent tomorrow\", \"12.500 lunch\", or a command like "
+"\"go finances\""
+msgstr ""
+"Agrega lo que sea: \"pagar arriendo mañana\", \"12.500 almuerzo\" o un "
+"comando como \"ir finanzas\""
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:111
+msgctxt "QuickBar"
+msgid "ENTER saves"
+msgstr "ENTER guarda"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:146
+msgctxt "ToastView"
+msgid "Task added · {}"
+msgstr "Tarea agregada · {}"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:147
+msgctxt "ToastView"
+msgid "Task done · {}"
+msgstr "Tarea hecha · {}"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:148
+msgctxt "ToastView"
+msgid "Expense logged · {}"
+msgstr "Gasto anotado · {}"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:149
+msgctxt "ToastView"
+msgid "Income logged · {}"
+msgstr "Ingreso anotado · {}"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:150
+msgctxt "ToastView"
+msgid "Undone"
+msgstr "Deshecho"
+
+#: crates/mog-ui/ui/screens/shell-parts.slint:163
+msgctxt "ToastView"
+msgid "UNDO · Z"
+msgstr "DESHACER · Z"
 
 #: crates/mog-ui/ui/screens/tasks.slint:13
 msgctxt "DueText"
@@ -1360,6 +1498,140 @@ msgstr "#etiqueta"
 msgctxt "Tasks"
 msgid "Spanish words work too: mañana, viernes, !alta, cada semana."
 msgstr "También entiende inglés: today, friday, !high, weekly."
+
+#: crates/mog-ui/ui/screens/terminal.slint:66
+msgctxt "TerminalOverview"
+msgid "1 TODAY"
+msgstr "1 HOY"
+
+#: crates/mog-ui/ui/screens/terminal.slint:74
+msgctxt "TerminalOverview"
+msgid "time   type   what"
+msgstr "hora   tipo   qué"
+
+#: crates/mog-ui/ui/screens/terminal.slint:78
+msgctxt "TerminalOverview"
+msgid "train"
+msgstr "entr"
+
+#: crates/mog-ui/ui/screens/terminal.slint:81
+msgctxt "TerminalOverview"
+msgid "nothing else on the schedule today"
+msgstr "nada más en el horario de hoy"
+
+#: crates/mog-ui/ui/screens/terminal.slint:86
+msgctxt "TerminalOverview"
+msgid "{n} exercise"
+msgid_plural "{n} exercises"
+msgstr[0] "{n} ejercicio"
+msgstr[1] "{n} ejercicios"
+
+#: crates/mog-ui/ui/screens/terminal.slint:95
+msgctxt "TerminalOverview"
+msgid "tasks"
+msgstr "tareas"
+
+#: crates/mog-ui/ui/screens/terminal.slint:112
+msgctxt "TerminalOverview"
+msgid "overdue"
+msgstr "vencida"
+
+#: crates/mog-ui/ui/screens/terminal.slint:118
+msgctxt "TerminalOverview"
+msgid "nothing pending"
+msgstr "nada pendiente"
+
+#: crates/mog-ui/ui/screens/terminal.slint:127
+msgctxt "TerminalOverview"
+msgid "2 TRAINING"
+msgstr "2 ENTRENAMIENTO"
+
+#: crates/mog-ui/ui/screens/terminal.slint:136
+msgctxt "TerminalOverview"
+msgid "week"
+msgstr "semana"
+
+#: crates/mog-ui/ui/screens/terminal.slint:148
+msgctxt "TerminalOverview"
+msgid "goal {}"
+msgstr "meta {}"
+
+#: crates/mog-ui/ui/screens/terminal.slint:148
+msgctxt "TerminalOverview"
+msgid "{n} week"
+msgid_plural "{n} weeks"
+msgstr[0] "{n} semana"
+msgstr[1] "{n} semanas"
+
+#: crates/mog-ui/ui/screens/terminal.slint:151
+msgctxt "TerminalOverview"
+msgid "session in progress: {}"
+msgstr "sesión en curso: {}"
+
+#: crates/mog-ui/ui/screens/terminal.slint:152
+msgctxt "TerminalOverview"
+msgid "today: {}"
+msgstr "hoy: {}"
+
+#: crates/mog-ui/ui/screens/terminal.slint:153
+msgctxt "TerminalOverview"
+msgid "rest day"
+msgstr "día de descanso"
+
+#: crates/mog-ui/ui/screens/terminal.slint:156
+msgctxt "TerminalOverview"
+msgid "this week: {} of {} sessions"
+msgstr "esta semana: {} de {} sesiones"
+
+#: crates/mog-ui/ui/screens/terminal.slint:157
+msgctxt "TerminalOverview"
+msgid "2 open · start the routine from there"
+msgstr "2 abre · empieza la rutina desde ahí"
+
+#: crates/mog-ui/ui/screens/terminal.slint:162
+msgctxt "TerminalOverview"
+msgid "5 FINANCES"
+msgstr "5 FINANZAS"
+
+#: crates/mog-ui/ui/screens/terminal.slint:171
+msgctxt "TerminalOverview"
+msgid "balance"
+msgstr "balance"
+
+#: crates/mog-ui/ui/screens/terminal.slint:173
+msgctxt "TerminalOverview"
+msgid "spent"
+msgstr "gastado"
+
+#: crates/mog-ui/ui/screens/terminal.slint:185
+msgctxt "TerminalOverview"
+msgid "no budgets yet"
+msgstr "todavía sin presupuestos"
+
+#: crates/mog-ui/ui/screens/terminal.slint:187
+msgctxt "TerminalOverview"
+msgid "fixed pending: {} · day {}"
+msgstr "fijo pendiente: {} · día {}"
+
+#: crates/mog-ui/ui/screens/terminal.slint:233
+msgctxt "TerminalShell"
+msgid "lv {}"
+msgstr "nv {}"
+
+#: crates/mog-ui/ui/screens/terminal.slint:307
+msgctxt "TerminalShell"
+msgid "local mode · data stored on this device"
+msgstr "modo local · datos guardados en este equipo"
+
+#: crates/mog-ui/ui/screens/terminal.slint:307
+msgctxt "TerminalShell"
+msgid "NOTHING IS BEING SAVED"
+msgstr "NO SE ESTÁ GUARDANDO NADA"
+
+#: crates/mog-ui/ui/screens/terminal.slint:313
+msgctxt "TerminalShell"
+msgid "1–6 modules · ctrl k add · ? help · z undo"
+msgstr "1–6 módulos · ctrl k agregar · ? ayuda · z deshacer"
 
 #: crates/mog-ui/ui/screens/training.slint:150
 msgctxt "ExerciseCard"
@@ -2941,8 +3213,12 @@ msgstr "Idioma cambiado"
 
 #: crates/mog-ui/ui/theme/labels.slint:205
 msgctxt "Labels"
-msgid "Commands: go <module> · bmi <kg> <cm> · lang es|en · help"
-msgstr "Comandos: ir <módulo> · imc <kg> <cm> · idioma es|en · ayuda"
+msgid ""
+"Write a task (pay rent tomorrow), an amount (12.500 lunch) or a command: go "
+"<module> · bmi <kg> <cm> · lang es|en"
+msgstr ""
+"Escribe una tarea (pagar arriendo mañana), un monto (12.500 almuerzo) o un "
+"comando: ir <módulo> · imc <kg> <cm> · idioma es|en"
 
 #: crates/mog-ui/ui/theme/labels.slint:206
 msgctxt "Labels"

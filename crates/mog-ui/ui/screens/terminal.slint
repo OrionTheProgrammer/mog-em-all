@@ -1,0 +1,321 @@
+import { Theme } from "../theme/theme.slint";
+import { Labels } from "../theme/labels.slint";
+import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback } from "../types.slint";
+import { ShellState } from "../state/shell.slint";
+import { ScheduleState } from "../state/schedule.slint";
+import { TasksState } from "../state/tasks.slint";
+import { TrainingState } from "../state/training.slint";
+import { QuickBar, ModuleView } from "shell-parts.slint";
+
+// Texto monoespaciado de la terminal.
+component T inherits Text {
+    color: Theme.text;
+    font-family: Theme.font-mono;
+    font-size: Theme.size-sm;
+    vertical-alignment: center;
+}
+
+// Barra al estilo terminal: [▮▮▮▮▯▯▯▯], dibujada con celdas para que no dependa de la fuente.
+component TextBar inherits HorizontalLayout {
+    in property <float> value;
+    in property <int> cells: 20;
+    in property <color> tint: Theme.red;
+    property <int> filled: Math.round(Math.min(1, Math.max(0, root.value)) * root.cells);
+    spacing: 2px;
+    alignment: start;
+    horizontal-stretch: 0;
+    T { text: "["; color: root.tint; }
+    for i in root.cells: Rectangle {
+        width: 6px;
+        height: 12px;
+        y: (parent.height - self.height) / 2;
+        background: i < root.filled ? root.tint : root.tint.transparentize(0.8);
+    }
+    T { text: "]"; color: root.tint; }
+}
+
+// Panel con borde y título encima del borde, como una ventana de tmux.
+component Pane inherits Rectangle {
+    in property <string> title;
+    in property <bool> focused;
+    border-width: 1px;
+    border-color: root.focused ? Theme.red : Theme.red-dim;
+
+    Rectangle {
+        x: 12px;
+        y: -9px;
+        width: label.preferred-width + 16px;
+        height: 18px;
+        background: root.focused ? Theme.red : Theme.bg;
+        label := T {
+            text: root.title;
+            color: root.focused ? Theme.bg : Theme.red;
+            letter-spacing: 2px;
+        }
+    }
+    @children
+}
+
+// El panel en la terminal: HOY a la izquierda, ENTRENAMIENTO y FINANZAS a la derecha.
+component TerminalOverview {
+    in property <WeekStats> week;
+    callback go(int);
+
+    HorizontalLayout {
+        spacing: 18px;
+
+        Pane {
+            title: @tr("1 TODAY");
+            focused: true;
+            horizontal-stretch: 5;
+            VerticalLayout {
+                padding: 16px;
+                padding-top: 22px;
+                spacing: 4px;
+                alignment: start;
+                T { text: @tr("time   type   what"); color: Theme.text-dim; }
+                for b in ScheduleState.today-left: HorizontalLayout {
+                    spacing: 0px;
+                    T { width: 63px; text: b.end-min > 0 ? Labels.time(b.start-min) : "--:--"; color: Theme.schedule-kinds[b.kind]; }
+                    T { width: 63px; text: b.kind == 5 ? @tr("train") : Labels.event-kind(b.kind).to-lowercase(); color: Theme.text-dim; overflow: elide; }
+                    T { horizontal-stretch: 1; text: b.title; overflow: elide; color: b.kind == 5 ? Theme.cyan : Theme.text; }
+                }
+                if ScheduleState.today-left.length == 0: T { text: @tr("nothing else on the schedule today"); color: Theme.text-dim; }
+
+                if ShellState.today.routine-id != 0: VerticalLayout {
+                    padding-top: 10px;
+                    spacing: 2px;
+                    T { text: ShellState.today.name + "  ·  " + @tr("{n} exercise" | "{n} exercises" % ShellState.today.exercise-count); color: Theme.cyan; }
+                    for line[i] in ShellState.today.lines: HorizontalLayout {
+                        T { width: 36px; text: i == ShellState.today.lines.length - 1 ? "  └" : "  ├"; color: Theme.text-dim; }
+                        T { horizontal-stretch: 1; text: Labels.exercise(line.code, line.name); overflow: elide; color: Theme.text-dim; }
+                        T { width: 108px; text: line.target; color: Theme.text-dim; }
+                        T { width: 90px; text: line.last; color: Theme.cyan; horizontal-alignment: right; }
+                    }
+                }
+
+                T { text: @tr("tasks"); color: Theme.text-dim; }
+                for task in ShellState.top-tasks: HorizontalLayout {
+                    spacing: 0px;
+                    Rectangle {
+                        width: 36px;
+                        box := T {
+                            text: touch.has-hover ? "[x]" : "[ ]";
+                            color: Theme.red;
+                        }
+                        touch := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { TasksState.complete(task.id); }
+                        }
+                    }
+                    T { width: 9px; text: ""; }
+                    T { horizontal-stretch: 1; text: task.title; overflow: elide; color: task.bucket == 0 ? Theme.amber : Theme.text; }
+                    T {
+                        text: task.bucket == 0 ? @tr("overdue")
+                            : task.due-min >= 0 ? Labels.time(task.due-min)
+                            : task.tag != "" ? "#" + task.tag : "";
+                        color: task.bucket == 0 ? Theme.amber : task.tag != "" && task.due-min < 0 ? Theme.cyan : Theme.text-dim;
+                    }
+                }
+                if ShellState.top-tasks.length == 0: T { text: @tr("nothing pending"); color: Theme.text-dim; }
+            }
+        }
+
+        VerticalLayout {
+            horizontal-stretch: 4;
+            spacing: 22px;
+
+            Pane {
+                title: @tr("2 TRAINING");
+                vertical-stretch: 1;
+                VerticalLayout {
+                    padding: 16px;
+                    padding-top: 22px;
+                    spacing: 6px;
+                    alignment: start;
+                    HorizontalLayout {
+                        spacing: 0px;
+                        T { text: @tr("week") + "  "; color: Theme.text-dim; }
+                        for state[i] in ShellState.week-days: Rectangle {
+                            width: 18px;
+                            Rectangle {
+                                width: 10px;
+                                height: 10px;
+                                x: 0;
+                                background: state == 2 ? Theme.red : state == 1 ? Theme.red.transparentize(0.7) : Theme.red.transparentize(0.9);
+                                border-width: i == TrainingState.weekday ? 1px : 0px;
+                                border-color: Theme.cyan;
+                            }
+                        }
+                        T { text: "  " + @tr("goal {}", ShellState.week-goal) + " · " + @tr("{n} week" | "{n} weeks" % root.week.streak-weeks); color: Theme.text-dim; }
+                    }
+                    T {
+                        text: TrainingState.session.active ? @tr("session in progress: {}", TrainingState.session.name)
+                            : ShellState.today.routine-id != 0 ? @tr("today: {}", ShellState.today.name)
+                            : @tr("rest day");
+                        color: TrainingState.session.active ? Theme.cyan : Theme.text;
+                    }
+                    T { text: @tr("this week: {} of {} sessions", root.week.sessions, ShellState.week-goal); color: Theme.text-dim; }
+                    T { text: @tr("2 open · start the routine from there"); color: Theme.text-dim; }
+                }
+            }
+
+            Pane {
+                title: @tr("5 FINANCES");
+                vertical-stretch: 1;
+                VerticalLayout {
+                    padding: 16px;
+                    padding-top: 22px;
+                    spacing: 6px;
+                    alignment: start;
+                    HorizontalLayout {
+                        spacing: 0px;
+                        T { text: @tr("balance") + "  "; color: Theme.text-dim; }
+                        T { text: ShellState.month-balance; color: ShellState.month-negative ? Theme.red : Theme.cyan; }
+                        T { text: "   " + @tr("spent") + "  "; color: Theme.text-dim; }
+                        T { text: ShellState.month-spent; color: Theme.red-glow; }
+                    }
+                    for b in ShellState.budgets: HorizontalLayout {
+                        spacing: 0px;
+                        T { width: 126px; text: Labels.finance-category(b.code, b.name).to-lowercase(); overflow: elide; }
+                        TextBar {
+                            value: b.ratio;
+                            tint: b.state == 3 ? Theme.red : b.state == 2 ? Theme.amber : Theme.cyan;
+                        }
+                        T { text: "  " + Math.round(b.ratio * 100) + "%"; color: b.state >= 2 ? Theme.amber : Theme.text-dim; }
+                    }
+                    if ShellState.budgets.length == 0: T { text: @tr("no budgets yet"); color: Theme.text-dim; }
+                    if ShellState.fixed-pending != "": T {
+                        text: @tr("fixed pending: {} · day {}", ShellState.fixed-pending, ShellState.fixed-pending-day);
+                        color: Theme.amber;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Aspecto terminal: texto, paneles con borde y un prompt abajo.
+export component TerminalShell inherits Rectangle {
+    in property <string> version;
+    in property <string> language;
+    in property <OperatorInfo> operator;
+    in property <WeekStats> week;
+    in property <Clock> clock;
+    in property <CommandFeedback> feedback;
+    in property <int> storage-status;
+    in property <int> current;
+    in-out property <BmiResult> bmi;
+    callback compute-bmi(string, string) -> BmiResult;
+    callback select-language(string);
+    callback go(int);
+    callback leave();
+
+    background: Theme.bg;
+
+    VerticalLayout {
+        padding-left: 24px;
+        padding-right: 24px;
+        padding-top: 18px;
+        padding-bottom: 12px;
+        spacing: 12px;
+
+        // Encabezado
+        HorizontalLayout {
+            spacing: 0px;
+            T { text: "mog/em all"; color: Theme.red; }
+            T {
+                text: "  v" + root.version + " · " + Labels.weekday(root.clock.weekday).to-lowercase() + " "
+                    + Labels.pad(root.clock.day) + "/" + Labels.pad(root.clock.month) + " "
+                    + Labels.pad(root.clock.hour) + ":" + Labels.pad(root.clock.minute);
+                color: Theme.text-dim;
+            }
+            Rectangle { horizontal-stretch: 1; }
+            T { text: Labels.rank(root.operator.tier, root.operator.division) + "  "; color: Theme.cyan; }
+            T { text: @tr("lv {}", root.operator.level) + "  "; color: Theme.text-dim; }
+            TextBar {
+                value: root.operator.xp-for-next > 0 ? root.operator.xp-in-level / root.operator.xp-for-next : 1;
+            }
+            T { text: "  " + root.operator.xp-in-level + "/" + root.operator.xp-for-next + " xp"; color: Theme.text-dim; }
+        }
+
+        // Pestañas
+        HorizontalLayout {
+            spacing: 18px;
+            alignment: start;
+            for i in 6: Rectangle {
+                width: tab.preferred-width + 12px;
+                height: 22px;
+                background: root.current == i ? Theme.red : touch.has-hover ? Theme.red-faint : transparent;
+                tab := T {
+                    text: (i + 1) + " " + Labels.module(i).to-lowercase();
+                    color: root.current == i ? Theme.bg : Theme.text;
+                }
+                touch := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.go(i); }
+                }
+            }
+        }
+
+        // Cuerpo
+        Rectangle {
+            vertical-stretch: 1;
+            if root.current == 0: TerminalOverview {
+                y: 10px;
+                width: 100%;
+                height: parent.height - 10px;
+                week: root.week;
+                go(i) => { root.go(i); }
+            }
+            if root.current != 0: Pane {
+                y: 10px;
+                height: parent.height - 10px;
+                title: (root.current + 1) + " " + Labels.module(root.current);
+                focused: true;
+                ModuleView {
+                    x: 0;
+                    y: 12px;
+                    width: parent.width;
+                    height: parent.height - 14px;
+                    current: root.current;
+                    language: root.language;
+                    operator: root.operator;
+                    week: root.week;
+                    bmi <=> root.bmi;
+                    compute-bmi(w, h) => { return root.compute-bmi(w, h); }
+                    select-language(lang) => { root.select-language(lang); }
+                    go(i) => { root.go(i); }
+                }
+            }
+        }
+
+        // Respuesta y prompt
+        HorizontalLayout {
+            spacing: 0px;
+            T {
+                text: Labels.feedback(root.feedback) != "" ? "› " + Labels.feedback(root.feedback) : "";
+                color: root.feedback.kind >= 5 ? Theme.amber : Theme.cyan;
+                font-size: Theme.size-xs;
+                min-height: 16px;
+            }
+        }
+        QuickBar {
+            terminal: true;
+            leave => { root.leave(); }
+        }
+        HorizontalLayout {
+            T {
+                text: root.storage-status == 0 ? @tr("local mode · data stored on this device") : @tr("NOTHING IS BEING SAVED");
+                color: root.storage-status == 0 ? Theme.text-dim : Theme.amber;
+                font-size: Theme.size-xs;
+            }
+            Rectangle { horizontal-stretch: 1; }
+            T {
+                text: @tr("1–6 modules · ctrl k add · ? help · z undo") + " · Made with Slint";
+                color: Theme.text-dim;
+                font-size: Theme.size-xs;
+            }
+        }
+    }
+}

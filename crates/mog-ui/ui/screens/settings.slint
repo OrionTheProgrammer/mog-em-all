@@ -1,6 +1,7 @@
 import { ScrollView, AboutSlint } from "std-widgets.slint";
 import { Theme } from "../theme/theme.slint";
 import { SettingsState } from "../state/settings.slint";
+import { ShellState } from "../state/shell.slint";
 import { Labels } from "../theme/labels.slint";
 import { TermButton } from "../components/button.slint";
 import { SectionLabel } from "../components/hud.slint";
@@ -44,8 +45,10 @@ export component Settings {
         padding-bottom: 12px;
         spacing: 20px;
 
-        Card {
+        VerticalLayout {
             horizontal-stretch: 1;
+            spacing: 20px;
+            Card {
             title: @tr("PROFILE");
             ProfileForm { }
             HorizontalLayout {
@@ -61,6 +64,24 @@ export component Settings {
                     color: Theme.cyan;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-sm;
+                }
+            }
+        }
+            Card {
+                title: @tr("APPEARANCE");
+                HorizontalLayout {
+                    spacing: 3px;
+                    TermButton { horizontal-stretch: 1; text: @tr("Console"); compact: true; active: ShellState.layout == 0; clicked => { SettingsState.set-layout(0); } }
+                    TermButton { horizontal-stretch: 1; text: @tr("Terminal"); compact: true; active: ShellState.layout == 1; clicked => { SettingsState.set-layout(1); } }
+                }
+                Text {
+                    text: ShellState.layout == 0
+                        ? @tr("Side menu, quick bar and cards. The default look.")
+                        : @tr("Plain text and panes, made for the keyboard.");
+                    wrap: word-wrap;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
                 }
             }
         }
