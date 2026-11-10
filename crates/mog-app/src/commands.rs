@@ -27,7 +27,7 @@ pub fn connect(ui: &AppWindow) {
     });
 }
 
-fn run(ui: &AppWindow, text: &str) -> Option<CommandFeedback> {
+pub fn run(ui: &AppWindow, text: &str) -> Option<CommandFeedback> {
     let kind = |kind| CommandFeedback {
         kind,
         ..Default::default()

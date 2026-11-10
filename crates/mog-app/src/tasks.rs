@@ -52,21 +52,15 @@ pub fn connect(ui: &AppWindow, store: &SharedStore) -> impl Fn() + 'static {
             let mut added = false;
             ctx.run(|ui, store| {
                 let state = ui.global::<TasksState>();
-                let (today, now_min) = today_and_minute();
-                let draft = tasks::parse_quick(&state.get_quick_text(), today, now_min);
-                if draft.title.trim().is_empty() {
-                    return;
+                if let Some((id, title)) = add_from_text(store, &state.get_quick_text()) {
+                    crate::quick::notify(
+                        ui,
+                        crate::quick::TASK_ADDED,
+                        &title,
+                        crate::quick::Undo::TaskAdded(id),
+                    );
+                    added = true;
                 }
-                let task = Task {
-                    title: draft.title,
-                    due_day: draft.due_day,
-                    due_min: draft.due_min,
-                    priority: draft.priority,
-                    repeat: draft.repeat,
-                    tag: draft.tag,
-                    ..Default::default()
-                };
-                added = report(store.save_task(&task, crate::now())).is_some();
                 if added {
                     state.set_quick_text(SharedString::new());
                     update_preview(ui);
@@ -80,7 +74,22 @@ pub fn connect(ui: &AppWindow, store: &SharedStore) -> impl Fn() + 'static {
         move |id| {
             ctx.run(|ui, store| {
                 let (today, _) = today_and_minute();
-                report(store.complete_task(i64::from(id), crate::now(), today));
+                let id = i64::from(id);
+                let title = store
+                    .task(id)
+                    .ok()
+                    .flatten()
+                    .map(|t| t.title)
+                    .unwrap_or_default();
+                if let Some(next) = report(store.complete_task(id, crate::now(), today)) {
+                    crate::quick::notify(
+                        ui,
+                        crate::quick::TASK_DONE,
+                        &title,
+                        crate::quick::Undo::TaskDone { id, next },
+                    );
+                }
+                let id = id as i32;
                 let state = ui.global::<TasksState>();
                 if state.get_edit_id() == id {
                     state.set_edit_id(0);
@@ -200,6 +209,54 @@ fn read_editor(state: &TasksState) -> Result<Task, i32> {
     })
 }
 
+fn draft_task(text: &str) -> Option<Task> {
+    let (today, now_min) = today_and_minute();
+    let draft = tasks::parse_quick(text, today, now_min);
+    if draft.title.trim().is_empty() {
+        return None;
+    }
+    Some(Task {
+        title: draft.title,
+        due_day: draft.due_day,
+        due_min: draft.due_min,
+        priority: draft.priority,
+        repeat: draft.repeat,
+        tag: draft.tag,
+        ..Default::default()
+    })
+}
+
+/// Fila de la tarea que crearía este texto, para la vista previa de la entrada rápida.
+pub fn preview_row(text: &str) -> Option<TaskRow> {
+    let (today, now_min) = today_and_minute();
+    draft_task(text).map(|t| row(&t, today, now_min))
+}
+
+/// Crea la tarea a partir de la entrada rápida. Devuelve su id y su título.
+pub fn add_from_text(store: &Store, text: &str) -> Option<(i64, String)> {
+    let task = draft_task(text)?;
+    let id = report(store.save_task(&task, crate::now()))?;
+    Some((id, task.title))
+}
+
+/// Pendientes para la tarjeta del panel: vencidas y de hoy primero, como mucho cinco.
+pub fn top_rows(store: &Store) -> Vec<TaskRow> {
+    let (today, now_min) = today_and_minute();
+    let mut pending = store.pending_tasks().unwrap_or_default();
+    pending.sort_by_key(|t| {
+        (
+            tasks::bucket(t.due_day, t.due_min, today, now_min).index(),
+            std::cmp::Reverse(t.priority.index()),
+            t.due_min.unwrap_or(u16::MAX),
+        )
+    });
+    pending
+        .iter()
+        .take(5)
+        .map(|t| row(t, today, now_min))
+        .collect()
+}
+
 fn update_preview(ui: &AppWindow) {
     let state = ui.global::<TasksState>();
     let (today, now_min) = today_and_minute();
@@ -254,6 +311,8 @@ pub fn refresh(ui: &AppWindow, store: &Store) {
         .map_or(0, |d| d.timestamp());
     let done = store.done_tasks_since(midnight).unwrap_or_default();
     state.set_done_today(model(done.iter().map(|t| row(t, today, now_min)).collect()));
+    ui.global::<mog_ui::ShellState>()
+        .set_top_tasks(model(top_rows(store)));
 }
 
 fn row(task: &Task, today: DayNumber, now_min: Minute) -> TaskRow {

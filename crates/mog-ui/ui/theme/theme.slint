@@ -5,7 +5,12 @@ import "../fonts/Rajdhani-Medium.ttf";
 import "../fonts/Rajdhani-Bold.ttf";
 import "../fonts/ShareTechMono-Regular.ttf";
 
+import { ShellState } from "../state/shell.slint";
+
 export global Theme {
+    // Aspecto terminal: todo en monoespaciada. Se elige en AJUSTES.
+    out property <bool> terminal: ShellState.layout == 1;
+
     // Colores
     out property <color> bg: #070102;
     out property <color> panel: #12040699;
@@ -25,7 +30,7 @@ export global Theme {
     out property <[color]> schedule-kinds: [#ff2a3d, #ffb02e, #8fa8ff, #ff6470, #c2606a, #2ef2ff];
 
     // Tipografía
-    out property <string> font-display: "Rajdhani";
+    out property <string> font-display: self.terminal ? "Share Tech Mono" : "Rajdhani";
     out property <string> font-mono: "Share Tech Mono";
     out property <length> size-xs: 12px;
     out property <length> size-sm: 14px;

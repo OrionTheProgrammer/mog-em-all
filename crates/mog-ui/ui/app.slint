@@ -4,6 +4,7 @@ import { ScheduleState, Block, DayColumn } from "state/schedule.slint";
 import { TasksState, TaskRow, TaskGroup } from "state/tasks.slint";
 import { FinanceState, CategoryRow, EntryRow, FixedRow } from "state/finance.slint";
 import { SettingsState } from "state/settings.slint";
+import { ShellState, QuickPreview, Toast, PlanLine, TodayTraining, BudgetLine } from "state/shell.slint";
 import { Onboarding } from "screens/onboarding.slint";
 import { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession } from "state/training.slint";
 import { Scanlines } from "components/effects.slint";
@@ -17,6 +18,7 @@ export { ScheduleState, Block, DayColumn }
 export { TasksState, TaskRow, TaskGroup }
 export { FinanceState, CategoryRow, EntryRow, FixedRow }
 export { SettingsState }
+export { ShellState, QuickPreview, Toast, PlanLine, TodayTraining, BudgetLine }
 export { TrainingState, ExerciseItem, RoutineItem, RoutineExerciseRow, RoutineDetail, CurrentExercise, SetRow, SessionRow, ActiveSession }
 
 export component AppWindow inherits Window {
@@ -73,7 +75,6 @@ export component AppWindow inherits Window {
         current <=> root.current-module;
         compute-bmi(w, h) => { return root.compute-bmi(w, h); }
         select-language(lang) => { root.select-language(lang); }
-        run-command(text) => { root.run-command(text); }
     }
 
     if root.booted && SettingsState.onboarding: Onboarding { }

@@ -202,7 +202,7 @@ export global Labels {
         f.kind == 1 ? @tr("Opened {}", Labels.module(f.module)) :
         f.kind == 2 ? @tr("BMI {}: {}", Math.round(f.value * 10) / 10, Labels.bmi-category(f.category)) :
         f.kind == 3 ? @tr("Language changed") :
-        f.kind == 4 ? @tr("Commands: go <module> · bmi <kg> <cm> · lang es|en · help") :
+        f.kind == 4 ? @tr("Write a task (pay rent tomorrow), an amount (12.500 lunch) or a command: go <module> · bmi <kg> <cm> · lang es|en") :
         f.kind == 5 ? @tr("Unknown command. Type help to see the list.") :
         f.kind == 6 ? @tr("Usage: go <module>, for example: go training") :
         f.kind == 7 ? @tr("Usage: bmi <weight kg> <height cm>, for example: bmi 78,5 176") :

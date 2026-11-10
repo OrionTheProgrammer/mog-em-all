@@ -81,22 +81,7 @@ pub fn connect(ui: &AppWindow, store: &SharedStore) -> impl Fn() + 'static {
             let mut added = false;
             ctx.run(|ui, store, _| {
                 let state = ui.global::<FinanceState>();
-                let currency = currency_of(store);
-                let categories = store.categories().unwrap_or_default();
-                let Some(quick) = finance::parse_quick(&state.get_quick_text(), currency, today())
-                else {
-                    return;
-                };
-                let entry = Entry {
-                    kind: quick.kind,
-                    amount: quick.amount,
-                    category_id: resolve_category(&quick, &categories),
-                    income_type: (quick.kind == EntryKind::Income).then_some(IncomeType::Informal),
-                    note: quick.note,
-                    day: quick.day,
-                    ..Default::default()
-                };
-                added = report(store.add_entry(&entry, crate::now())).is_some();
+                added = add_from_text(ui, store, &state.get_quick_text());
                 if added {
                     state.set_quick_text(SharedString::new());
                 }
@@ -418,6 +403,7 @@ fn refresh_with(ui: &AppWindow, store: &Store, view: &View) {
         }
         None => state.set_preview_valid(false),
     }
+    fill_overview(ui, store);
 }
 
 fn entry_row(
@@ -522,6 +508,124 @@ fn fold(text: &str) -> String {
 }
 
 /// La moneda elegida en Ajustes (por defecto, peso chileno).
+fn draft_entry(store: &Store, text: &str) -> Option<Entry> {
+    let quick = finance::parse_quick(text, currency_of(store), today())?;
+    let categories = store.categories().unwrap_or_default();
+    Some(Entry {
+        kind: quick.kind,
+        amount: quick.amount,
+        category_id: resolve_category(&quick, &categories),
+        income_type: (quick.kind == EntryKind::Income).then_some(IncomeType::Informal),
+        note: quick.note.clone(),
+        day: quick.day,
+        ..Default::default()
+    })
+}
+
+/// Fila del movimiento que crearía este texto, para la vista previa de la entrada rápida.
+pub fn preview_row(ui: &AppWindow, store: &Store, text: &str) -> Option<EntryRow> {
+    let entry = draft_entry(store, text)?;
+    let categories = store.categories().unwrap_or_default();
+    let by_id: HashMap<CategoryId, &Category> = categories.iter().map(|c| (c.id, c)).collect();
+    let currency = currency_of(store);
+    let fmt = |minor: i64| format_amount(ui, minor, currency);
+    Some(entry_row(&entry, &by_id, &fmt))
+}
+
+/// Anota el movimiento de la entrada rápida y muestra el aviso con deshacer.
+pub fn add_from_text(ui: &AppWindow, store: &Store, text: &str) -> bool {
+    let Some(entry) = draft_entry(store, text) else {
+        return false;
+    };
+    let Some(id) = report(store.add_entry(&entry, crate::now())) else {
+        return false;
+    };
+    let amount = format_amount(ui, entry.amount, currency_of(store));
+    let title = if entry.note.is_empty() {
+        amount
+    } else {
+        format!("{amount} {}", entry.note)
+    };
+    let kind = if entry.kind == EntryKind::Income {
+        crate::quick::INCOME_LOGGED
+    } else {
+        crate::quick::EXPENSE_LOGGED
+    };
+    crate::quick::notify(ui, kind, &title, crate::quick::Undo::Entry(id));
+    true
+}
+
+/// Resumen del mes en curso para la tarjeta del panel.
+pub fn fill_overview(ui: &AppWindow, store: &Store) {
+    use mog_ui::{BudgetLine, ShellState};
+    let shell = ui.global::<ShellState>();
+    let currency = currency_of(store);
+    let fmt = |minor: i64| format_amount(ui, minor, currency);
+    let (first, last) = month_range(&View::default());
+    let entries = store.entries_between(first, last).unwrap_or_default();
+    let income: i64 = entries
+        .iter()
+        .filter(|e| e.kind == EntryKind::Income)
+        .map(|e| e.amount)
+        .sum();
+    let spent: i64 = entries
+        .iter()
+        .filter(|e| e.kind == EntryKind::Expense)
+        .map(|e| e.amount)
+        .sum();
+    shell.set_month_balance(fmt(income - spent).into());
+    shell.set_month_negative(income < spent);
+    shell.set_month_spent(fmt(spent).into());
+
+    let mut lines: Vec<(f64, BudgetLine)> = store
+        .categories()
+        .unwrap_or_default()
+        .iter()
+        .filter_map(|c| {
+            let budget = c.budget?;
+            let used: i64 = entries
+                .iter()
+                .filter(|e| e.kind == EntryKind::Expense && e.category_id == Some(c.id))
+                .map(|e| e.amount)
+                .sum();
+            let ratio = used as f64 / budget as f64;
+            let state = match finance::budget_state(used, Some(budget)) {
+                finance::BudgetState::Over => 3,
+                finance::BudgetState::Warning => 2,
+                _ => 1,
+            };
+            Some((
+                ratio,
+                BudgetLine {
+                    code: c.code.clone().unwrap_or_default().into(),
+                    name: c.name.clone().unwrap_or_default().into(),
+                    spent_text: fmt(used).into(),
+                    budget_text: fmt(budget).into(),
+                    ratio: ratio as f32,
+                    state,
+                },
+            ))
+        })
+        .collect();
+    lines.sort_by(|a, b| b.0.total_cmp(&a.0));
+    shell.set_budgets(model(lines.into_iter().take(2).map(|(_, l)| l).collect()));
+
+    let pending = store
+        .recurring()
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|r| !entries.iter().any(|e| e.recurring_id == Some(r.id)))
+        .min_by_key(|r| r.day_of_month);
+    shell.set_fixed_pending(
+        pending
+            .as_ref()
+            .map(|r| r.note.clone())
+            .unwrap_or_default()
+            .into(),
+    );
+    shell.set_fixed_pending_day(pending.map_or(0, |r| r.day_of_month as i32));
+}
+
 pub fn currency_of(store: &Store) -> Currency {
     finance::currency(
         &store

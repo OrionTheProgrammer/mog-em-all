@@ -8,6 +8,7 @@ pub mod catalog;
 pub mod command;
 pub mod finance;
 pub mod health;
+pub mod quick;
 pub mod ranks;
 pub mod reminders;
 pub mod schedule;

@@ -1,0 +1,221 @@
+import { Theme } from "../theme/theme.slint";
+import { Labels } from "../theme/labels.slint";
+import { BmiResult, OperatorInfo, WeekStats } from "../types.slint";
+import { ShellState, QuickPreview } from "../state/shell.slint";
+import { Overview } from "overview.slint";
+import { Training } from "training.slint";
+import { Schedule } from "schedule.slint";
+import { Tasks } from "tasks.slint";
+import { Finance } from "finance.slint";
+import { Settings } from "settings.slint";
+
+// Piezas que comparten los dos aspectos (consola y terminal).
+
+// Lo que se va a crear con la entrada rápida, en pocas palabras.
+export global QuickLabels {
+    public pure function describe(p: QuickPreview) -> string {
+        p.kind == 1 ? @tr("COMMAND")
+        : p.kind == 2 ? @tr("TASK") + " · " + (p.task.has-date
+            ? (p.task.bucket == 1 ? @tr("today") : p.task.bucket == 2 ? @tr("tomorrow")
+                : Labels.weekday(p.task.weekday).to-lowercase() + " " + Labels.pad(p.task.day) + "/" + Labels.pad(p.task.month))
+              + (p.task.due-min >= 0 ? " " + Labels.time(p.task.due-min) : "")
+            : @tr("no date"))
+        : p.kind == 3 ? (p.entry.kind == 1 ? @tr("INCOME") : @tr("EXPENSE")) + " " + p.entry.amount-text
+            + (p.entry.kind == 0 ? " · " + (p.entry.category-code != "" || p.entry.category-name != ""
+                ? Labels.finance-category(p.entry.category-code, p.entry.category-name) : @tr("no group")) : "")
+        : ""
+    }
+}
+
+// Entrada rápida: tareas, gastos e ingresos, y comandos, en un solo campo.
+export component QuickBar inherits Rectangle {
+    in property <bool> terminal;
+    out property <bool> focused: input.has-focus;
+    callback leave();
+
+    property <int> tick: ShellState.focus-quick-tick;
+    changed tick => { input.focus(); }
+
+    height: 48px;
+    background: Theme.input-bg;
+    border-width: 1px;
+    border-color: input.has-focus ? Theme.red : Theme.red-dim;
+    animate border-color { duration: Theme.fast; }
+
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 12px;
+        spacing: Theme.gap-md;
+
+        Text {
+            text: root.terminal ? "orion@mog ~$" : "+";
+            vertical-alignment: center;
+            color: Theme.red;
+            font-family: Theme.font-mono;
+            font-size: root.terminal ? Theme.size-md : 20px;
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            input := TextInput {
+                vertical-alignment: center;
+                color: Theme.red-glow;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-md;
+                selection-background-color: Theme.red-dim;
+                edited => { ShellState.quick-changed(self.text); }
+                accepted => {
+                    if (ShellState.quick-submit(self.text)) {
+                        self.text = "";
+                        ShellState.quick-changed("");
+                    }
+                }
+                key-pressed(event) => {
+                    if (event.text == Key.Escape) {
+                        root.leave();
+                        return accept;
+                    }
+                    reject
+                }
+            }
+            if input.text == "": Text {
+                x: 0;
+                text: @tr("Add anything: \"pay rent tomorrow\", \"12.500 lunch\", or a command like \"go finances\"");
+                vertical-alignment: center;
+                overflow: elide;
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-sm;
+            }
+        }
+        if input.text != "" && ShellState.preview.kind > 0: Rectangle {
+            width: chip.preferred-width + 16px;
+            height: 26px;
+            y: (parent.height - self.height) / 2;
+            border-width: 1px;
+            border-color: chip.color;
+            chip := Text {
+                text: QuickLabels.describe(ShellState.preview);
+                color: ShellState.preview.kind == 3 && ShellState.preview.entry.kind == 1 ? Theme.cyan
+                    : ShellState.preview.kind == 1 ? Theme.amber : Theme.red-glow;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+            }
+        }
+        Rectangle {
+            width: hint.preferred-width + 14px;
+            height: 24px;
+            y: (parent.height - self.height) / 2;
+            border-width: 1px;
+            border-color: Theme.red-dim;
+            hint := Text {
+                text: input.has-focus ? @tr("ENTER saves") : "CTRL K";
+                color: Theme.text-dim;
+                font-family: Theme.font-mono;
+                font-size: Theme.size-xs;
+            }
+        }
+    }
+}
+
+// Aviso de abajo a la derecha, con deshacer.
+export component ToastView inherits Rectangle {
+    property <bool> shown: ShellState.toast.visible;
+    visible: self.opacity > 0.01;
+    opacity: root.shown ? 1 : 0;
+    animate opacity { duration: Theme.fast; }
+    width: row.preferred-width;
+    height: 48px;
+    background: Theme.input-bg;
+    border-width: 1px;
+    border-color: Theme.red;
+    drop-shadow-blur: 24px;
+    drop-shadow-color: #ff2a3d33;
+
+    row := HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 8px;
+        spacing: Theme.gap-md;
+        Text {
+            text: ShellState.toast.kind == 5 ? "↺" : "✓";
+            vertical-alignment: center;
+            color: Theme.cyan;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-md;
+        }
+        Text {
+            text: ShellState.toast.kind == 1 ? @tr("Task added · {}", ShellState.toast.title)
+                : ShellState.toast.kind == 2 ? @tr("Task done · {}", ShellState.toast.title)
+                : ShellState.toast.kind == 3 ? @tr("Expense logged · {}", ShellState.toast.title)
+                : ShellState.toast.kind == 4 ? @tr("Income logged · {}", ShellState.toast.title)
+                : ShellState.toast.kind == 5 ? @tr("Undone")
+                : "";
+            max-width: 420px;
+            overflow: elide;
+            vertical-alignment: center;
+            color: Theme.text;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-sm;
+        }
+        if ShellState.toast.can-undo: Rectangle {
+            width: undo.preferred-width + 20px;
+            background: touch.has-hover ? Theme.red-faint : transparent;
+            undo := Text {
+                text: @tr("UNDO · Z");
+                color: Theme.red-glow;
+                font-family: Theme.font-display;
+                font-weight: 700;
+                font-size: Theme.size-sm;
+                letter-spacing: 2px;
+            }
+            touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { ShellState.undo-last(); }
+            }
+        }
+    }
+}
+
+// El contenido de cada módulo; lo comparten los dos aspectos.
+export component ModuleView {
+    in property <int> current;
+    in property <string> language;
+    in property <OperatorInfo> operator;
+    in property <WeekStats> week;
+    in-out property <BmiResult> bmi;
+    callback compute-bmi(string, string) -> BmiResult;
+    callback select-language(string);
+    callback go(int);
+
+    if root.current == 0: Overview {
+        width: 100%;
+        height: 100%;
+        operator: root.operator;
+        week: root.week;
+        bmi <=> root.bmi;
+        compute-bmi(w, h) => { return root.compute-bmi(w, h); }
+        go(i) => { root.go(i); }
+    }
+    if root.current == 1: Training {
+        width: 100%;
+        height: 100%;
+    }
+    if root.current == 2: Tasks {
+        width: 100%;
+        height: 100%;
+    }
+    if root.current == 3: Schedule {
+        width: 100%;
+        height: 100%;
+    }
+    if root.current == 4: Finance {
+        width: 100%;
+        height: 100%;
+    }
+    if root.current == 5: Settings {
+        width: 100%;
+        height: 100%;
+        language: root.language;
+        select-language(lang) => { root.select-language(lang); }
+    }
+}
+

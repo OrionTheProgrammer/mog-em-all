@@ -1,90 +1,79 @@
 import { Theme } from "../theme/theme.slint";
 import { Labels } from "../theme/labels.slint";
 import { BmiResult, OperatorInfo, WeekStats, Clock, CommandFeedback } from "../types.slint";
-import { Logo } from "../components/logo.slint";
-import { TermButton } from "../components/button.slint";
-import { KeyHint, Tab } from "../components/hud.slint";
-import { Overview } from "overview.slint";
-import { Training } from "training.slint";
-import { Schedule } from "schedule.slint";
-import { Tasks } from "tasks.slint";
-import { Finance } from "finance.slint";
-import { Settings } from "settings.slint";
+import { Logo, Insignia } from "../components/logo.slint";
+import { SegmentBar } from "../components/progress.slint";
+import { ShellState } from "../state/shell.slint";
+import { TasksState } from "../state/tasks.slint";
+import { TrainingState } from "../state/training.slint";
+import { QuickBar, ToastView, ModuleView } from "shell-parts.slint";
+import { TerminalShell } from "terminal.slint";
 
-component CommandLine inherits Rectangle {
-    in property <CommandFeedback> feedback;
-    callback run(string);
+// Una entrada del menú lateral.
+component NavItem inherits Rectangle {
+    in property <int> index;
+    in property <string> text;
+    in property <bool> active;
+    in property <string> badge;
+    in property <color> badge-color: Theme.amber;
+    in property <bool> dot;
+    callback clicked;
 
-    public function focus-input() {
-        input.focus();
+    height: 44px;
+    background: root.active ? Theme.red-faint : touch.has-hover ? #ff2a3d0c : transparent;
+    animate background { duration: Theme.fast; }
+
+    Rectangle {
+        x: 0;
+        width: root.active ? 3px : 0px;
+        background: Theme.red;
+        animate width { duration: Theme.fast; }
     }
-
-    VerticalLayout {
-        spacing: Theme.gap-sm;
-
+    HorizontalLayout {
+        padding-left: 24px;
+        padding-right: 20px;
+        spacing: Theme.gap-md;
         Text {
-            text: Labels.feedback(root.feedback);
-            color: root.feedback.kind >= 5 ? Theme.amber : Theme.cyan;
+            text: root.index + 1;
+            width: 10px;
+            vertical-alignment: center;
+            color: Theme.text-dim;
             font-family: Theme.font-mono;
             font-size: Theme.size-xs;
-            letter-spacing: 1px;
-            min-height: 16px;
         }
-
-        Rectangle {
-            height: 46px;
-            background: Theme.panel;
-            border-width: 1px;
-            border-color: input.has-focus ? Theme.red : Theme.red-dim;
-            animate border-color { duration: Theme.fast; }
-
-            HorizontalLayout {
-                padding-left: 16px;
-                padding-right: 16px;
-                spacing: Theme.gap-md;
-
-                Text {
-                    text: ">";
-                    vertical-alignment: center;
-                    color: Theme.red;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-md;
-                }
-                Rectangle {
-                    horizontal-stretch: 1;
-                    input := TextInput {
-                        vertical-alignment: center;
-                        color: Theme.red-glow;
-                        font-family: Theme.font-mono;
-                        font-size: Theme.size-md;
-                        selection-background-color: Theme.red-dim;
-                        accepted => {
-                            root.run(self.text);
-                            self.text = "";
-                        }
-                    }
-                    if input.text == "": Text {
-                        x: 0;
-                        text: @tr("type a command: help, go training, bmi 78 176");
-                        vertical-alignment: center;
-                        color: Theme.red-dim;
-                        font-family: Theme.font-mono;
-                        font-size: Theme.size-md;
-                    }
-                }
-                Text {
-                    text: @tr("ENTER runs · / focuses · ESC leaves");
-                    vertical-alignment: center;
-                    color: Theme.text-dim;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-xs;
-                }
-            }
+        Text {
+            horizontal-stretch: 1;
+            text: root.text;
+            vertical-alignment: center;
+            overflow: elide;
+            color: root.active ? Theme.red-glow : Theme.text;
+            font-family: Theme.font-display;
+            font-weight: 700;
+            font-size: Theme.size-md;
+            letter-spacing: 2px;
         }
+        if root.dot: Rectangle {
+            width: 8px;
+            height: 8px;
+            y: (parent.height - self.height) / 2;
+            background: Theme.cyan;
+        }
+        if root.badge != "": Text {
+            text: root.badge;
+            vertical-alignment: center;
+            color: root.badge-color;
+            font-family: Theme.font-mono;
+            font-size: Theme.size-xs;
+        }
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
     }
 }
 
-// Estructura principal del HUD: pestañas arriba, contenido, línea de comandos y estado.
+// Estructura principal. Aspecto consola: menú a la izquierda, entrada rápida arriba.
+// Con ShellState.layout == 1 se dibuja la terminal (terminal.slint).
 export component Hud inherits Rectangle {
     in property <bool> active;
     in property <string> version;
@@ -98,19 +87,34 @@ export component Hud inherits Rectangle {
     in-out property <int> current: 0;
     callback compute-bmi(string, string) -> BmiResult;
     callback select-language(string);
-    callback run-command(string);
 
     property <int> module-count: 6;
 
-    background: @radial-gradient(circle, #1f0508 0%, #070102 65%);
+    background: ShellState.layout == 1 ? Theme.bg : @radial-gradient(circle, #1f0508 0%, #070102 65%);
 
-    // El foco vuelve aquí para que Q, E y / funcionen fuera de los campos de texto.
+    // El foco vuelve aquí para que los atajos funcionen fuera de los campos de texto.
     public function take-focus() {
         keys.focus();
     }
 
+    // Los campos viven dentro de un `if`: se les avisa con un contador.
+    function focus-quick() {
+        ShellState.focus-quick-tick += 1;
+    }
+
     keys := FocusScope {
         key-pressed(event) => {
+            if (event.modifiers.control && (event.text == "k" || event.text == "K")) {
+                root.focus-quick();
+                return accept;
+            }
+            if (event.modifiers.control || event.modifiers.alt) {
+                return reject;
+            }
+            if (event.text == "1" || event.text == "2" || event.text == "3" || event.text == "4" || event.text == "5" || event.text == "6") {
+                root.current = event.text.to-float() - 1;
+                return accept;
+            }
             if (event.text == "q" || event.text == "Q") {
                 root.current = Math.mod(root.current + root.module-count - 1, root.module-count);
                 return accept;
@@ -119,8 +123,12 @@ export component Hud inherits Rectangle {
                 root.current = Math.mod(root.current + 1, root.module-count);
                 return accept;
             }
+            if ((event.text == "z" || event.text == "Z") && ShellState.toast.visible && ShellState.toast.can-undo) {
+                ShellState.undo-last();
+                return accept;
+            }
             if (event.text == "/") {
-                command.focus-input();
+                root.focus-quick();
                 return accept;
             }
             if (event.text == Key.Escape) {
@@ -130,149 +138,225 @@ export component Hud inherits Rectangle {
             reject
         }
 
-        VerticalLayout {
-            // Barra superior
-            HorizontalLayout {
-                padding-left: 32px;
-                padding-right: 32px;
-                padding-top: 14px;
-                padding-bottom: 6px;
-                spacing: 28px;
+        if ShellState.layout == 1: TerminalShell {
+            width: 100%;
+            height: 100%;
+            version: root.version;
+            language: root.language;
+            operator: root.operator;
+            week: root.week;
+            clock: root.clock;
+            feedback: root.feedback;
+            storage-status: root.storage-status;
+            current: root.current;
+            bmi <=> root.bmi;
+            compute-bmi(w, h) => { return root.compute-bmi(w, h); }
+            select-language(lang) => { root.select-language(lang); }
+            go(i) => { root.current = i; }
+            leave => { keys.focus(); }
+        }
 
-                VerticalLayout {
-                    alignment: center;
-                    Logo {
-                        font-size: 30px;
-                        active: root.active;
-                    }
+        if ShellState.layout == 0: HorizontalLayout {
+            // Menú lateral
+            Rectangle {
+                width: 244px;
+                border-width: 0px;
+                Rectangle {
+                    x: parent.width - 1px;
+                    width: 1px;
+                    background: #3a0a10;
                 }
+                VerticalLayout {
+                    padding-top: 26px;
+                    padding-bottom: 18px;
+                    spacing: 2px;
 
-                HorizontalLayout {
-                    horizontal-stretch: 1;
-                    alignment: center;
-                    spacing: 22px;
-                    VerticalLayout { alignment: center; KeyHint { key: "Q"; } }
-                    for i in root.module-count: Tab {
+                    HorizontalLayout {
+                        padding-left: 24px;
+                        padding-bottom: 22px;
+                        alignment: start;
+                        Logo {
+                            font-size: 28px;
+                            active: root.active;
+                        }
+                    }
+
+                    for i in root.module-count: NavItem {
+                        index: i;
                         text: Labels.module(i);
                         active: root.current == i;
+                        dot: i == 1 && TrainingState.session.active;
+                        badge: i == 2 && TasksState.pending-count > 0
+                            ? (TasksState.overdue-count > 0 ? TasksState.overdue-count + " · " + TasksState.pending-count : "" + TasksState.pending-count)
+                            : "";
+                        badge-color: TasksState.overdue-count > 0 ? Theme.amber : Theme.text-dim;
                         clicked => {
                             root.current = i;
                             keys.focus();
                         }
                     }
-                    VerticalLayout { alignment: center; KeyHint { key: "E"; } }
-                }
 
-                Text {
-                    text: Labels.clock(root.clock);
-                    vertical-alignment: center;
-                    color: Theme.text-dim;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-sm;
-                    letter-spacing: 1px;
-                }
-                VerticalLayout {
-                    alignment: center;
-                    HorizontalLayout {
-                        spacing: Theme.gap-sm;
-                        TermButton {
-                            text: "ES";
-                            compact: true;
-                            active: root.language == "es";
-                            clicked => { root.select-language("es"); }
+                    Rectangle { vertical-stretch: 1; }
+
+                    // Rango
+                    Rectangle {
+                        height: 1px;
+                        background: #3a0a10;
+                    }
+                    VerticalLayout {
+                        padding-left: 24px;
+                        padding-right: 24px;
+                        padding-top: 16px;
+                        spacing: 8px;
+                        HorizontalLayout {
+                            spacing: Theme.gap-md;
+                            Insignia {
+                                size: 44px;
+                                lit: root.operator.division;
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                spacing: 2px;
+                                Text {
+                                    text: Labels.rank(root.operator.tier, root.operator.division);
+                                    overflow: elide;
+                                    color: Theme.cyan;
+                                    font-family: Theme.font-display;
+                                    font-weight: 700;
+                                    font-size: Theme.size-md;
+                                    letter-spacing: 2px;
+                                }
+                                Text {
+                                    text: root.operator.xp-for-next > 0
+                                        ? @tr("LV {}", root.operator.level) + " · " + @tr("{} / {} XP", root.operator.xp-in-level, root.operator.xp-for-next)
+                                        : @tr("LV {}", root.operator.level);
+                                    color: Theme.text-dim;
+                                    font-family: Theme.font-mono;
+                                    font-size: Theme.size-xs;
+                                }
+                            }
                         }
-                        TermButton {
-                            text: "EN";
-                            compact: true;
-                            active: root.language == "en";
-                            clicked => { root.select-language("en"); }
+                        SegmentBar {
+                            height: 6px;
+                            segments: 20;
+                            value: root.operator.xp-for-next > 0 ? root.operator.xp-in-level / root.operator.xp-for-next : 1;
+                        }
+                        if root.operator.next-division-level > 0: Text {
+                            text: @tr("{} AT LV {}",
+                                root.operator.division < 3
+                                    ? Labels.rank(root.operator.tier, root.operator.division + 1)
+                                    : Labels.rank(root.operator.tier + 1, 1),
+                                root.operator.next-division-level);
+                            overflow: elide;
+                            color: Theme.text-dim;
+                            font-family: Theme.font-mono;
+                            font-size: Theme.size-xs;
                         }
                     }
                 }
             }
 
-            HorizontalLayout {
-                padding-left: 32px;
-                padding-right: 32px;
+            // Contenido
+            VerticalLayout {
+                horizontal-stretch: 1;
+
+                HorizontalLayout {
+                    padding-left: 32px;
+                    padding-right: 32px;
+                    padding-top: 22px;
+                    padding-bottom: 4px;
+                    spacing: Theme.gap-lg;
+                    QuickBar {
+                        horizontal-stretch: 1;
+                        leave => { keys.focus(); }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Text {
+                            text: Labels.pad(root.clock.hour) + ":" + Labels.pad(root.clock.minute);
+                            horizontal-alignment: right;
+                            color: Theme.red-glow;
+                            font-family: Theme.font-display;
+                            font-weight: 700;
+                            font-size: Theme.size-lg;
+                            letter-spacing: 2px;
+                        }
+                        Text {
+                            text: Labels.weekday(root.clock.weekday) + " " + Labels.pad(root.clock.day) + "/" + Labels.pad(root.clock.month);
+                            horizontal-alignment: right;
+                            color: Theme.text-dim;
+                            font-family: Theme.font-mono;
+                            font-size: Theme.size-xs;
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    padding-left: 32px;
+                    padding-right: 32px;
+                    Text {
+                        text: Labels.feedback(root.feedback);
+                        color: root.feedback.kind >= 5 ? Theme.amber : Theme.cyan;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                        min-height: 18px;
+                        vertical-alignment: center;
+                    }
+                }
+
                 Rectangle {
-                    height: 1px;
-                    background: @linear-gradient(90deg, #7a142000 0%, Theme.red-dim 15%, Theme.red-dim 85%, #7a142000 100%);
+                    vertical-stretch: 1;
+                    ModuleView {
+                        width: 100%;
+                        height: 100%;
+                        current: root.current;
+                        language: root.language;
+                        operator: root.operator;
+                        week: root.week;
+                        bmi <=> root.bmi;
+                        compute-bmi(w, h) => { return root.compute-bmi(w, h); }
+                        select-language(lang) => { root.select-language(lang); }
+                        go(i) => { root.current = i; }
+                    }
                 }
-            }
 
-            // Contenido de la pestaña
-            Rectangle {
-                vertical-stretch: 1;
-                if root.current == 0: Overview {
-                    width: 100%;
-                    height: 100%;
-                    operator: root.operator;
-                    week: root.week;
-                    bmi <=> root.bmi;
-                    compute-bmi(w, h) => { return root.compute-bmi(w, h); }
-                    go-training => { root.current = 1; }
-                    go-settings => { root.current = 5; }
-                    go-finance => { root.current = 4; }
-                }
-                if root.current == 1: Training {
-                    width: 100%;
-                    height: 100%;
-                }
-                if root.current == 3: Schedule {
-                    width: 100%;
-                    height: 100%;
-                }
-                if root.current == 2: Tasks {
-                    width: 100%;
-                    height: 100%;
-                }
-                if root.current == 4: Finance {
-                    width: 100%;
-                    height: 100%;
-                }
-                if root.current == 5: Settings {
-                    width: 100%;
-                    height: 100%;
-                    language: root.language;
-                    select-language(lang) => { root.select-language(lang); }
+                // Barra de estado
+                HorizontalLayout {
+                    padding-left: 32px;
+                    padding-right: 32px;
+                    padding-top: 6px;
+                    padding-bottom: 10px;
+                    spacing: Theme.gap-lg;
+                    Text {
+                        text: root.storage-status == 1
+                            ? @tr("YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING SAVED")
+                            : root.storage-status == 2
+                                ? @tr("COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED")
+                                : @tr("LOCAL MODE · DATA STORED ON THIS DEVICE");
+                        color: root.storage-status == 0 ? Theme.text-dim : Theme.amber;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                        letter-spacing: 1px;
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                    Text {
+                        text: @tr("1–6 modules · CTRL K add · / commands");
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
+                    Text {
+                        text: "v" + root.version + " · Made with Slint";
+                        color: Theme.text-dim;
+                        font-family: Theme.font-mono;
+                        font-size: Theme.size-xs;
+                    }
                 }
             }
+        }
 
-            HorizontalLayout {
-                padding-left: 32px;
-                padding-right: 32px;
-                command := CommandLine {
-                    feedback: root.feedback;
-                    run(text) => { root.run-command(text); }
-                }
-            }
-
-            // Barra de estado
-            HorizontalLayout {
-                padding-left: 32px;
-                padding-right: 32px;
-                padding-top: 8px;
-                padding-bottom: 10px;
-                spacing: Theme.gap-lg;
-                Text {
-                    text: root.storage-status == 1
-                        ? @tr("YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING SAVED")
-                        : root.storage-status == 2
-                            ? @tr("COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED")
-                            : @tr("LOCAL MODE · DATA STORED ON THIS DEVICE");
-                    color: root.storage-status == 0 ? Theme.red-dim : Theme.amber;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-xs;
-                    letter-spacing: 1px;
-                }
-                Rectangle { horizontal-stretch: 1; }
-                Text {
-                    text: "v" + root.version + " · Made with Slint";
-                    color: Theme.red-dim;
-                    font-family: Theme.font-mono;
-                    font-size: Theme.size-xs;
-                }
-            }
+        ToastView {
+            x: parent.width - self.width - 32px;
+            y: parent.height - self.height - 44px;
         }
     }
 }

@@ -1,0 +1,79 @@
+// Estado compartido por toda la ventana: entrada rápida, avisos con deshacer, aspecto
+// y los datos de las tarjetas del panel. Rust lo llena (crates/mog-app/src/quick.rs y overview.rs).
+import { TaskRow } from "tasks.slint";
+import { EntryRow } from "finance.slint";
+
+export struct QuickPreview {
+    // 0 vacío, 1 comando, 2 tarea, 3 dinero
+    kind: int,
+    task: TaskRow,
+    entry: EntryRow,
+}
+
+export struct Toast {
+    // 0 nada, 1 tarea creada, 2 tarea hecha, 3 gasto anotado, 4 ingreso anotado, 5 deshecho
+    kind: int,
+    title: string,
+    can-undo: bool,
+    visible: bool,
+}
+
+export struct PlanLine {
+    code: string,
+    name: string,
+    // "4 × 6-8"
+    target: string,
+    // "80 × 8", vacío si nunca se hizo
+    last: string,
+}
+
+export struct TodayTraining {
+    // 0 si hoy no hay rutina
+    routine-id: int,
+    name: string,
+    // -1 sin hora
+    start-min: int,
+    duration-min: int,
+    exercise-count: int,
+    lines: [PlanLine],
+}
+
+export struct BudgetLine {
+    code: string,
+    name: string,
+    spent-text: string,
+    budget-text: string,
+    ratio: float,
+    // 1 bien, 2 cerca (80 %), 3 pasado
+    state: int,
+}
+
+export global ShellState {
+    // 0 consola (por defecto), 1 terminal
+    in-out property <int> layout: 0;
+
+    // Se suma 1 para pedir el foco de la entrada rápida (Ctrl+K, /).
+    in-out property <int> focus-quick-tick;
+
+    in property <QuickPreview> preview;
+    in property <Toast> toast;
+    callback quick-changed(string);
+    // Devuelve true si se guardó o ejecutó algo (para limpiar el campo).
+    callback quick-submit(string) -> bool;
+    callback undo-last();
+
+    // Panel
+    in property <TodayTraining> today;
+    // Lunes a domingo: 0 nada, 1 planificado, 2 hecho
+    in property <[int]> week-days;
+    in property <int> week-goal: 3;
+    // Vencidas y de hoy primero; como mucho cinco.
+    in property <[TaskRow]> top-tasks;
+    in property <string> month-balance;
+    in property <bool> month-negative;
+    in property <string> month-spent;
+    in property <[BudgetLine]> budgets;
+    // Primer fijo del mes que falta registrar
+    in property <string> fixed-pending;
+    in property <int> fixed-pending-day;
+}
