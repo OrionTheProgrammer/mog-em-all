@@ -14,11 +14,16 @@ component BlockView inherits Rectangle {
     callback clicked;
 
     property <color> tint: Theme.schedule-kinds[root.block.kind];
-    x: root.block.lane * (root.column-width / root.block.lanes) + 1px;
+    // Con el mouse encima, un bloque angosto se abre a todo el ancho del día.
+    property <bool> narrow: root.block.lanes > 1;
+    property <bool> open: touch.has-hover && root.narrow;
+    x: root.open ? 1px : root.block.lane * (root.column-width / root.block.lanes) + 1px;
     y: (root.block.start-min - root.from-min) * root.per-minute;
-    width: root.column-width / root.block.lanes - 3px;
+    z: root.open ? 10 : 0;
+    width: root.open ? root.column-width - 3px : root.column-width / root.block.lanes - 3px;
+    animate x, width { duration: Theme.fast; easing: ease-out; }
     height: Math.max(18px, (root.block.end-min - root.block.start-min) * root.per-minute - 2px);
-    background: touch.has-hover ? root.tint.transparentize(0.62) : root.tint.transparentize(0.78);
+    background: root.open ? root.tint.mix(#0a0203, 0.35) : touch.has-hover ? root.tint.transparentize(0.62) : root.tint.transparentize(0.78);
     border-width: root.block.conflict ? 1px : 0px;
     border-color: Theme.amber;
     clip: true;
@@ -40,7 +45,7 @@ component BlockView inherits Rectangle {
             color: Theme.text;
             font-family: Theme.font-display;
             font-weight: 700;
-            font-size: Theme.size-sm;
+            font-size: root.width < 70px ? Theme.size-xs : Theme.size-sm;
         }
         if root.height > 34px: Text {
             text: Labels.time(root.block.start-min) + "–" + Labels.time(root.block.end-min);
@@ -383,7 +388,7 @@ export component Schedule {
                     letter-spacing: 3px;
                 }
                 if ScheduleState.conflicts > 0: Text {
-                    text: @tr("{n} clash" | "{n} clashes" % ScheduleState.conflicts);
+                    text: @tr("{n} overlapping block" | "{n} overlapping blocks" % ScheduleState.conflicts);
                     vertical-alignment: center;
                     color: Theme.amber;
                     font-family: Theme.font-mono;

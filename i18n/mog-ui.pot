@@ -224,133 +224,138 @@ msgstr ""
 
 #: crates/mog-ui/ui/screens/finance.slint:287
 msgctxt "Finance"
-msgid "SPENDING BY GROUP · CLICK TO SET A BUDGET"
+msgid "SPENDING BY GROUP"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:305
+#: crates/mog-ui/ui/screens/finance.slint:289
+msgctxt "Finance"
+msgid "Click a group to give it a monthly budget."
+msgstr ""
+
+#: crates/mog-ui/ui/screens/finance.slint:312
 msgctxt "Finance"
 msgid "MONTHLY BUDGET · {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:311
-#: crates/mog-ui/ui/screens/finance.slint:311
+#: crates/mog-ui/ui/screens/finance.slint:318
+#: crates/mog-ui/ui/screens/finance.slint:318
 msgctxt "Finance"
 msgid "SAVE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:315
+#: crates/mog-ui/ui/screens/finance.slint:322
 msgctxt "Finance"
 msgid "Write an amount, or leave it empty for no budget."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:315
+#: crates/mog-ui/ui/screens/finance.slint:322
 msgctxt "Finance"
 msgid "Leave it empty to remove the budget. You'll see a warning at 80%."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:321
+#: crates/mog-ui/ui/screens/finance.slint:328
 msgctxt "Finance"
 msgid "CLOSE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:326
+#: crates/mog-ui/ui/screens/finance.slint:333
 msgctxt "Finance"
 msgid "NEW GROUP"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:336
+#: crates/mog-ui/ui/screens/finance.slint:343
 msgctxt "Finance"
 msgid "ADD"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:357
+#: crates/mog-ui/ui/screens/finance.slint:363
 msgctxt "Finance"
 msgid "FIXED EACH MONTH"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:359
+#: crates/mog-ui/ui/screens/finance.slint:365
 msgctxt "Finance"
 msgid ""
 "Add what comes in or goes out every month: your salary, rent, subscriptions. "
 "Each month they show up here to log with one click."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:393
+#: crates/mog-ui/ui/screens/finance.slint:399
 msgctxt "Finance"
 msgid "day {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:408
+#: crates/mog-ui/ui/screens/finance.slint:414
 msgctxt "Finance"
 msgid "LOG"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:421
+#: crates/mog-ui/ui/screens/finance.slint:427
 msgctxt "Finance"
 msgid "+ FIXED INCOME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:422
+#: crates/mog-ui/ui/screens/finance.slint:428
 msgctxt "Finance"
 msgid "+ FIXED EXPENSE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:431
+#: crates/mog-ui/ui/screens/finance.slint:437
 msgctxt "Finance"
 msgid "NEW FIXED INCOME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:431
+#: crates/mog-ui/ui/screens/finance.slint:437
 msgctxt "Finance"
 msgid "FIXED INCOME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:432
+#: crates/mog-ui/ui/screens/finance.slint:438
 msgctxt "Finance"
 msgid "NEW FIXED EXPENSE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:432
+#: crates/mog-ui/ui/screens/finance.slint:438
 msgctxt "Finance"
 msgid "FIXED EXPENSE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:434
+#: crates/mog-ui/ui/screens/finance.slint:440
 msgctxt "Finance"
 msgid "WHAT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:437
+#: crates/mog-ui/ui/screens/finance.slint:443
 msgctxt "Finance"
 msgid "AMOUNT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:438
+#: crates/mog-ui/ui/screens/finance.slint:444
 msgctxt "Finance"
 msgid "DAY OF MONTH"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:442
+#: crates/mog-ui/ui/screens/finance.slint:448
 msgctxt "Finance"
 msgid "GROUP"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:464
+#: crates/mog-ui/ui/screens/finance.slint:470
 msgctxt "Finance"
 msgid "Write what it is."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:465
+#: crates/mog-ui/ui/screens/finance.slint:471
 msgctxt "Finance"
 msgid "The day goes from 1 to 31. In shorter months it falls on the last day."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:474
+#: crates/mog-ui/ui/screens/finance.slint:480
 msgctxt "Finance"
 msgid "CANCEL"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/finance.slint:477
+#: crates/mog-ui/ui/screens/finance.slint:483
 msgctxt "Finance"
 msgid "DELETE"
 msgstr ""
@@ -365,19 +370,19 @@ msgctxt "CommandLine"
 msgid "ENTER runs · / focuses · ESC leaves"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/hud.slint:257
+#: crates/mog-ui/ui/screens/hud.slint:259
 msgctxt "Hud"
 msgid ""
 "YOUR DATA COMES FROM A NEWER VERSION · UPDATE THE APP · NOTHING IS BEING "
 "SAVED"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/hud.slint:259
+#: crates/mog-ui/ui/screens/hud.slint:261
 msgctxt "Hud"
 msgid "COULD NOT OPEN YOUR DATA · NOTHING IS BEING SAVED"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/hud.slint:260
+#: crates/mog-ui/ui/screens/hud.slint:262
 msgctxt "Hud"
 msgid "LOCAL MODE · DATA STORED ON THIS DEVICE"
 msgstr ""
@@ -514,143 +519,163 @@ msgctxt "Onboarding"
 msgid "LATER"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:42
+#: crates/mog-ui/ui/screens/overview.slint:46
 msgctxt "Overview"
 msgid "TODAY'S MISSION"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:54
+#: crates/mog-ui/ui/screens/overview.slint:58
 msgctxt "Overview"
-msgid "SESSION IN PROGRESS · CONTINUE"
+msgid "CONTINUE SESSION"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:72
+#: crates/mog-ui/ui/screens/overview.slint:76
 msgctxt "Overview"
 msgid "START · {n} exercise"
 msgid_plural "START · {n} exercises"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/mog-ui/ui/screens/overview.slint:83
+#: crates/mog-ui/ui/screens/overview.slint:87
 msgctxt "Overview"
 msgid "REST DAY"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:92
+#: crates/mog-ui/ui/screens/overview.slint:96
 msgctxt "Overview"
 msgid ""
 "Create your routines in TRAINING and assign them to days. Today's will show "
 "up here."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:93
+#: crates/mog-ui/ui/screens/overview.slint:97
 msgctxt "Overview"
 msgid ""
 "No routine is assigned to today. You can still start a free session in "
 "TRAINING."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:103
+#: crates/mog-ui/ui/screens/overview.slint:107
 msgctxt "Overview"
 msgid "LEFT TODAY"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:105
+#: crates/mog-ui/ui/screens/overview.slint:109
 msgctxt "Overview"
 msgid "Nothing else on your schedule today."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:168
+#: crates/mog-ui/ui/screens/overview.slint:172
 msgctxt "Overview"
 msgid "LV {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:187
+#: crates/mog-ui/ui/screens/overview.slint:191
 msgctxt "Overview"
 msgid "{} / {} XP"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:187
+#: crates/mog-ui/ui/screens/overview.slint:191
 msgctxt "Overview"
 msgid "Maximum level"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:195
+#: crates/mog-ui/ui/screens/overview.slint:199
 msgctxt "Overview"
 msgid "{} AT LV {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:218
+#: crates/mog-ui/ui/screens/overview.slint:222
 msgctxt "Overview"
 msgid "SQUAD"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:220
+#: crates/mog-ui/ui/screens/overview.slint:224
 msgctxt "Overview"
 msgid ""
 "Sharing routines with friends and comparing progress comes in a later phase."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:229
+#: crates/mog-ui/ui/screens/overview.slint:233
 msgctxt "Overview"
 msgid "STATUS"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:231
+#: crates/mog-ui/ui/screens/overview.slint:235
 msgctxt "Overview"
 msgid "Streak"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:232
+#: crates/mog-ui/ui/screens/overview.slint:236
 msgctxt "Overview"
 msgid "{n} week"
 msgid_plural "{n} weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/mog-ui/ui/screens/overview.slint:235
+#: crates/mog-ui/ui/screens/overview.slint:239
 msgctxt "Overview"
 msgid "This week"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:236
+#: crates/mog-ui/ui/screens/overview.slint:240
 msgctxt "Overview"
 msgid "{n} session"
 msgid_plural "{n} sessions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/mog-ui/ui/screens/overview.slint:239
+#: crates/mog-ui/ui/screens/overview.slint:243
 msgctxt "Overview"
 msgid "Tasks"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:241
+#: crates/mog-ui/ui/screens/overview.slint:245
 msgctxt "Overview"
 msgid "{} pending · {} overdue"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:242
+#: crates/mog-ui/ui/screens/overview.slint:246
 msgctxt "Overview"
 msgid "{} pending"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:246
+#: crates/mog-ui/ui/screens/overview.slint:250
 msgctxt "Overview"
-msgid "BMI"
+msgid "Month balance"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:254
+#: crates/mog-ui/ui/screens/overview.slint:257
 msgctxt "Overview"
-msgid "WEIGHT"
+msgid "BODY"
 msgstr ""
 
 #: crates/mog-ui/ui/screens/overview.slint:259
 msgctxt "Overview"
-msgid "HEIGHT"
+msgid "Weight"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/overview.slint:265
+#: crates/mog-ui/ui/screens/overview.slint:263
+msgctxt "Overview"
+msgid "Height"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/overview.slint:267
+msgctxt "Overview"
+msgid "BMI"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/overview.slint:274
+msgctxt "Overview"
+msgid "UPDATE WEIGHT"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/overview.slint:274
+msgctxt "Overview"
+msgid "ADD WEIGHT AND HEIGHT"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/overview.slint:280
 msgctxt "Overview"
 msgid "Reference only: BMI does not tell muscle from fat."
 msgstr ""
@@ -775,298 +800,308 @@ msgctxt "RankUpScreen"
 msgid "ENTER TO CONTINUE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:181
+#: crates/mog-ui/ui/screens/schedule.slint:186
 msgctxt "EventForm"
 msgid "NEW EVENT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:181
+#: crates/mog-ui/ui/screens/schedule.slint:186
 msgctxt "EventForm"
 msgid "EDIT EVENT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:183
+#: crates/mog-ui/ui/screens/schedule.slint:188
 msgctxt "EventForm"
 msgid "WHAT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:186
+#: crates/mog-ui/ui/screens/schedule.slint:191
 msgctxt "EventForm"
 msgid "TYPE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:203
+#: crates/mog-ui/ui/screens/schedule.slint:208
 msgctxt "EventForm"
 msgid "EVERY WEEK"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:210
+#: crates/mog-ui/ui/screens/schedule.slint:215
 msgctxt "EventForm"
 msgid "ONCE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:229
+#: crates/mog-ui/ui/screens/schedule.slint:234
 msgctxt "EventForm"
 msgid "DATE (day/month)"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:235
+#: crates/mog-ui/ui/screens/schedule.slint:240
 msgctxt "EventForm"
 msgid "FROM"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:239
+#: crates/mog-ui/ui/screens/schedule.slint:244
 msgctxt "EventForm"
 msgid "TO"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:243
+#: crates/mog-ui/ui/screens/schedule.slint:248
 msgctxt "EventForm"
 msgid "REMIND ME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:247
+#: crates/mog-ui/ui/screens/schedule.slint:252
 msgctxt "EventForm"
 msgid "No"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:257
+#: crates/mog-ui/ui/screens/schedule.slint:262
 msgctxt "EventForm"
 msgid "Write what it is."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:258
+#: crates/mog-ui/ui/screens/schedule.slint:263
 msgctxt "EventForm"
 msgid "Write the times as 18:30, and the end after the start."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:259
+#: crates/mog-ui/ui/screens/schedule.slint:264
 msgctxt "EventForm"
 msgid "Pick at least one day."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:260
+#: crates/mog-ui/ui/screens/schedule.slint:265
 msgctxt "EventForm"
 msgid "Write the date as day/month, for example 24/11."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:270
+#: crates/mog-ui/ui/screens/schedule.slint:275
 msgctxt "EventForm"
 msgid "SAVE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:275
+#: crates/mog-ui/ui/screens/schedule.slint:280
 msgctxt "EventForm"
 msgid "CANCEL"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:281
+#: crates/mog-ui/ui/screens/schedule.slint:286
 msgctxt "EventForm"
 msgid "DELETE EVENT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:293
+#: crates/mog-ui/ui/screens/schedule.slint:298
 msgctxt "RoutineTimeForm"
 msgid "TRAINING"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:303
+#: crates/mog-ui/ui/screens/schedule.slint:308
 msgctxt "RoutineTimeForm"
 msgid ""
 "Its days are set in TRAINING. Here you can give it a time so it shows up as "
 "a block."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:312
+#: crates/mog-ui/ui/screens/schedule.slint:317
 msgctxt "RoutineTimeForm"
 msgid "TIME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:316
+#: crates/mog-ui/ui/screens/schedule.slint:321
 msgctxt "RoutineTimeForm"
 msgid "MINUTES"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:321
+#: crates/mog-ui/ui/screens/schedule.slint:326
 msgctxt "RoutineTimeForm"
 msgid "Write the time as 19:00 and the length in minutes (10 to 600)."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:331
+#: crates/mog-ui/ui/screens/schedule.slint:336
 msgctxt "RoutineTimeForm"
 msgid "SAVE TIME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:336
+#: crates/mog-ui/ui/screens/schedule.slint:341
 msgctxt "RoutineTimeForm"
 msgid "NO TIME"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:342
+#: crates/mog-ui/ui/screens/schedule.slint:347
 msgctxt "RoutineTimeForm"
 msgid "CLOSE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:376
+#: crates/mog-ui/ui/screens/schedule.slint:381
 msgctxt "Schedule"
 msgid "WEEK OF {}/{} TO {}/{}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:386
+#: crates/mog-ui/ui/screens/schedule.slint:391
 msgctxt "Schedule"
-msgid "{n} clash"
-msgid_plural "{n} clashes"
+msgid "{n} overlapping block"
+msgid_plural "{n} overlapping blocks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:395
+#: crates/mog-ui/ui/screens/schedule.slint:400
 msgctxt "Schedule"
 msgid "THIS WEEK"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:444
+#: crates/mog-ui/ui/screens/schedule.slint:449
 msgctxt "Schedule"
 msgid "HOW IT WORKS"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:446
+#: crates/mog-ui/ui/screens/schedule.slint:451
 msgctxt "Schedule"
 msgid ""
 "Click an empty slot in the grid to add a class, a work shift or anything "
 "else at that time. Click a block to edit it."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:453
+#: crates/mog-ui/ui/screens/schedule.slint:458
 msgctxt "Schedule"
 msgid ""
 "Your routines show up on their days by themselves. Give one a time and it "
 "becomes a block."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:459
+#: crates/mog-ui/ui/screens/schedule.slint:464
 msgctxt "Schedule"
 msgid "TYPES"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:475
+#: crates/mog-ui/ui/screens/schedule.slint:480
 msgctxt "Schedule"
 msgid "LEFT TODAY"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/schedule.slint:477
+#: crates/mog-ui/ui/screens/schedule.slint:482
 msgctxt "Schedule"
 msgid "Nothing else today."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:48
+#: crates/mog-ui/ui/screens/settings.slint:49
 msgctxt "Settings"
 msgid "PROFILE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:53
+#: crates/mog-ui/ui/screens/settings.slint:54
 msgctxt "Settings"
 msgid "SAVE PROFILE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:58
+#: crates/mog-ui/ui/screens/settings.slint:59
 msgctxt "Settings"
 msgid "Saved."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:71
+#: crates/mog-ui/ui/screens/settings.slint:72
 msgctxt "Settings"
 msgid "LANGUAGE"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:79
+#: crates/mog-ui/ui/screens/settings.slint:80
 msgctxt "Settings"
 msgid "CURRENCY"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:93
+#: crates/mog-ui/ui/screens/settings.slint:94
 msgctxt "Settings"
 msgid "Amounts you already logged keep their number; only the symbol changes."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:101
+#: crates/mog-ui/ui/screens/settings.slint:102
 msgctxt "Settings"
 msgid "BACKGROUND AND REMINDERS"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:103
+#: crates/mog-ui/ui/screens/settings.slint:104
 msgctxt "Settings"
 msgid "Remind me before events, tasks and workouts"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:104
+#: crates/mog-ui/ui/screens/settings.slint:105
 msgctxt "Settings"
 msgid "Keep running in the tray when I close the window"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:105
+#: crates/mog-ui/ui/screens/settings.slint:106
 msgctxt "Settings"
 msgid "Start when I log in (hidden in the tray)"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:109
+#: crates/mog-ui/ui/screens/settings.slint:110
 msgctxt "Settings"
 msgid "ON"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:109
+#: crates/mog-ui/ui/screens/settings.slint:110
 msgctxt "Settings"
 msgid "OFF"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:131
+#: crates/mog-ui/ui/screens/settings.slint:132
 msgctxt "Settings"
 msgid ""
 "No system tray found on this desktop, so closing the window quits the app."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:138
+#: crates/mog-ui/ui/screens/settings.slint:139
 msgctxt "Settings"
 msgid "SEND A TEST REMINDER"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:145
+#: crates/mog-ui/ui/screens/settings.slint:146
 msgctxt "Settings"
 msgid "YOUR DATA"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:154
+#: crates/mog-ui/ui/screens/settings.slint:155
 msgctxt "Settings"
 msgid "Database schema version {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:167
+#: crates/mog-ui/ui/screens/settings.slint:171
 msgctxt "Settings"
-msgid "BACK UP NOW"
-msgstr ""
-
-#: crates/mog-ui/ui/screens/settings.slint:168
-msgctxt "Settings"
-msgid "OPEN FOLDER"
+msgid "HIDE HISTORY"
 msgstr ""
 
 #: crates/mog-ui/ui/screens/settings.slint:171
 msgctxt "Settings"
+msgid "HISTORY"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/settings.slint:175
+msgctxt "Settings"
+msgid "BACK UP NOW"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/settings.slint:176
+msgctxt "Settings"
+msgid "OPEN FOLDER"
+msgstr ""
+
+#: crates/mog-ui/ui/screens/settings.slint:179
+msgctxt "Settings"
 msgid "Backup saved: {}"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:182
+#: crates/mog-ui/ui/screens/settings.slint:190
 msgctxt "Settings"
 msgid "ABOUT"
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:190
+#: crates/mog-ui/ui/screens/settings.slint:198
 msgctxt "Settings"
 msgid ""
 "Source-available under the PolyForm Noncommercial 1.0.0 license. Your data "
 "never leaves this device."
 msgstr ""
 
-#: crates/mog-ui/ui/screens/settings.slint:197
+#: crates/mog-ui/ui/screens/settings.slint:205
 msgctxt "Settings"
 msgid "RANK ANIMATIONS"
 msgstr ""

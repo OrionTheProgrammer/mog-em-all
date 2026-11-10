@@ -211,6 +211,8 @@ export component Hud inherits Rectangle {
                     bmi <=> root.bmi;
                     compute-bmi(w, h) => { return root.compute-bmi(w, h); }
                     go-training => { root.current = 1; }
+                    go-settings => { root.current = 5; }
+                    go-finance => { root.current = 4; }
                 }
                 if root.current == 1: Training {
                     width: 100%;

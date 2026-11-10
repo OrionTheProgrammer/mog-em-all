@@ -124,10 +124,17 @@ pub fn connect(
 }
 
 /// Llena los campos con lo guardado.
-fn load(ui: &AppWindow, store: &Store) {
+pub fn load(ui: &AppWindow, store: &Store) {
     let state = ui.global::<SettingsState>();
     let profile = store.profile().ok().flatten();
-    let number = |v: Option<f64>| v.map(|n| format!("{n}")).unwrap_or_default();
+    let comma = ui.get_language() == "es";
+    let number = |v: Option<f64>| {
+        v.map(|n| {
+            let text = format!("{n}");
+            if comma { text.replace('.', ",") } else { text }
+        })
+        .unwrap_or_default()
+    };
     state.set_name(
         profile
             .as_ref()

@@ -31,6 +31,7 @@ export component Settings {
     in property <string> language;
     callback select-language(string);
 
+    property <bool> history-open: false;
     property <float> shown: 0;
     opacity: root.shown;
     animate opacity { duration: Theme.normal; }
@@ -156,14 +157,21 @@ export component Settings {
                     font-family: Theme.font-mono;
                     font-size: Theme.size-xs;
                 }
-                for line in SettingsState.migrations: Text {
+                if root.history-open: VerticalLayout {
+                  for line in SettingsState.migrations: Text {
                     text: line;
                     color: Theme.red-dim;
                     font-family: Theme.font-mono;
                     font-size: Theme.size-xs;
+                  }
                 }
                 HorizontalLayout {
                     spacing: Theme.gap-sm;
+                    TermButton {
+                        text: root.history-open ? @tr("HIDE HISTORY") : @tr("HISTORY");
+                        compact: true;
+                        clicked => { root.history-open = !root.history-open; }
+                    }
                     TermButton { text: @tr("BACK UP NOW"); compact: true; clicked => { SettingsState.backup-now(); } }
                     TermButton { text: @tr("OPEN FOLDER"); compact: true; clicked => { SettingsState.open-folder(); } }
                 }
@@ -200,22 +208,10 @@ export component Settings {
                 font-size: Theme.size-xs;
                 letter-spacing: 3px;
             }
-            for row in 2: HorizontalLayout {
-                spacing: 3px;
-                for col in 4: Rectangle {
-                    property <int> t: row * 4 + col;
-                    horizontal-stretch: 1;
-                    height: 28px;
-                    if self.t <= 6: TermButton {
-                        width: 100%;
-                        height: 100%;
-                        min-width: 0px;
-                        tiny: true;
-                        compact: true;
-                        text: (parent.t + 1) + " · " + Labels.tier(parent.t);
-                        clicked => { SettingsState.preview-rank(parent.t); }
-                    }
-                }
+            for t in 7: TermButton {
+                compact: true;
+                text: (t + 1) + " · " + Labels.tier(t);
+                clicked => { SettingsState.preview-rank(t); }
             }
             Rectangle {
                 height: 170px;

@@ -66,8 +66,8 @@ component CategoryBar inherits Rectangle {
     VerticalLayout {
         padding-left: 8px;
         padding-right: 8px;
-        padding-top: 5px;
-        spacing: 4px;
+        alignment: center;
+        spacing: 5px;
         HorizontalLayout {
             spacing: Theme.gap-sm;
             Text {
@@ -284,7 +284,14 @@ export component Finance {
             VerticalLayout {
                 width: 330px;
                 spacing: Theme.gap-sm;
-                SectionLabel { text: @tr("SPENDING BY GROUP · CLICK TO SET A BUDGET"); }
+                SectionLabel { text: @tr("SPENDING BY GROUP"); }
+                Text {
+                    text: @tr("Click a group to give it a monthly budget.");
+                    wrap: word-wrap;
+                    color: Theme.text-dim;
+                    font-family: Theme.font-mono;
+                    font-size: Theme.size-xs;
+                }
                 ScrollView {
                     vertical-stretch: 1;
                     VerticalLayout {
@@ -334,7 +341,6 @@ export component Finance {
                         alignment: end;
                         TermButton {
                             text: @tr("ADD");
-                            compact: true;
                             clicked => {
                                 FinanceState.add-category(root.new-category);
                                 root.new-category = "";
